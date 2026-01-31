@@ -5,7 +5,6 @@ import java.util.List;
 
 public class LimeLightVision
 {
-
     public LimeLightVision(List<String> cameraNames)
     {
         this.cameraNames = cameraNames;
@@ -23,14 +22,12 @@ public class LimeLightVision
      */
     public void updatePoseEstimation(CommandSwerveDrivetrain swerveDrive)
     {
-
         var currentPose = swerveDrive.getState().Pose;
         var currentRotation = currentPose.getRotation();
 
         cameraNames.forEach(
             cameraName ->
             {
-
                 LimelightHelpers.SetRobotOrientation(
                     cameraName,
                     currentRotation.getDegrees(),
