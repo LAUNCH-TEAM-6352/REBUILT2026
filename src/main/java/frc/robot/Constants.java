@@ -31,10 +31,19 @@ public final class Constants
         public static final int RATCHET_RELEASED_POSITION = 1000;
     }
 
+    public static class HopperConstants
+    {
+        public static final int INDEXER_MOTOR_CHANNEL = 44;
+        public static final boolean IS_INDEXER_MOTOR_INVERTED = false;
+
+        public static final double FEED_SPEED_RPM = 0;
+        public static final double CLEAR_SPEED_RPM = 0;
+    }
+
     public static class IntakeConstants
     {
-        public static final int INTAKE_MOTOR_CHANNEL = 0;
-        public static final int PIVOT_MOTOR_CHANNEL = 0;
+        public static final int INTAKE_MOTOR_CHANNEL = 41;
+        public static final int PIVOT_MOTOR_CHANNEL = 42;
 
         public static final boolean IS_INTAKE_MOTOR_INVERTED = false;
         public static final boolean IS_PIVOT_MOTOR_INVERTED = false;
@@ -47,8 +56,27 @@ public final class Constants
         public static final double PARTIALLY_DEPLOYED_POSITION = 0;
     }
 
+    public static class LauncherConstants
+    {
+        public static final int INDEXER_MOTOR_CHANNEL = 45;
+        public static final int LEFT_SHOOTER_MOTOR_CHANNEL = 46;
+        public static final int RIGHT_SHOOTER_MOTOR_CHANNEL = 47;
+
+        public static final boolean IS_INDEXER_MOTOR_INVERTED = false;
+        public static final boolean IS_LEFT_SHOOTER_MOTOR_INVERTED = false;
+        public static final boolean IS_RIGHT_SHOOTER_MOTOR_INVERTED = false;
+
+        public static final double SPIN_UP_SPEED_RPM = 0;
+        public static final double IDLE_SPEED_RPM = 0;
+        public static final double FEED_SPEED_RPM = 0;
+        public static final double CLEAR_SPEED_RPM = 0;
+    }
+
     public static class OperatorConstants
     {
         public static final int kDriverControllerPort = 0;
+        public static final int DRIVER_GAMEPAD_PORT = 0;
+        public static final int CODRIVER_GAMEPAD_PORT = 1;
+
     }
 }
