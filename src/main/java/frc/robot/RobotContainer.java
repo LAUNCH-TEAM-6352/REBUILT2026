@@ -32,6 +32,7 @@ public class RobotContainer
     {
         // Configure the trigger bindings
         configureBindings();
+        
     }
 
     /**
@@ -63,5 +64,20 @@ public class RobotContainer
     {
         // An example command will be run in autonomous
         return Autos.exampleAuto(m_exampleSubsystem);
+    }
+
+    public void pathFindToMultiPose(List<Pose2d> points)
+    {
+
+        // var cmd = pathfindToPose(points.get(0), 10.0);
+        var pointsIterator = points.iterator();
+        Command cmd = pathfindToPose(pointsIterator.next(), 5.0);
+        Command lastCommand = cmd;
+        while (pointsIterator.hasNext())
+        {
+            lastCommand = lastCommand.andThen(pathfindToPose(pointsIterator.next(), 10.0));
+        }
+        
+        lastCommand.schedule();
     }
 }
