@@ -72,14 +72,4 @@ public class LimeLightVision
                 swerveDrive.addVisionMeasurement(mt2.pose, mt2.timestampSeconds);
             });
     }
-
-    // public PoseEstimate getEstimatedGlobalPose(
-    // SwerveDrive swerveDrive, String cameraName) {
-    // var poseEstimator = swerveDrive.swerveDrivePoseEstimator;
-    // LimelightHelpers.SetRobotOrientation(
-    // cameraName, poseEstimator.getEstimatedPosition().getRotation().getDegrees(), 0, 0, 0, 0, 0);
-
-    // if (isBlueAliance) return LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(cameraName);
-    // else return LimelightHelpers.getBotPoseEstimate_wpiRed_MegaTag2(cameraName);
-    // }
 }

@@ -32,7 +32,7 @@ public class RobotContainer
     {
         // Configure the trigger bindings
         configureBindings();
-        
+
     }
 
     /**
@@ -77,7 +77,7 @@ public class RobotContainer
         {
             lastCommand = lastCommand.andThen(pathfindToPose(pointsIterator.next(), 10.0));
         }
-        
+
         lastCommand.schedule();
     }
 }
