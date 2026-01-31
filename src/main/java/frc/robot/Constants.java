@@ -17,7 +17,7 @@ public final class Constants
 {
     public static class ClimberConstants
     {
-        //All ClimberConstants/values are copied & renamed from REEFSCAPE Climber constants.
+        // All ClimberConstants/values are copied & renamed from REEFSCAPE Climber constants.
         public static final int WINCH_MOTOR_CHANNEL = 0;
         public static final double WINCH_MOTOR_SPEED = 0.6;
         public static final boolean IS_MOTOR_INVERTED = false;
@@ -27,7 +27,7 @@ public final class Constants
         public static final int RATCHET_ENGAGED_POSITION = 1500;
         public static final int RATCHET_RELEASED_POSITION = 1000;
     }
-    
+
     public static class OperatorConstants
     {
         public static final int kDriverControllerPort = 0;
