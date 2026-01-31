@@ -10,10 +10,11 @@ import frc.robot.subsystems.Hopper;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Launcher;
-
 import java.util.Optional;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
+import java.util.List;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj.XboxController;
@@ -114,5 +115,20 @@ public class RobotContainer
     {
         // An example command will be run in autonomous
         return Autos.exampleAuto();
+    }
+
+    public void pathFindToMultiPose(List<Pose2d> points)
+    {
+
+        // var cmd = pathfindToPose(points.get(0), 10.0);
+        var pointsIterator = points.iterator();
+        Command cmd = pathfindToPose(pointsIterator.next(), 5.0);
+        Command lastCommand = cmd;
+        while (pointsIterator.hasNext())
+        {
+            lastCommand = lastCommand.andThen(pathfindToPose(pointsIterator.next(), 10.0));
+        }
+
+        lastCommand.schedule();
     }
 }
