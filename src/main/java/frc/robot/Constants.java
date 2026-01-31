@@ -21,11 +21,30 @@ public final class Constants
         public static final int WINCH_MOTOR_CHANNEL = 0;
         public static final double WINCH_MOTOR_SPEED = 0.6;
         public static final boolean IS_MOTOR_INVERTED = false;
+
         public static final double MAX_POSITION = 140;
         public static final double MIN_POSITON = 0;
+
         public static final int SERVO_CHANNEL = 0;
+
         public static final int RATCHET_ENGAGED_POSITION = 1500;
         public static final int RATCHET_RELEASED_POSITION = 1000;
+    }
+
+    public static class IntakeConstants
+    {
+        public static final int INTAKE_MOTOR_CHANNEL = 0;
+        public static final int PIVOT_MOTOR_CHANNEL = 0;
+
+        public static final boolean IS_INTAKE_MOTOR_INVERTED = false;
+        public static final boolean IS_PIVOT_MOTOR_INVERTED = false;
+
+        public static final double INTAKE_SPEED_RPM = 0;
+        public static final double EJECT_SPEED_RPM = 0;
+
+        public static final double STOW_POSITION = 0;
+        public static final double DEPLOYED_POSITION = 0;
+        public static final double PARTIALLY_DEPLOYED_POSITION = 0;
     }
 
     public static class OperatorConstants
