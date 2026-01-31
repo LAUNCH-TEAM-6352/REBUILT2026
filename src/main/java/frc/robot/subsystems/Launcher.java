@@ -8,14 +8,14 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Launcher extends SubsystemBase
 {
-  /** Creates a new Launcher. */
-  public Launcher()
-  {
-  }
+    /** Creates a new Launcher. */
+    public Launcher()
+    {
+    }
 
-  @Override
-  public void periodic()
-  {
-    // This method will be called once per scheduler run
-  }
+    @Override
+    public void periodic()
+    {
+        // This method will be called once per scheduler run
+    }
 }
