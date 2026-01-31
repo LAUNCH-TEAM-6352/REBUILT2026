@@ -1,0 +1,26 @@
+#!/bin/sh
+echo "*********************************************************"
+echo "Running git pre-commit hook. Running Spotless Apply... "
+echo "*********************************************************"
+
+# Run the spotlessApply gradle command
+./gradlew spotlessApply
+
+# Check the exit status of the command
+status=$?
+
+if [ "$status" = 0 ] ; then
+    echo "Static analysis found no problems."
+    # Re-add all modified files to the staging area to include the spotless fixes
+    git add -u
+    echo "Spotless changes staged."
+    exit 0
+else
+    echo "*********************************************************"
+    echo " ******************************************** "
+    echo 1>&2 "Spotless Apply found violations it could not fix, or an error occurred."
+    echo "Run ./gradlew spotlessApply in your terminal and fix the issues before trying to commit again."
+    echo " ******************************************** "
+    echo "*********************************************************"
+    exit 1 # Abort the commit
+fi
