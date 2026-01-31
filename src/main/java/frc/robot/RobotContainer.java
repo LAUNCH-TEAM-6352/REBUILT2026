@@ -8,6 +8,7 @@ import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autos;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.subsystems.ExampleSubsystem;
+import java.util.List;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -63,5 +64,20 @@ public class RobotContainer
     {
         // An example command will be run in autonomous
         return Autos.exampleAuto(m_exampleSubsystem);
+    }
+
+    public void pathFindToMultiPose(List<Pose2d> points)
+    {
+
+        // var cmd = pathfindToPose(points.get(0), 10.0);
+        var pointsIterator = points.iterator();
+        Command cmd = pathfindToPose(pointsIterator.next(), 5.0);
+        Command lastCommand = cmd;
+        while (pointsIterator.hasNext())
+        {
+            lastCommand = lastCommand.andThen(pathfindToPose(pointsIterator.next(), 10.0));
+        }
+
+        lastCommand.schedule();
     }
 }
