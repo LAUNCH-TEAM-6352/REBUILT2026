@@ -7,8 +7,18 @@ package frc.robot;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autos;
 import frc.robot.commands.ExampleCommand;
+import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.ExampleSubsystem;
+import frc.robot.subsystems.LimeLightVision;
+
 import java.util.List;
+
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.path.PathConstraints;
+
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -23,6 +33,12 @@ public class RobotContainer
 {
     // The robot's subsystems and commands are defined here...
     private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
+
+    // wrapper class to manage limelight cameras and get position estimates
+    public final LimeLightVision limelightVision = new LimeLightVision(List.of("limelight-front"));
+
+    // drive train
+    public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
     // Replace with CommandPS4Controller or CommandJoystick if needed
     private final CommandXboxController m_driverController = new CommandXboxController(
@@ -66,6 +82,24 @@ public class RobotContainer
         return Autos.exampleAuto(m_exampleSubsystem);
     }
 
+    public Command pathfindToPose(Pose2d point, Double endVelocity)
+    {
+        // Creates a command to pathfind to the given pose
+
+        // Create the constraints to use while pathfinding
+        PathConstraints constraints = new PathConstraints(
+            5.0, 4.0,
+            Units.degreesToRadians(540), Units.degreesToRadians(-180));
+
+        // Since AutoBuilder is configured, we can use it to build pathfinding commands
+        Command pathfindingCommand = AutoBuilder.pathfindToPose(
+            point,
+            constraints,
+            endVelocity // Goal end velocity in meters/sec
+        );
+        return pathfindingCommand;
+    }
+
     public void pathFindToMultiPose(List<Pose2d> points)
     {
 
@@ -79,5 +113,12 @@ public class RobotContainer
         }
 
         lastCommand.schedule();
+    }
+
+    public void updateVisionEstimate()
+    {
+        // updatePoseEstimation function assigns estimations to the
+        // drive train.
+        this.limelightVision.updatePoseEstimation(drivetrain);
     }
 }
