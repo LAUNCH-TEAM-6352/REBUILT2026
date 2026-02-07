@@ -45,7 +45,8 @@ public class Intake extends SubsystemBase
 
     public void eject()
     {
-        // Ensure intake is pivoted into "deployed" position, then run the intake motor in reverse to "dump" fuel out of the robot
+        // Ensure intake is pivoted into "deployed" position, then run the intake motor in reverse to "dump" fuel out of
+        // the robot
     }
 
     public void stop()
