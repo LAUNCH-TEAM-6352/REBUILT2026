@@ -4,13 +4,29 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix6.hardware.TalonFX;
+
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.IntakeConstants;
 
 public class Intake extends SubsystemBase
 {
+
+    private TalonFX intakeMotor = new TalonFX(60);
+
     /** Creates a new Intake. */
     public Intake()
     {
+    }
+
+    public Command startIntake()
+    {
+        // Starts shooting
+        return this.runOnce(() ->
+        {
+            intakeMotor.set(IntakeConstants.INTAKE_SPEED_RPM);
+        });
     }
 
     public void setIntakeSpeed(double speed)
