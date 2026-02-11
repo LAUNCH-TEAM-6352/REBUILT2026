@@ -51,7 +51,7 @@ public class RobotContainer
         // depending upon the substrings found in the message:
         // -dt- Drive train
         // -oi- OI devices
-        // -cl- Climber
+        // -c- Climber
         // -l- Launcher
         // -i- Intake
         // -h- Hopper
@@ -78,7 +78,7 @@ public class RobotContainer
         }
 
         // Create subsystems:
-        climber = (gameData.contains("-cl-") || gameData.isBlank())
+        climber = (gameData.contains("-c-") || gameData.isBlank())
             ? Optional.of(new Climber())
             : Optional.empty();
         launcher = (gameData.contains("-l-") || gameData.isBlank())

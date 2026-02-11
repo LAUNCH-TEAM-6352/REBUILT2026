@@ -13,33 +13,33 @@ public class Launcher extends SubsystemBase
     {
     }
 
-    public void Feed()
+    public void feed()
     {
         // Confirm shooter motors are at speed, then
         // Run the upper indexer motor to move fuel to the shooter
     }
 
-    public void Clear()
+    public void clear()
     {
         // Clear the launcher by running the upper indexer motor in reverse
     }
 
-    public void SpinUpShooters(double speed)
+    public void spinUpShooters(double speed)
     {
         // Set left and right shooter motors to a specific speed in RPM
     }
 
-    public void IdleFeeders()
+    public void idleShooters()
     {
         // Set left and right shooter motors to a low "idle" speed to keep shooter spinning
     }
 
-    public void StopIndexer()
+    public void stopIndexer()
     {
         // Stop upper indexer motor
     }
 
-    public void StopShooters()
+    public void stopShooters()
     {
         // Stop left and right shooter motors
     }
@@ -48,9 +48,9 @@ public class Launcher extends SubsystemBase
     public void Stop()
     {
         // Stop the upper indexer motor
-        StopIndexer();
+        stopIndexer();
         // Stop lefts and right shooter motors
-        StopShooters();
+        stopShooters();
     }
 
     @Override
