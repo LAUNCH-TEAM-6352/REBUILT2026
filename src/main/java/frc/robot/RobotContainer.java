@@ -30,6 +30,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.Constants.DashboardConstants;
 import frc.robot.Constants.HopperConstants;
+import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Climber;
@@ -243,5 +244,12 @@ public class RobotContainer
         // Add any values to the dashboard that you want to be able to tune or monitor here.
         SmartDashboard.putNumber(DashboardConstants.HOPPER_INDEXER_FEED_KEY, HopperConstants.FEED_SPEED);
         SmartDashboard.putNumber(DashboardConstants.HOPPER_INDEXER_CLEAR_KEY, HopperConstants.CLEAR_SPEED);
+
+        SmartDashboard.putNumber(DashboardConstants.INTAKE_KEY, IntakeConstants.INTAKE_SPEED);
+        SmartDashboard.putNumber(DashboardConstants.EJECT_KEY, IntakeConstants.EJECT_SPEED);
+        SmartDashboard.putNumber(DashboardConstants.PIVOT_KEY, IntakeConstants.PIVOT_SPEED);
+        SmartDashboard.putNumber(DashboardConstants.DEPLOY_KEY, IntakeConstants.DEPLOYED_POSITION);
+        SmartDashboard.putNumber(DashboardConstants.PARTIALLY_DEPLOY_KEY, IntakeConstants.PARTIALLY_DEPLOYED_POSITION);
+        SmartDashboard.putNumber(DashboardConstants.STOW_KEY, IntakeConstants.STOW_POSITION);
     }
 }
