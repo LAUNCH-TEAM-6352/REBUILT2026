@@ -4,40 +4,40 @@
 
 package frc.robot;
 
-import static edu.wpi.first.units.Units.*;
+import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+
+import java.util.List;
+import java.util.Optional;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
-
-import edu.wpi.first.math.geometry.Rotation2d;
-import frc.robot.Constants.OperatorConstants;
-import frc.robot.subsystems.Hopper;
-import frc.robot.subsystems.Climber;
-import frc.robot.subsystems.Intake;
-import frc.robot.subsystems.Launcher;
-import java.util.Optional;
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.path.PathConstraints;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
-import java.util.List;
+import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
-import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
-
+import frc.robot.Constants.DashboardConstants;
+import frc.robot.Constants.HopperConstants;
+import frc.robot.Constants.OperatorConstants;
 import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.Hopper;
+import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Launcher;
 import frc.robot.subsystems.LimeLightVision;
-import java.util.List;
-
-import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.path.PathConstraints;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.util.Units;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -128,6 +128,12 @@ public class RobotContainer
         hopper = (gameData.contains("-h-") || gameData.isBlank())
             ? Optional.of(new Hopper())
             : Optional.empty();
+
+        // Configure the trigger bindings
+        configureBindings();
+
+        // Configure dashboard values
+        configureDashboard();
     }
 
     /**
@@ -230,5 +236,12 @@ public class RobotContainer
         // updatePoseEstimation function assigns estimations to the
         // drive train.
         this.limelightVision.updatePoseEstimation(drivetrain);
+    }
+
+    private void configureDashboard()
+    {
+        // Add any values to the dashboard that you want to be able to tune or monitor here.
+        SmartDashboard.putNumber(DashboardConstants.HOPPER_INDEXER_FEED_KEY, HopperConstants.FEED_SPEED);
+        SmartDashboard.putNumber(DashboardConstants.HOPPER_INDEXER_CLEAR_KEY, HopperConstants.CLEAR_SPEED);
     }
 }

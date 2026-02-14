@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import com.ctre.phoenix6.signals.InvertedValue;
 import com.pathplanner.lib.config.PIDConstants;
 
 /**
@@ -35,11 +36,11 @@ public final class Constants
 
     public static class HopperConstants
     {
-        public static final int INDEXER_MOTOR_CHANNEL = 44;
-        public static final boolean IS_INDEXER_MOTOR_INVERTED = false;
+        public static final int INDEXER_MOTOR_CHANNEL = 41;
+        public static final InvertedValue INDEXER_MOTOR_INVERTED_VALUE = InvertedValue.CounterClockwise_Positive;
 
-        public static final double FEED_SPEED_RPM = 0;
-        public static final double CLEAR_SPEED_RPM = 0;
+        public static final double FEED_SPEED = 0.25;
+        public static final double CLEAR_SPEED = -0.25;
     }
 
     public static class IntakeConstants
@@ -86,5 +87,11 @@ public final class Constants
     {
         public static final PIDConstants TRANSLATION_PID = new PIDConstants(0.7, 0, 0);
         public static final PIDConstants ANGLE_PID = new PIDConstants(0.4, 0, 0.01);
+    }
+
+    public static final class DashboardConstants
+    {
+        public static final String HOPPER_INDEXER_FEED_KEY = "HopperFeed";
+        public static final String HOPPER_INDEXER_CLEAR_KEY = "HopperClear";
     }
 }
