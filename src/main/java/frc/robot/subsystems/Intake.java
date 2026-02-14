@@ -59,7 +59,7 @@ public class Intake extends SubsystemBase
         pivotEncoder.setPosition(0);
     }
 
-    // Set the intake motor to a specific speed (positive or negative) in RPM
+    // Set the intake motor to a specific speed
     private void setIntakeSpeed(double speed)
     {
         intakeMotor.set(speed);
