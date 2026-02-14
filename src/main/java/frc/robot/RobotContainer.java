@@ -10,10 +10,22 @@ import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import frc.robot.Constants.OperatorConstants;
+import frc.robot.subsystems.Hopper;
+import frc.robot.subsystems.Climber;
+import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Launcher;
+import java.util.Optional;
+
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.wpilibj.DriverStation;
+import java.util.List;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
+import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 
@@ -53,14 +65,69 @@ public class RobotContainer
 
     // wrapper class to manage limelight cameras and get position estimates
     public final LimeLightVision limelightVision = new LimeLightVision(List.of("limelight-front"));
+    // Subsystems:
+    private final Optional<Climber> climber;
+    private final Optional<Launcher> launcher;
+    private final Optional<Intake> intake;
+    private final Optional<Hopper> hopper;
+
+    // OI devices:
+    private XboxController driverGamepad;
+    private final XboxController codriverGamepad;
 
     // drive train
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
     public RobotContainer()
     {
-        // Configure the trigger bindings
-        configureBindings();
+        // Get the game data message fom the driver station.
+        // This message is primarily used during development to
+        // construct only certain subsystems.
+        // If the message is blank (or all whitespace),
+        // all subsystems are constructed.
+        // Otherwise, OI devices and subsystems are constructed
+        // depending upon the substrings found in the message:
+        // -dt- Drive train
+        // -oi- OI devices
+        // -c- Climber
+        // -l- Launcher
+        // -i- Intake
+        // -h- Hopper
+
+        var gameData = DriverStation.getGameSpecificMessage().toLowerCase();
+        SmartDashboard.putString("Game Data", gameData);
+
+        // Create OI devices:
+        if (gameData.contains("-oi-"))
+        {
+            // Explicitly look for OI devices:
+            driverGamepad = DriverStation.isJoystickConnected(OperatorConstants.DRIVER_GAMEPAD_PORT)
+                ? new XboxController(OperatorConstants.DRIVER_GAMEPAD_PORT)
+                : null;
+            codriverGamepad = DriverStation.isJoystickConnected(OperatorConstants.CODRIVER_GAMEPAD_PORT)
+                ? new XboxController(OperatorConstants.CODRIVER_GAMEPAD_PORT)
+                : null;
+        }
+        else
+        {
+            // In competition, don't take chances and always create all OI devices:
+            codriverGamepad = new XboxController(OperatorConstants.CODRIVER_GAMEPAD_PORT);
+            driverGamepad = new XboxController(OperatorConstants.DRIVER_GAMEPAD_PORT);
+        }
+
+        // Create subsystems:
+        climber = (gameData.contains("-c-") || gameData.isBlank())
+            ? Optional.of(new Climber())
+            : Optional.empty();
+        launcher = (gameData.contains("-l-") || gameData.isBlank())
+            ? Optional.of(new Launcher())
+            : Optional.empty();
+        intake = (gameData.contains("-i-") || gameData.isBlank())
+            ? Optional.of(new Intake())
+            : Optional.empty();
+        hopper = (gameData.contains("-h-") || gameData.isBlank())
+            ? Optional.of(new Hopper())
+            : Optional.empty();
     }
 
     /**

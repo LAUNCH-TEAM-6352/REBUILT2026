@@ -13,6 +13,26 @@ public class Hopper extends SubsystemBase
     {
     }
 
+    private void setIndexerSpeed(double speed)
+    {
+        // Set the lower indexer motor to a specific speed in RPM
+    }
+
+    public void feed()
+    {
+        // Run the feeding motor to move fuel from the intake to the shooter
+    }
+
+    public void clear()
+    {
+        // Clear the hopper by running the feeding motor in reverse
+    }
+
+    public void stop()
+    {
+        // Stop the feeding motor
+    }
+
     @Override
     public void periodic()
     {

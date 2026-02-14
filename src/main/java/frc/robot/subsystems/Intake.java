@@ -13,7 +13,7 @@ public class Intake extends SubsystemBase
     {
     }
 
-    public void setIntakeSpeed(double speed)
+    private void setIntakeSpeed(double speed)
     {
         // Set the intake motor to a specific speed (positive or negative) in RPM
     }
