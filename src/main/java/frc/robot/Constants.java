@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.pathplanner.lib.config.PIDConstants;
 
@@ -18,9 +19,12 @@ import com.pathplanner.lib.config.PIDConstants;
  */
 public final class Constants
 {
+    public static final CANBus CANIVORE_BUS = new CANBus("skycan");
+
     public static class ClimberConstants
     {
         // All ClimberConstants/values are copied & renamed from REEFSCAPE Climber constants.
+        public static final CANBus WINCH_MOTOR_BUS = Constants.CANIVORE_BUS;
         public static final int WINCH_MOTOR_CHANNEL = 0;
         public static final double WINCH_MOTOR_SPEED = 0.6;
         public static final boolean IS_MOTOR_INVERTED = false;
@@ -36,6 +40,7 @@ public final class Constants
 
     public static class HopperConstants
     {
+        public static final CANBus INDEXER_MOTOR_BUS = Constants.CANIVORE_BUS;
         public static final int INDEXER_MOTOR_CHANNEL = 41;
         public static final InvertedValue INDEXER_MOTOR_INVERTED_VALUE = InvertedValue.CounterClockwise_Positive;
 
@@ -45,7 +50,9 @@ public final class Constants
 
     public static class IntakeConstants
     {
+        public static final CANBus INTAKE_MOTOR_BUS = Constants.CANIVORE_BUS;
         public static final int INTAKE_MOTOR_CHANNEL = 41;
+        public static final CANBus PIVOT_MOTOR_BUS = Constants.CANIVORE_BUS;
         public static final int PIVOT_MOTOR_CHANNEL = 42;
 
         public static final boolean IS_INTAKE_MOTOR_INVERTED = false;
@@ -61,18 +68,21 @@ public final class Constants
 
     public static class LauncherConstants
     {
-        public static final int INDEXER_MOTOR_CHANNEL = 45;
-        public static final int LEFT_SHOOTER_MOTOR_CHANNEL = 46;
-        public static final int RIGHT_SHOOTER_MOTOR_CHANNEL = 47;
+        public static final CANBus INDEXER_MOTOR_BUS = Constants.CANIVORE_BUS;
+        public static final int INDEXER_MOTOR_CHANNEL = 42;
+        public static final CANBus LEFT_SHOOTER_MOTOR_BUS = Constants.CANIVORE_BUS;
+        public static final int LEFT_SHOOTER_MOTOR_CHANNEL = 43;
+        public static final CANBus RIGHT_SHOOTER_MOTOR_BUS = Constants.CANIVORE_BUS;
+        public static final int RIGHT_SHOOTER_MOTOR_CHANNEL = 44;
 
-        public static final boolean IS_INDEXER_MOTOR_INVERTED = false;
-        public static final boolean IS_LEFT_SHOOTER_MOTOR_INVERTED = false;
-        public static final boolean IS_RIGHT_SHOOTER_MOTOR_INVERTED = false;
+        public static final InvertedValue INDEXER_MOTOR_INVERTED_VALUE = InvertedValue.Clockwise_Positive;
+        public static final InvertedValue LEFT_SHOOTER_MOTOR_INVERTED_VALUE = InvertedValue.Clockwise_Positive;
+        public static final InvertedValue RIGHT_SHOOTER_MOTOR_INVERTED_VALUE = InvertedValue.CounterClockwise_Positive;
 
-        public static final double SPIN_UP_SPEED_RPM = 0;
-        public static final double IDLE_SPEED_RPM = 0;
-        public static final double FEED_SPEED_RPM = 0;
-        public static final double CLEAR_SPEED_RPM = 0;
+        public static final double SHOOTING_VELOCITY_RPM = 3000;
+        public static final double IDLE_VELOCITY_RPM = 1000;
+        public static final double FEED_SPEED = 0.25;
+        public static final double CLEAR_SPEED = -0.25;
     }
 
     public static class OperatorConstants
@@ -80,7 +90,6 @@ public final class Constants
         public static final int kDriverControllerPort = 0;
         public static final int DRIVER_GAMEPAD_PORT = 0;
         public static final int CODRIVER_GAMEPAD_PORT = 1;
-
     }
 
     public static final class PathPlannerConstants
@@ -93,5 +102,10 @@ public final class Constants
     {
         public static final String HOPPER_INDEXER_FEED_KEY = "HopperFeed";
         public static final String HOPPER_INDEXER_CLEAR_KEY = "HopperClear";
+
+        public static final String LAUNCHER_SHOOTING_KEY = "LauncherShooting";
+        public static final String LAUNCHER_IDLE_KEY = "LauncherIdle";
+        public static final String LAUNCHER_FEED_KEY = "LauncherFeed";
+        public static final String LAUNCHER_CLEAR_KEY = "LauncherClear";
     }
 }
