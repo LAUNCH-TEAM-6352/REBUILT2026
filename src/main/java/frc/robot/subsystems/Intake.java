@@ -96,9 +96,11 @@ public class Intake extends SubsystemBase
         {
             deploy();
             intake();
-        } else
+        }
+        else
         {
-            setIntakeSpeed(SmartDashboard.getNumber(DashboardConstants.INTAKE_KEY, Constants.IntakeConstants.INTAKE_SPEED));
+            setIntakeSpeed(
+                SmartDashboard.getNumber(DashboardConstants.INTAKE_KEY, Constants.IntakeConstants.INTAKE_SPEED));
         }
     }
 
@@ -110,9 +112,11 @@ public class Intake extends SubsystemBase
         {
             deploy();
             eject();
-        } else
+        }
+        else
         {
-            setIntakeSpeed(SmartDashboard.getNumber(DashboardConstants.EJECT_KEY, Constants.IntakeConstants.EJECT_SPEED));
+            setIntakeSpeed(
+                SmartDashboard.getNumber(DashboardConstants.EJECT_KEY, Constants.IntakeConstants.EJECT_SPEED));
         }
     }
 
