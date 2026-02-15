@@ -45,18 +45,29 @@ public final class Constants
 
     public static class IntakeConstants
     {
-        public static final int INTAKE_MOTOR_CHANNEL = 41;
-        public static final int PIVOT_MOTOR_CHANNEL = 42;
+        public static final int INTAKE_MOTOR_CHANNEL = 45;
+        public static final int PIVOT_MOTOR_CHANNEL = 46;
+        public static final int PIVOT_ENCODER_CHANNEL = 47;
 
-        public static final boolean IS_INTAKE_MOTOR_INVERTED = false;
-        public static final boolean IS_PIVOT_MOTOR_INVERTED = false;
+        public static final InvertedValue INTAKE_MOTOR_INVERTED_VALUE = InvertedValue.Clockwise_Positive;
+        public static final InvertedValue PIVOT_MOTOR_INVERTED_VALUE = InvertedValue.CounterClockwise_Positive;
 
-        public static final double INTAKE_SPEED_RPM = 0;
-        public static final double EJECT_SPEED_RPM = 0;
+        public static final double INTAKE_SPEED = 0.5;
+        public static final double EJECT_SPEED = -0.5;
 
+        public static final double PIVOT_SPEED = 0.5;
+
+        public static final double IntakekP = 0.15;
+        public static final double IntakekI = 0.0;
+        public static final double IntakekD = 0.0;
+
+        public static final double deployTolerance = 10;
+
+        // These positions are in degrees, and represent the angle of the pivot motor when the intake is in each
+        // position.
         public static final double STOW_POSITION = 0;
-        public static final double DEPLOYED_POSITION = 0;
-        public static final double PARTIALLY_DEPLOYED_POSITION = 0;
+        public static final double DEPLOYED_POSITION = 130;
+        public static final double PARTIALLY_DEPLOYED_POSITION = 65;
     }
 
     public static class LauncherConstants
@@ -93,5 +104,13 @@ public final class Constants
     {
         public static final String HOPPER_INDEXER_FEED_KEY = "HopperFeed";
         public static final String HOPPER_INDEXER_CLEAR_KEY = "HopperClear";
+
+        public static final String INTAKE_SPEED_KEY = "Intake";
+        public static final String EJECT_SPEED_KEY = "Eject";
+        public static final String PIVOT_SPEED_KEY = "Pivot";
+        public static final String PIVOT_TOLERANCE_KEY = "PivotTol";
+        public static final String DEPLOY_KEY = "Deploy";
+        public static final String PARTIALLY_DEPLOY_KEY = "PartialDeploy";
+        public static final String STOW_KEY = "Stow";
     }
 }
