@@ -61,6 +61,10 @@ public final class Constants
         public static final double IntakekI = 0.0;
         public static final double IntakekD = 0.0;
 
+        public static final double deployTolerance = 10;
+
+        // These positions are in degrees, and represent the angle of the pivot motor when the intake is in each
+        // position.
         public static final double STOW_POSITION = 0;
         public static final double DEPLOYED_POSITION = 130;
         public static final double PARTIALLY_DEPLOYED_POSITION = 65;
@@ -101,11 +105,12 @@ public final class Constants
         public static final String HOPPER_INDEXER_FEED_KEY = "HopperFeed";
         public static final String HOPPER_INDEXER_CLEAR_KEY = "HopperClear";
 
-        public static final String INTAKE_KEY = "Intake";
-        public static final String EJECT_KEY = "Eject";
-        public static final String PIVOT_KEY = "Pivot";
-        public static final String DEPLOY_KEY = "DeployIntake";
-        public static final String PARTIALLY_DEPLOY_KEY = "PartiallyDeployIntake";
-        public static final String STOW_KEY = "StowIntake";
+        public static final String INTAKE_SPEED_KEY = "Intake";
+        public static final String EJECT_SPEED_KEY = "Eject";
+        public static final String PIVOT_SPEED_KEY = "Pivot";
+        public static final String PIVOT_TOLERANCE_KEY = "PivotTol";
+        public static final String DEPLOY_KEY = "Deploy";
+        public static final String PARTIALLY_DEPLOY_KEY = "PartialDeploy";
+        public static final String STOW_KEY = "Stow";
     }
 }

@@ -245,11 +245,12 @@ public class RobotContainer
         SmartDashboard.putNumber(DashboardConstants.HOPPER_INDEXER_FEED_KEY, HopperConstants.FEED_SPEED);
         SmartDashboard.putNumber(DashboardConstants.HOPPER_INDEXER_CLEAR_KEY, HopperConstants.CLEAR_SPEED);
 
-        SmartDashboard.putNumber(DashboardConstants.INTAKE_KEY, IntakeConstants.INTAKE_SPEED);
-        SmartDashboard.putNumber(DashboardConstants.EJECT_KEY, IntakeConstants.EJECT_SPEED);
-        SmartDashboard.putNumber(DashboardConstants.PIVOT_KEY, IntakeConstants.PIVOT_SPEED);
+        SmartDashboard.putNumber(DashboardConstants.INTAKE_SPEED_KEY, IntakeConstants.INTAKE_SPEED);
+        SmartDashboard.putNumber(DashboardConstants.EJECT_SPEED_KEY, IntakeConstants.EJECT_SPEED);
+        SmartDashboard.putNumber(DashboardConstants.PIVOT_SPEED_KEY, IntakeConstants.PIVOT_SPEED);
         SmartDashboard.putNumber(DashboardConstants.DEPLOY_KEY, IntakeConstants.DEPLOYED_POSITION);
         SmartDashboard.putNumber(DashboardConstants.PARTIALLY_DEPLOY_KEY, IntakeConstants.PARTIALLY_DEPLOYED_POSITION);
         SmartDashboard.putNumber(DashboardConstants.STOW_KEY, IntakeConstants.STOW_POSITION);
+        SmartDashboard.putNumber(DashboardConstants.PIVOT_TOLERANCE_KEY, IntakeConstants.deployTolerance);
     }
 }

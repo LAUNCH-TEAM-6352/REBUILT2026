@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.Degrees;
+
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.PositionDutyCycle;
@@ -15,9 +17,8 @@ import com.ctre.phoenix6.signals.SensorDirectionValue;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
-import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.DashboardConstants;
+import frc.robot.Constants.IntakeConstants;
 
 public class Intake extends SubsystemBase
 {
@@ -27,7 +28,7 @@ public class Intake extends SubsystemBase
 
     public static CANcoder pivotEncoder = new CANcoder(IntakeConstants.PIVOT_ENCODER_CHANNEL);
 
-    private boolean isDeployed = false;
+    PositionDutyCycle pivotPositionControl = new PositionDutyCycle(0).withSlot(0);
 
     /** Creates a new Intake. */
     public Intake()
@@ -46,9 +47,11 @@ public class Intake extends SubsystemBase
         pivotConfigs.MotorOutput.PeakForwardDutyCycle = IntakeConstants.PIVOT_SPEED;
         pivotConfigs.MotorOutput.PeakReverseDutyCycle = -IntakeConstants.PIVOT_SPEED;
         pivotConfigs.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-        pivotConfigs.SoftwareLimitSwitch.ForwardSoftLimitThreshold = IntakeConstants.DEPLOYED_POSITION;
+        pivotConfigs.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 1
+            * (SmartDashboard.getNumber(DashboardConstants.DEPLOY_KEY, IntakeConstants.DEPLOYED_POSITION) / 360.0);
         pivotConfigs.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
-        pivotConfigs.SoftwareLimitSwitch.ReverseSoftLimitThreshold = IntakeConstants.STOW_POSITION;
+        pivotConfigs.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 1
+            * (SmartDashboard.getNumber(DashboardConstants.STOW_KEY, IntakeConstants.STOW_POSITION) / 360.0);
         pivotConfigs.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
         pivotMotor.getConfigurator().apply(pivotConfigs);
 
@@ -66,43 +69,44 @@ public class Intake extends SubsystemBase
         intakeMotor.set(speed);
     }
 
-    // Pivot the intake to a specific position
+    // Pivot the intake to a specific position in degrees
     private void pivotToPosition(double position)
     {
-        pivotMotor.setControl(new PositionDutyCycle(position).withSlot(0));
+        pivotMotor.setControl(pivotPositionControl.withPosition(Degrees.of(position)));
     }
 
     // Pivot the intake into "stowed" position
     public void stow()
     {
-        pivotToPosition(IntakeConstants.STOW_POSITION);
+        pivotToPosition(SmartDashboard.getNumber(DashboardConstants.STOW_KEY, IntakeConstants.STOW_POSITION));
     }
 
     // Pivot the intake into "deployed" position
     public void deploy()
     {
-        pivotToPosition(IntakeConstants.DEPLOYED_POSITION);
+        pivotToPosition(SmartDashboard.getNumber(DashboardConstants.DEPLOY_KEY, IntakeConstants.DEPLOYED_POSITION));
     }
 
     // Pivot the intake into "partially deployed" position
     public void partialDeploy()
     {
-        pivotToPosition(IntakeConstants.PARTIALLY_DEPLOYED_POSITION);
+        pivotToPosition(SmartDashboard.getNumber(DashboardConstants.PARTIALLY_DEPLOY_KEY,
+            IntakeConstants.PARTIALLY_DEPLOYED_POSITION));
     }
 
     // Ensure intake is pivoted into "deployed" position, then run the intake motor to pull fuel into the robot
     public void intake()
     {
-            setIntakeSpeed(
-                SmartDashboard.getNumber(DashboardConstants.INTAKE_KEY, IntakeConstants.INTAKE_SPEED));
+        setIntakeSpeed(
+            SmartDashboard.getNumber(DashboardConstants.INTAKE_SPEED_KEY, IntakeConstants.INTAKE_SPEED));
     }
 
     // Ensure intake is pivoted into "deployed" position, then run the intake motor in reverse to "dump" fuel out of
     // the robot
     public void eject()
     {
-            setIntakeSpeed(
-                SmartDashboard.getNumber(DashboardConstants.EJECT_KEY, IntakeConstants.EJECT_SPEED));
+        setIntakeSpeed(
+            SmartDashboard.getNumber(DashboardConstants.EJECT_SPEED_KEY, IntakeConstants.EJECT_SPEED));
     }
 
     // Stop the intake motor
@@ -115,15 +119,5 @@ public class Intake extends SubsystemBase
     public void periodic()
     {
         // This method will be called once per scheduler run
-        double currentPivotPosition = pivotEncoder.getPosition().getValueAsDouble();
-
-        if (currentPivotPosition > IntakeConstants.DEPLOYED_POSITION - 10)
-        {
-            isDeployed = true;
-        }
-        else
-        {
-            isDeployed = false;
-        }
     }
 }
