@@ -108,7 +108,6 @@ public final class Constants
 
     public static class OperatorConstants
     {
-        public static final int kDriverControllerPort = 0;
         public static final int DRIVER_GAMEPAD_PORT = 0;
         public static final int CODRIVER_GAMEPAD_PORT = 1;
     }
