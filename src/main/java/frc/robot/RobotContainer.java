@@ -246,7 +246,7 @@ public class RobotContainer
 
         // Hopper:
         SmartDashboard.putNumber(DashboardConstants.CONVEYOR_FEED_KEY, HopperConstants.FEED_SPEED);
-        SmartDashboard.putNumber(DashboardConstants.CONVEYOR_FEED_KEY, HopperConstants.CLEAR_SPEED);
+        SmartDashboard.putNumber(DashboardConstants.CONVEYOR_CLEAR_KEY, HopperConstants.CLEAR_SPEED);
 
         // Launcher:
         SmartDashboard.putNumber(DashboardConstants.LAUNCHER_SHOOTING_KEY, LauncherConstants.SHOOTING_VELOCITY_RPM);

@@ -43,8 +43,6 @@ public class Intake extends SubsystemBase
         pivotConfigs.Slot0.kP = IntakeConstants.INTAKE_KP;
         pivotConfigs.Slot0.kI = IntakeConstants.INTAKE_KI;
         pivotConfigs.Slot0.kD = IntakeConstants.INTAKE_KD;
-        pivotConfigs.MotorOutput.PeakForwardDutyCycle = IntakeConstants.PIVOT_SPEED;
-        pivotConfigs.MotorOutput.PeakReverseDutyCycle = -IntakeConstants.PIVOT_SPEED;
         pivotConfigs.MotorOutput.NeutralMode = NeutralModeValue.Brake;
         pivotConfigs.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 1
             * (SmartDashboard.getNumber(DashboardConstants.DEPLOY_KEY, IntakeConstants.DEPLOYED_POSITION) / 360.0);
