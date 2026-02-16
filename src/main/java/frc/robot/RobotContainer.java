@@ -77,10 +77,10 @@ public class RobotContainer
     private final Optional<Launcher> launcher;
     private final Optional<Intake> intake;
     private final Optional<Hopper> hopper;
-    public final Optional<CommandSwerveDrivetrain> drivetrain;
+    private final Optional<CommandSwerveDrivetrain> drivetrain;
 
     // OI devices:
-    private CommandXboxController driverGamepad;
+    private final CommandXboxController driverGamepad;
     private final CommandXboxController codriverGamepad;
 
     public RobotContainer()
