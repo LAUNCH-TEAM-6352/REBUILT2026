@@ -12,6 +12,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.LauncherConstants;
 import frc.robot.Constants.DashboardConstants;
@@ -58,10 +59,28 @@ public class Launcher extends SubsystemBase
         indexerMotor.set(speed);
     }
 
+    // Intended for use with a press-and-hold binding
+    public Command feedThenStopCommand()
+    {
+        return startEnd(this::feed, this::stopIndexer);
+    }
+
+    // Intended for use in auto (Only starts the indexer, does not stop automatically)
+    public Command feedCommand()
+    {
+        return runOnce(this::feed);
+    }
+
     public void feed()
     {
         setIndexerSpeed(
             SmartDashboard.getNumber(DashboardConstants.LAUNCHER_FEED_KEY, LauncherConstants.FEED_SPEED));
+    }
+
+    // Intended for use with a press-and-hold binding
+    public Command clearThenStopCommand()
+    {
+        return startEnd(this::clear, this::stopIndexer);
     }
 
     public void clear()
@@ -76,11 +95,21 @@ public class Launcher extends SubsystemBase
         leftShooterMotor.setControl(velocityVoltage.withVelocity(velocity / 60));
     }
 
+    public Command spinUpShootersCommand()
+    {
+        return runOnce(this::spinUpShooters);
+    }
+
     public void spinUpShooters()
     {
         setShooterVelocity(
             SmartDashboard.getNumber(DashboardConstants.LAUNCHER_SHOOTING_KEY,
                 LauncherConstants.SHOOTING_VELOCITY_RPM));
+    }
+
+    public Command idleShootersCommand()
+    {
+        return runOnce(this::idleShooters);
     }
 
     public void idleShooters()
@@ -89,6 +118,16 @@ public class Launcher extends SubsystemBase
             SmartDashboard.getNumber(DashboardConstants.LAUNCHER_IDLE_KEY, LauncherConstants.IDLE_VELOCITY_RPM));
     }
 
+    public Command stopIndexerCommand()
+    {
+        return runOnce(this::stopShooters);
+    }
+
+    public Command stopShootersCommand()
+    {
+        return runOnce(this::stopShooters);
+    }
+    
     public void stopIndexer()
     {
         indexerMotor.stopMotor();
@@ -100,7 +139,7 @@ public class Launcher extends SubsystemBase
     }
 
     // Stops all 3 motors in launcher
-    public void stop()
+    public void stopAll()
     {
         stopIndexer();
         stopShooters();
