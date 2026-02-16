@@ -64,11 +64,11 @@ public final class Constants
 
         public static final double PIVOT_SPEED = 0.5;
 
-        public static final double IntakekP = 0.15;
-        public static final double IntakekI = 0.0;
-        public static final double IntakekD = 0.0;
+        public static final double INTAKE_KP = 0.15;
+        public static final double INTAKE_KI = 0.0;
+        public static final double INTAKE_KD = 0.0;
 
-        public static final double deployTolerance = 10;
+        public static final double DEPLOY_TOLERANCE = 10;
 
         // These positions are in degrees, and represent the angle of the pivot motor when the intake is in each
         // position.
@@ -90,10 +90,16 @@ public final class Constants
         public static final InvertedValue LEFT_SHOOTER_MOTOR_INVERTED_VALUE = InvertedValue.Clockwise_Positive;
         public static final InvertedValue RIGHT_SHOOTER_MOTOR_INVERTED_VALUE = InvertedValue.CounterClockwise_Positive;
 
-        public static final double SHOOTING_VELOCITY_RPM = 3000;
-        public static final double IDLE_VELOCITY_RPM = 1000;
+        public static final double SHOOTING_VELOCITY_RPM = 300;
+        public static final double IDLE_VELOCITY_RPM = 100;
         public static final double FEED_SPEED = 0.25;
         public static final double CLEAR_SPEED = -0.25;
+
+        public static final double SHOOTER_KS = 0.1; // Add 0.1 V output to overcome static friction
+        public static final double SHOOTER_KV = 0.12; // A velocity target of 1 rps results in 0.12 V output
+        public static final double SHOOTER_KP = 0.11; // An error of 1 rps results in 0.11 V output
+        public static final double SHOOTER_KI = 0.0; // no output for integrated error
+        public static final double SHOOTER_KD = 0.0; // no output for error derivative
     }
 
     public static class OperatorConstants

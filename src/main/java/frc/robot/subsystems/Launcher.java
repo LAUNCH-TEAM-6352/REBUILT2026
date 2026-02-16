@@ -27,10 +27,6 @@ public class Launcher extends SubsystemBase
 
     private final VelocityVoltage velocityVoltage = new VelocityVoltage(0);
 
-    double targetVelocity;
-    double targetTolerance;
-    boolean atTargetVelocity;
-
     /** Creates a new Launcher. */
     public Launcher()
     {
@@ -41,11 +37,11 @@ public class Launcher extends SubsystemBase
 
         configs.MotorOutput.Inverted = LauncherConstants.LEFT_SHOOTER_MOTOR_INVERTED_VALUE;
         var slot0Configs = new Slot0Configs();
-        slot0Configs.kS = 0.1; // Add 0.1 V output to overcome static friction
-        slot0Configs.kV = 0.12; // A velocity target of 1 rps results in 0.12 V output
-        slot0Configs.kP = 0.11; // An error of 1 rps results in 0.11 V output
-        slot0Configs.kI = 0; // no output for integrated error
-        slot0Configs.kD = 0; // no output for error derivative
+        slot0Configs.kS = LauncherConstants.SHOOTER_KS;
+        slot0Configs.kV = LauncherConstants.SHOOTER_KV;
+        slot0Configs.kP = LauncherConstants.SHOOTER_KP;
+        slot0Configs.kI = LauncherConstants.SHOOTER_KI;
+        slot0Configs.kD = LauncherConstants.SHOOTER_KD;
         leftShooterMotor.getConfigurator().apply(new TalonFXConfiguration());
         leftShooterMotor.getConfigurator().apply(configs);
         leftShooterMotor.getConfigurator().apply(slot0Configs);
@@ -78,7 +74,6 @@ public class Launcher extends SubsystemBase
     private void setShooterVelocity(double velocity)
     {
         leftShooterMotor.setControl(velocityVoltage.withVelocity(velocity / 60));
-        targetVelocity = velocity / 60;
     }
 
     public void spinUpShooters()
@@ -105,7 +100,7 @@ public class Launcher extends SubsystemBase
     }
 
     // Stops all 3 motors in launcher
-    public void Stop()
+    public void stop()
     {
         stopIndexer();
         stopShooters();
@@ -114,15 +109,6 @@ public class Launcher extends SubsystemBase
     @Override
     public void periodic()
     {
-        double currentVelocity = (leftShooterMotor.getVelocity().getValueAsDouble()) / 60;
-        if ((Math.abs(currentVelocity - targetVelocity) < targetTolerance)
-            && Math.abs(currentVelocity - targetVelocity) < targetTolerance)
-        {
-            atTargetVelocity = true;
-        }
-        else
-        {
-            atTargetVelocity = false;
-        }
+        // TODO: determine if shooter is at target velocity?
     }
 }

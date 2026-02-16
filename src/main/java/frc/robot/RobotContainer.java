@@ -260,6 +260,6 @@ public class RobotContainer
         SmartDashboard.putNumber(DashboardConstants.DEPLOY_KEY, IntakeConstants.DEPLOYED_POSITION);
         SmartDashboard.putNumber(DashboardConstants.PARTIALLY_DEPLOY_KEY, IntakeConstants.PARTIALLY_DEPLOYED_POSITION);
         SmartDashboard.putNumber(DashboardConstants.STOW_KEY, IntakeConstants.STOW_POSITION);
-        SmartDashboard.putNumber(DashboardConstants.PIVOT_TOLERANCE_KEY, IntakeConstants.deployTolerance);
+        SmartDashboard.putNumber(DashboardConstants.PIVOT_TOLERANCE_KEY, IntakeConstants.DEPLOY_TOLERANCE);
     }
 }
