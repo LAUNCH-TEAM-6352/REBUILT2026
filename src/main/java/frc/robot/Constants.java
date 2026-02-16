@@ -23,14 +23,18 @@ public final class Constants
 
     public static class ClimberConstants
     {
-        // All ClimberConstants/values are copied & renamed from REEFSCAPE Climber constants.
         public static final CANBus WINCH_MOTOR_BUS = Constants.CANIVORE_BUS;
         public static final int WINCH_MOTOR_CHANNEL = 0;
         public static final double WINCH_MOTOR_SPEED = 0.6;
-        public static final boolean IS_MOTOR_INVERTED = false;
+        public static final InvertedValue WINCH_MOTOR_INVERTED_VALUE = InvertedValue.CounterClockwise_Positive;
 
-        public static final double MAX_POSITION = 140;
-        public static final double MIN_POSITON = 0;
+        public static final double WINCH_KP = 2.4; // An error of 1 rotation results in 2.4 V output
+        public static final double WINCH_KI = 0; // no output for integrated error
+        public static final double WINCH_KD = 0.1; // A velocity of 1 rps results in 0.1 V output
+
+        public static final double CLIMBED_POSITION = 10;
+        public static final double EXTENDED_POSITION = 15;
+        public static final double STOWED_POSITION = 0;
 
         public static final int SERVO_CHANNEL = 0;
 
@@ -117,6 +121,10 @@ public final class Constants
 
     public static final class DashboardConstants
     {
+        public static final String CLIMBER_CLIMB_KEY = "Climb Position";
+        public static final String CLIMBER_EXTEND_KEY = "Extended Position";
+        public static final String CLIMBER_STOW_KEY = "Stowed Position";
+
         public static final String HOPPER_INDEXER_FEED_KEY = "HopperFeed";
         public static final String HOPPER_INDEXER_CLEAR_KEY = "HopperClear";
 
