@@ -4,58 +4,111 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix6.configs.Slot0Configs;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.Follower;
+import com.ctre.phoenix6.controls.VelocityVoltage;
+import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.MotorAlignmentValue;
+
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.LauncherConstants;
+import frc.robot.Constants.DashboardConstants;
 
 public class Launcher extends SubsystemBase
 {
+    private final TalonFX indexerMotor = new TalonFX(LauncherConstants.INDEXER_MOTOR_CHANNEL,
+        LauncherConstants.INDEXER_MOTOR_BUS);
+    private final TalonFX leftShooterMotor = new TalonFX(LauncherConstants.LEFT_SHOOTER_MOTOR_CHANNEL,
+        LauncherConstants.INDEXER_MOTOR_BUS);
+    private final TalonFX rightShooterMotor = new TalonFX(LauncherConstants.RIGHT_SHOOTER_MOTOR_CHANNEL,
+        LauncherConstants.INDEXER_MOTOR_BUS);
+
+    private final VelocityVoltage velocityVoltage = new VelocityVoltage(0);
+
     /** Creates a new Launcher. */
     public Launcher()
     {
+        var configs = new TalonFXConfiguration();
+        configs.MotorOutput.Inverted = LauncherConstants.INDEXER_MOTOR_INVERTED_VALUE;
+        indexerMotor.getConfigurator().apply(new TalonFXConfiguration());
+        indexerMotor.getConfigurator().apply(configs);
+
+        configs.MotorOutput.Inverted = LauncherConstants.LEFT_SHOOTER_MOTOR_INVERTED_VALUE;
+        var slot0Configs = new Slot0Configs();
+        slot0Configs.kS = LauncherConstants.SHOOTER_KS;
+        slot0Configs.kV = LauncherConstants.SHOOTER_KV;
+        slot0Configs.kP = LauncherConstants.SHOOTER_KP;
+        slot0Configs.kI = LauncherConstants.SHOOTER_KI;
+        slot0Configs.kD = LauncherConstants.SHOOTER_KD;
+        leftShooterMotor.getConfigurator().apply(new TalonFXConfiguration());
+        leftShooterMotor.getConfigurator().apply(configs);
+        leftShooterMotor.getConfigurator().apply(slot0Configs);
+
+        configs.MotorOutput.Inverted = LauncherConstants.RIGHT_SHOOTER_MOTOR_INVERTED_VALUE;
+        rightShooterMotor.getConfigurator().apply(new TalonFXConfiguration());
+        rightShooterMotor.getConfigurator().apply(configs);
+        rightShooterMotor
+            .setControl(new Follower(leftShooterMotor.getDeviceID(), MotorAlignmentValue.Opposed));
+    }
+
+    private void setIndexerSpeed(double speed)
+    {
+        indexerMotor.set(speed);
     }
 
     public void feed()
     {
-        // Confirm shooter motors are at speed, then
-        // Run the upper indexer motor to move fuel to the shooter
+        setIndexerSpeed(
+            SmartDashboard.getNumber(DashboardConstants.LAUNCHER_FEED_KEY, LauncherConstants.FEED_SPEED));
     }
 
     public void clear()
     {
-        // Clear the launcher by running the upper indexer motor in reverse
+        setIndexerSpeed(
+            SmartDashboard.getNumber(DashboardConstants.LAUNCHER_CLEAR_KEY, LauncherConstants.CLEAR_SPEED));
     }
 
-    public void spinUpShooters(double speed)
+    // Set shooter velocity in RPM
+    private void setShooterVelocity(double velocity)
     {
-        // Set left and right shooter motors to a specific speed in RPM
+        leftShooterMotor.setControl(velocityVoltage.withVelocity(velocity / 60));
+    }
+
+    public void spinUpShooters()
+    {
+        setShooterVelocity(
+            SmartDashboard.getNumber(DashboardConstants.LAUNCHER_SHOOTING_KEY,
+                LauncherConstants.SHOOTING_VELOCITY_RPM));
     }
 
     public void idleShooters()
     {
-        // Set left and right shooter motors to a low "idle" speed to keep shooter spinning
+        setShooterVelocity(
+            SmartDashboard.getNumber(DashboardConstants.LAUNCHER_IDLE_KEY, LauncherConstants.IDLE_VELOCITY_RPM));
     }
 
     public void stopIndexer()
     {
-        // Stop upper indexer motor
+        indexerMotor.stopMotor();
     }
 
     public void stopShooters()
     {
-        // Stop left and right shooter motors
+        leftShooterMotor.stopMotor();
     }
 
     // Stops all 3 motors in launcher
-    public void Stop()
+    public void stop()
     {
-        // Stop the upper indexer motor
         stopIndexer();
-        // Stop lefts and right shooter motors
         stopShooters();
     }
 
     @Override
     public void periodic()
     {
-        // This method will be called once per scheduler run
+        // TODO: determine if shooter is at target velocity?
     }
 }

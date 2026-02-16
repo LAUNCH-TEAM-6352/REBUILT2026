@@ -15,7 +15,8 @@ import frc.robot.Constants.HopperConstants;
 
 public class Hopper extends SubsystemBase
 {
-    private TalonFX indexerMotor = new TalonFX(Constants.HopperConstants.INDEXER_MOTOR_CHANNEL);
+    private TalonFX indexerMotor = new TalonFX(Constants.HopperConstants.INDEXER_MOTOR_CHANNEL,
+        Constants.HopperConstants.INDEXER_MOTOR_BUS);
 
     /** Creates a new Hopper. */
     public Hopper()

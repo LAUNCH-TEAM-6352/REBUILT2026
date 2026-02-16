@@ -41,9 +41,9 @@ public class Intake extends SubsystemBase
         pivotConfigs.MotorOutput.Inverted = IntakeConstants.PIVOT_MOTOR_INVERTED_VALUE;
         pivotConfigs.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
         pivotConfigs.Feedback.FeedbackRemoteSensorID = pivotEncoder.getDeviceID();
-        pivotConfigs.Slot0.kP = IntakeConstants.IntakekP;
-        pivotConfigs.Slot0.kI = IntakeConstants.IntakekI;
-        pivotConfigs.Slot0.kD = IntakeConstants.IntakekD;
+        pivotConfigs.Slot0.kP = IntakeConstants.INTAKE_KP;
+        pivotConfigs.Slot0.kI = IntakeConstants.INTAKE_KI;
+        pivotConfigs.Slot0.kD = IntakeConstants.INTAKE_KD;
         pivotConfigs.MotorOutput.PeakForwardDutyCycle = IntakeConstants.PIVOT_SPEED;
         pivotConfigs.MotorOutput.PeakReverseDutyCycle = -IntakeConstants.PIVOT_SPEED;
         pivotConfigs.MotorOutput.NeutralMode = NeutralModeValue.Brake;
