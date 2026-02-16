@@ -65,39 +65,33 @@ public class Launcher extends SubsystemBase
     public void feed()
     {
         setIndexerSpeed(
-            SmartDashboard.getNumber(DashboardConstants.LAUNCHER_FEED_KEY, LauncherConstants.FEED_SPEED)
-        );
+            SmartDashboard.getNumber(DashboardConstants.LAUNCHER_FEED_KEY, LauncherConstants.FEED_SPEED));
     }
 
     public void clear()
     {
         setIndexerSpeed(
-            SmartDashboard.getNumber(DashboardConstants.LAUNCHER_CLEAR_KEY, LauncherConstants.CLEAR_SPEED)
-        );
+            SmartDashboard.getNumber(DashboardConstants.LAUNCHER_CLEAR_KEY, LauncherConstants.CLEAR_SPEED));
     }
 
     // Set shooter velocity in RPM
     private void setShooterVelocity(double velocity)
     {
-        leftShooterMotor.setControl(velocityVoltage.withVelocity(velocity/60));
-        targetVelocity = velocity/60;
+        leftShooterMotor.setControl(velocityVoltage.withVelocity(velocity / 60));
+        targetVelocity = velocity / 60;
     }
-
-
-
 
     public void spinUpShooters()
     {
         setShooterVelocity(
-            SmartDashboard.getNumber(DashboardConstants.LAUNCHER_SHOOTING_KEY, LauncherConstants.SHOOTING_VELOCITY_RPM)
-        );
+            SmartDashboard.getNumber(DashboardConstants.LAUNCHER_SHOOTING_KEY,
+                LauncherConstants.SHOOTING_VELOCITY_RPM));
     }
 
     public void idleShooters()
     {
         setShooterVelocity(
-            SmartDashboard.getNumber(DashboardConstants.LAUNCHER_IDLE_KEY, LauncherConstants.IDLE_VELOCITY_RPM)
-        );
+            SmartDashboard.getNumber(DashboardConstants.LAUNCHER_IDLE_KEY, LauncherConstants.IDLE_VELOCITY_RPM));
     }
 
     public void stopIndexer()
@@ -120,15 +114,15 @@ public class Launcher extends SubsystemBase
     @Override
     public void periodic()
     {
-        double currentVelocity = (leftShooterMotor.getVelocity().getValueAsDouble())/60;
+        double currentVelocity = (leftShooterMotor.getVelocity().getValueAsDouble()) / 60;
         if ((Math.abs(currentVelocity - targetVelocity) < targetTolerance)
-                && Math.abs(currentVelocity - targetVelocity) < targetTolerance)
-            {
-                atTargetVelocity = true;
-            }
-            else
-            {
-                atTargetVelocity = false;
-            }
-}
+            && Math.abs(currentVelocity - targetVelocity) < targetTolerance)
+        {
+            atTargetVelocity = true;
+        }
+        else
+        {
+            atTargetVelocity = false;
+        }
+    }
 }
