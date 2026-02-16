@@ -156,7 +156,6 @@ public class RobotContainer
      */
     private void configureBindings()
     {
-
         climber.ifPresent(this::configureBindings);
         launcher.ifPresent(this::configureBindings);
         intake.ifPresent(this::configureBindings);
