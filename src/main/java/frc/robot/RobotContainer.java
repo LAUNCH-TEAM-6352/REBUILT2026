@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
@@ -30,6 +31,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
+import frc.robot.Constants.ClimberConstants;
 import frc.robot.Constants.DashboardConstants;
 import frc.robot.Constants.HopperConstants;
 import frc.robot.Constants.IntakeConstants;
@@ -70,18 +72,19 @@ public class RobotContainer
 
     // wrapper class to manage limelight cameras and get position estimates
     public final LimeLightVision limelightVision = new LimeLightVision(List.of("limelight-front"));
+
     // Subsystems:
     private final Optional<Climber> climber;
     private final Optional<Launcher> launcher;
     private final Optional<Intake> intake;
     private final Optional<Hopper> hopper;
+    public final Optional<CommandSwerveDrivetrain> drivetrain;
 
     // OI devices:
-    private XboxController driverGamepad;
-    private final XboxController codriverGamepad;
+    private CommandXboxController driverGamepad;
+    private final CommandXboxController codriverGamepad;
 
-    // drive train
-    public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
+
 
     public RobotContainer()
     {
@@ -107,31 +110,35 @@ public class RobotContainer
         {
             // Explicitly look for OI devices:
             driverGamepad = DriverStation.isJoystickConnected(OperatorConstants.DRIVER_GAMEPAD_PORT)
-                ? new XboxController(OperatorConstants.DRIVER_GAMEPAD_PORT)
+                ? new CommandXboxController(OperatorConstants.DRIVER_GAMEPAD_PORT)
                 : null;
             codriverGamepad = DriverStation.isJoystickConnected(OperatorConstants.CODRIVER_GAMEPAD_PORT)
-                ? new XboxController(OperatorConstants.CODRIVER_GAMEPAD_PORT)
+                ? new CommandXboxController(OperatorConstants.CODRIVER_GAMEPAD_PORT)
                 : null;
         }
         else
         {
             // In competition, don't take chances and always create all OI devices:
-            codriverGamepad = new XboxController(OperatorConstants.CODRIVER_GAMEPAD_PORT);
-            driverGamepad = new XboxController(OperatorConstants.DRIVER_GAMEPAD_PORT);
+            codriverGamepad = new CommandXboxController(OperatorConstants.CODRIVER_GAMEPAD_PORT);
+            driverGamepad = new CommandXboxController(OperatorConstants.DRIVER_GAMEPAD_PORT);
         }
 
         // Create subsystems:
-        climber = (gameData.contains("-c-") || gameData.isBlank())
+        climber = (gameData.contains("-c-") || gameData.isBlank() || gameData.length() == 1)
             ? Optional.of(new Climber())
             : Optional.empty();
-        launcher = (gameData.contains("-l-") || gameData.isBlank())
+        launcher = (gameData.contains("-l-") || gameData.isBlank() || gameData.length() == 1)
             ? Optional.of(new Launcher())
             : Optional.empty();
-        intake = (gameData.contains("-i-") || gameData.isBlank())
+        intake = (gameData.contains("-i-") || gameData.isBlank() || gameData.length() == 1)
             ? Optional.of(new Intake())
             : Optional.empty();
-        hopper = (gameData.contains("-h-") || gameData.isBlank())
+        hopper = (gameData.contains("-h-") || gameData.isBlank() || gameData.length() == 1)
             ? Optional.of(new Hopper())
+            : Optional.empty();
+
+        drivetrain = (gameData.contains("-dt-") || gameData.isBlank() || gameData.length() == 1)
+            ? Optional.of(TunerConstants.createDrivetrain())
             : Optional.empty();
 
         // Configure the trigger bindings
@@ -151,6 +158,17 @@ public class RobotContainer
      * joysticks}.
      */
     private void configureBindings()
+    {
+
+        
+        climber.ifPresent(this::configureBindings);
+        launcher.ifPresent(this::configureBindings);
+        intake.ifPresent(this::configureBindings);
+        hopper.ifPresent(this::configureBindings);
+        drivetrain.ifPresent(this::configureBindings);
+    }
+
+    private void configureBindings(CommandSwerveDrivetrain drivetrain)
     {
         // Note that X is defined as forward according to WPILib convention,
         // and Y is defined as to the left according to WPILib convention.
@@ -186,8 +204,47 @@ public class RobotContainer
         drivetrain.registerTelemetry(logger::telemeterize);
     }
 
+    // TODO: the following bindings are designed for testing and need to changed for the final control scheme.
+    // SCORE FUEL: x-> deploy y-> intake, b-> spinUp shooters, a-> convey, right joystick press-> feed (fuel shoots)
+    // CLIMB: pov up-> extend, pov down-> climb, pov left-> stow
+    // DUMP FUEL: left trigger-> clear launcher, left bumper-> clear hopper, left stick-> eject from intake
+    // COLLAPSE HOPPER: start-> partial deploy, back-> stow
+    //IDLE OR STOP SHOOTER: right bumper-> stop shooter, right trigger-> idle shooter
+
+    private void configureBindings(Climber climber)
+    {
+        codriverGamepad.povLeft().onTrue(climber.stowCommand());
+        codriverGamepad.povUp().onTrue(climber.extendCommand());
+        codriverGamepad.povDown().onTrue(climber.climbCommand());
+    }
+
+    private void configureBindings(Launcher launcher)
+    {
+        codriverGamepad.rightStick().whileTrue(launcher.feedThenStopCommand());
+        codriverGamepad.leftTrigger().whileTrue(launcher.clearThenStopCommand());
+        codriverGamepad.b().onTrue(launcher.spinUpShootersCommand());
+        codriverGamepad.rightBumper().onTrue(launcher.stopShootersCommand());
+        codriverGamepad.rightTrigger().onTrue(launcher.idleShootersCommand());
+    }
+
+    private void configureBindings(Intake intake)
+    {
+        driverGamepad.y().whileTrue(intake.intakeThenStopCommand());
+        driverGamepad.leftStick().whileTrue(intake.ejectThenStopCommand());
+        driverGamepad.x().onTrue(intake.deployCommand());
+        driverGamepad.start().onTrue(intake.partialDeployCommand());
+        driverGamepad.back().onTrue(intake.stowCommand());
+    }
+
+    private void configureBindings(Hopper hopper)
+    {
+        codriverGamepad.a().whileTrue(hopper.feedThenStopCommand());
+        codriverGamepad.leftBumper().whileTrue(hopper.clearThenStopCommand());
+    }
+
     public Command getAutonomousCommand()
     {
+        var drivetrain = this.drivetrain.orElseThrow(() -> new IllegalStateException("Drivetrain subsystem is required for autonomous"));
         // Simple drive forward auton
         final var idle = new SwerveRequest.Idle();
         return Commands.sequence(
@@ -202,6 +259,8 @@ public class RobotContainer
             // Finally idle for the rest of auton
             drivetrain.applyRequest(() -> idle));
     }
+
+
 
     public Command pathfindToPose(Pose2d point, Double endVelocity)
     {
@@ -233,11 +292,12 @@ public class RobotContainer
             lastCommand = lastCommand.andThen(pathfindToPose(pointsIterator.next(), 10.0));
         }
 
-        lastCommand.schedule();
+        CommandScheduler.getInstance().schedule(lastCommand);
     }
 
     public void updateVisionEstimate()
     {
+        var drivetrain = this.drivetrain.orElseThrow(() -> new IllegalStateException("Drivetrain subsystem is required to update vision pose estimation"));
         // updatePoseEstimation function assigns estimations to the
         // drive train.
         this.limelightVision.updatePoseEstimation(drivetrain);
@@ -249,26 +309,26 @@ public class RobotContainer
 
         // Wait for startup messages to be logged to driver station console:
         group.addCommands(new WaitCommand(5));
-
-        group.addCommands(new TestDrivetrain(drivetrain));
+        if (drivetrain.isPresent())
+        {
+            group.addCommands(new TestDrivetrain(drivetrain.get()));
+        }
 
         return group;
     }
 
     private void configureDashboard()
     {
-        // Add any values to the dashboard that you want to be able to tune or monitor here.
-
+        // Climber:
+        SmartDashboard.putNumber(DashboardConstants.CLIMBER_CLIMB_KEY, ClimberConstants.CLIMBED_POSITION);
+        SmartDashboard.putNumber(DashboardConstants.CLIMBER_EXTEND_KEY, ClimberConstants.EXTENDED_POSITION);
+        SmartDashboard.putNumber(DashboardConstants.CLIMBER_STOW_KEY, ClimberConstants.STOWED_POSITION);
+        
         // Hopper:
         SmartDashboard.putNumber(DashboardConstants.CONVEYOR_FEED_KEY, HopperConstants.FEED_SPEED);
         SmartDashboard.putNumber(DashboardConstants.CONVEYOR_CLEAR_KEY, HopperConstants.CLEAR_SPEED);
-
-        // Launcher:
-        SmartDashboard.putNumber(DashboardConstants.LAUNCHER_SHOOTING_KEY, LauncherConstants.SHOOTING_VELOCITY_RPM);
-        SmartDashboard.putNumber(DashboardConstants.LAUNCHER_IDLE_KEY, LauncherConstants.IDLE_VELOCITY_RPM);
-        SmartDashboard.putNumber(DashboardConstants.LAUNCHER_FEED_KEY, LauncherConstants.FEED_SPEED);
-        SmartDashboard.putNumber(DashboardConstants.LAUNCHER_CLEAR_KEY, LauncherConstants.CLEAR_SPEED);
-
+        
+        // Intake:
         SmartDashboard.putNumber(DashboardConstants.INTAKE_SPEED_KEY, IntakeConstants.INTAKE_SPEED);
         SmartDashboard.putNumber(DashboardConstants.EJECT_SPEED_KEY, IntakeConstants.EJECT_SPEED);
         SmartDashboard.putNumber(DashboardConstants.PIVOT_SPEED_KEY, IntakeConstants.PIVOT_SPEED);
@@ -276,5 +336,11 @@ public class RobotContainer
         SmartDashboard.putNumber(DashboardConstants.PARTIALLY_DEPLOY_KEY, IntakeConstants.PARTIALLY_DEPLOYED_POSITION);
         SmartDashboard.putNumber(DashboardConstants.STOW_KEY, IntakeConstants.STOW_POSITION);
         SmartDashboard.putNumber(DashboardConstants.PIVOT_TOLERANCE_KEY, IntakeConstants.DEPLOY_TOLERANCE);
+
+        // Launcher:
+        SmartDashboard.putNumber(DashboardConstants.LAUNCHER_SHOOTING_KEY, LauncherConstants.SHOOTING_VELOCITY_RPM);
+        SmartDashboard.putNumber(DashboardConstants.LAUNCHER_IDLE_KEY, LauncherConstants.IDLE_VELOCITY_RPM);
+        SmartDashboard.putNumber(DashboardConstants.LAUNCHER_FEED_KEY, LauncherConstants.FEED_SPEED);
+        SmartDashboard.putNumber(DashboardConstants.LAUNCHER_CLEAR_KEY, LauncherConstants.CLEAR_SPEED);
     }
 }
