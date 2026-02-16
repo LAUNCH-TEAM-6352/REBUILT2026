@@ -127,7 +127,7 @@ public class Launcher extends SubsystemBase
     {
         return runOnce(this::stopShooters);
     }
-    
+
     public void stopIndexer()
     {
         indexerMotor.stopMotor();

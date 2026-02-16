@@ -51,7 +51,7 @@ public class Hopper extends SubsystemBase
         setConveyor(
             SmartDashboard.getNumber(DashboardConstants.CONVEYOR_FEED_KEY, HopperConstants.FEED_SPEED));
     }
- 
+
     // Intended for use with a press-and-hold binding
     public Command clearThenStopCommand()
     {
