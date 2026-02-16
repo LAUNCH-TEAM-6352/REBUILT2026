@@ -18,11 +18,12 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Climber extends SubsystemBase
 {
-    private TalonFX winchMotor = new TalonFX(ClimberConstants.WINCH_MOTOR_CHANNEL);
+    private final TalonFX winchMotor = new TalonFX(ClimberConstants.WINCH_MOTOR_CHANNEL);
     private final Servo servo = new Servo(ClimberConstants.SERVO_CHANNEL);
-    private int currentServoPosition;
 
     private final PositionVoltage positionVoltage = new PositionVoltage(0);
+
+    private int currentServoPosition;
 
     /** Creates a new Climber. */
     public Climber()
