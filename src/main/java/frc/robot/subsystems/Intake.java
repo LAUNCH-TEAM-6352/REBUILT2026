@@ -22,10 +22,10 @@ import frc.robot.Constants.IntakeConstants;
 public class Intake extends SubsystemBase
 {
 
-    private static TalonFX intakeMotor = new TalonFX(IntakeConstants.INTAKE_MOTOR_CHANNEL);
-    private static TalonFX pivotMotor = new TalonFX(IntakeConstants.PIVOT_MOTOR_CHANNEL);
+    private final TalonFX intakeMotor = new TalonFX(IntakeConstants.INTAKE_MOTOR_CHANNEL);
+    private final TalonFX pivotMotor = new TalonFX(IntakeConstants.PIVOT_MOTOR_CHANNEL);
 
-    public static CANcoder pivotEncoder = new CANcoder(IntakeConstants.PIVOT_ENCODER_CHANNEL);
+    private final CANcoder pivotEncoder = new CANcoder(IntakeConstants.PIVOT_ENCODER_CHANNEL);
 
     private final PositionVoltage positionVoltage = new PositionVoltage(0);
 

@@ -5,13 +5,13 @@ import java.util.List;
 
 public class LimeLightVision
 {
+    private List<String> cameraNames = List.of("limelight-front");
+    long lastLog = 0;
+
     public LimeLightVision(List<String> cameraNames)
     {
         this.cameraNames = cameraNames;
     }
-
-    private List<String> cameraNames = List.of("limelight-front");
-    long lastLog = 0;
 
     /**
      * Update the pose estimation inside of {@link SwerveDrive} with all of the given poses. Don't
