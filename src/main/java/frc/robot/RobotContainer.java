@@ -20,7 +20,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -83,8 +82,6 @@ public class RobotContainer
     // OI devices:
     private CommandXboxController driverGamepad;
     private final CommandXboxController codriverGamepad;
-
-
 
     public RobotContainer()
     {
@@ -160,7 +157,6 @@ public class RobotContainer
     private void configureBindings()
     {
 
-        
         climber.ifPresent(this::configureBindings);
         launcher.ifPresent(this::configureBindings);
         intake.ifPresent(this::configureBindings);
@@ -209,7 +205,7 @@ public class RobotContainer
     // CLIMB: pov up-> extend, pov down-> climb, pov left-> stow
     // DUMP FUEL: left trigger-> clear launcher, left bumper-> clear hopper, left stick-> eject from intake
     // COLLAPSE HOPPER: start-> partial deploy, back-> stow
-    //IDLE OR STOP SHOOTER: right bumper-> stop shooter, right trigger-> idle shooter
+    // IDLE OR STOP SHOOTER: right bumper-> stop shooter, right trigger-> idle shooter
 
     private void configureBindings(Climber climber)
     {
@@ -244,7 +240,8 @@ public class RobotContainer
 
     public Command getAutonomousCommand()
     {
-        var drivetrain = this.drivetrain.orElseThrow(() -> new IllegalStateException("Drivetrain subsystem is required for autonomous"));
+        var drivetrain = this.drivetrain
+            .orElseThrow(() -> new IllegalStateException("Drivetrain subsystem is required for autonomous"));
         // Simple drive forward auton
         final var idle = new SwerveRequest.Idle();
         return Commands.sequence(
@@ -259,8 +256,6 @@ public class RobotContainer
             // Finally idle for the rest of auton
             drivetrain.applyRequest(() -> idle));
     }
-
-
 
     public Command pathfindToPose(Pose2d point, Double endVelocity)
     {
@@ -297,7 +292,8 @@ public class RobotContainer
 
     public void updateVisionEstimate()
     {
-        var drivetrain = this.drivetrain.orElseThrow(() -> new IllegalStateException("Drivetrain subsystem is required to update vision pose estimation"));
+        var drivetrain = this.drivetrain.orElseThrow(
+            () -> new IllegalStateException("Drivetrain subsystem is required to update vision pose estimation"));
         // updatePoseEstimation function assigns estimations to the
         // drive train.
         this.limelightVision.updatePoseEstimation(drivetrain);
@@ -323,11 +319,11 @@ public class RobotContainer
         SmartDashboard.putNumber(DashboardConstants.CLIMBER_CLIMB_KEY, ClimberConstants.CLIMBED_POSITION);
         SmartDashboard.putNumber(DashboardConstants.CLIMBER_EXTEND_KEY, ClimberConstants.EXTENDED_POSITION);
         SmartDashboard.putNumber(DashboardConstants.CLIMBER_STOW_KEY, ClimberConstants.STOWED_POSITION);
-        
+
         // Hopper:
         SmartDashboard.putNumber(DashboardConstants.CONVEYOR_FEED_KEY, HopperConstants.FEED_SPEED);
         SmartDashboard.putNumber(DashboardConstants.CONVEYOR_CLEAR_KEY, HopperConstants.CLEAR_SPEED);
-        
+
         // Intake:
         SmartDashboard.putNumber(DashboardConstants.INTAKE_SPEED_KEY, IntakeConstants.INTAKE_SPEED);
         SmartDashboard.putNumber(DashboardConstants.EJECT_SPEED_KEY, IntakeConstants.EJECT_SPEED);
