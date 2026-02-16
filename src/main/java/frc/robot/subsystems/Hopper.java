@@ -8,6 +8,7 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.DashboardConstants;
@@ -15,41 +16,59 @@ import frc.robot.Constants.HopperConstants;
 
 public class Hopper extends SubsystemBase
 {
-    private TalonFX indexerMotor = new TalonFX(Constants.HopperConstants.INDEXER_MOTOR_CHANNEL,
-        Constants.HopperConstants.INDEXER_MOTOR_BUS);
+    private TalonFX conveyorMotor = new TalonFX(Constants.HopperConstants.CONVEYOR_MOTOR_CHANNEL,
+        Constants.HopperConstants.CONVEYOR_MOTOR_BUS);
 
     /** Creates a new Hopper. */
     public Hopper()
     {
         var configs = new TalonFXConfiguration();
-        configs.MotorOutput.Inverted = Constants.HopperConstants.INDEXER_MOTOR_INVERTED_VALUE;
-        indexerMotor.getConfigurator().apply(configs);
+        configs.MotorOutput.Inverted = Constants.HopperConstants.CONVEYOR_MOTOR_INVERTED_VALUE;
+        conveyorMotor.getConfigurator().apply(configs);
     }
 
     // Set the lower indexer motor to a specific speed
-    private void setIndexerSpeed(double speed)
+    private void setConveyor(double speed)
     {
-        indexerMotor.set(speed);
+        conveyorMotor.set(speed);
+    }
+
+    // Intended for use with a press-and-hold binding
+    public Command feedThenStopCommand()
+    {
+        return startEnd(this::feed, this::stop);
+    }
+
+    // Intended for use in auto (Only starts feeding, does not stop automatically)
+    public Command feedCommand()
+    {
+        return runOnce(this::feed);
     }
 
     // Feed fuel from the hopper to the launcher
     public void feed()
     {
-        setIndexerSpeed(
-            SmartDashboard.getNumber(DashboardConstants.HOPPER_INDEXER_FEED_KEY, HopperConstants.FEED_SPEED));
+        setConveyor(
+            SmartDashboard.getNumber(DashboardConstants.CONVEYOR_FEED_KEY, HopperConstants.FEED_SPEED));
+    }
+
+    // Intended for use with a press-and-hold binding
+    public Command clearThenStopCommand()
+    {
+        return startEnd(this::clear, this::stop);
     }
 
     // Clear the hopper by running the feeding motor in reverse
     public void clear()
     {
-        setIndexerSpeed(
-            SmartDashboard.getNumber(DashboardConstants.HOPPER_INDEXER_CLEAR_KEY, HopperConstants.CLEAR_SPEED));
+        setConveyor(
+            SmartDashboard.getNumber(DashboardConstants.CONVEYOR_CLEAR_KEY, HopperConstants.CLEAR_SPEED));
     }
 
     // Stop the indexer motor
     public void stop()
     {
-        indexerMotor.stopMotor();
+        conveyorMotor.stopMotor();
     }
 
     @Override

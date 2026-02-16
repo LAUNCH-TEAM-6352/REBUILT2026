@@ -44,9 +44,9 @@ public final class Constants
 
     public static class HopperConstants
     {
-        public static final CANBus INDEXER_MOTOR_BUS = Constants.CANIVORE_BUS;
-        public static final int INDEXER_MOTOR_CHANNEL = 41;
-        public static final InvertedValue INDEXER_MOTOR_INVERTED_VALUE = InvertedValue.CounterClockwise_Positive;
+        public static final CANBus CONVEYOR_MOTOR_BUS = Constants.CANIVORE_BUS;
+        public static final int CONVEYOR_MOTOR_CHANNEL = 41;
+        public static final InvertedValue CONVEYOR_MOTOR_INVERTED_VALUE = InvertedValue.CounterClockwise_Positive;
 
         public static final double FEED_SPEED = 0.25;
         public static final double CLEAR_SPEED = -0.25;
@@ -125,8 +125,8 @@ public final class Constants
         public static final String CLIMBER_EXTEND_KEY = "Extended Position";
         public static final String CLIMBER_STOW_KEY = "Stowed Position";
 
-        public static final String HOPPER_INDEXER_FEED_KEY = "HopperFeed";
-        public static final String HOPPER_INDEXER_CLEAR_KEY = "HopperClear";
+        public static final String CONVEYOR_FEED_KEY = "HopperFeed";
+        public static final String CONVEYOR_CLEAR_KEY = "HopperClear";
 
         public static final String INTAKE_SPEED_KEY = "Intake";
         public static final String EJECT_SPEED_KEY = "Eject";
