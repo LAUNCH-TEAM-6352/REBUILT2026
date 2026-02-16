@@ -141,4 +141,25 @@ public final class Constants
         public static final String LAUNCHER_FEED_KEY = "LauncherFeed";
         public static final String LAUNCHER_CLEAR_KEY = "LauncherClear";
     }
+
+    public static class TestConstants
+    {
+        public static final double BETWEEN_TIME_SECS = 1.0;
+        public static final double INSTANT_BETWEEN_TIME_SECS = 3.0;
+
+        public static final double SWERVE_MODULE_MOTOR_TIMEOUT_SECS = 5;
+        public static final double SWERVE_MODULE_DRIVE_FORWARD_SPEED = 0.20;
+        public static final double SWERVE_MODULE_DRIVE_REVERSE_SPEED = -0.20;
+        public static final double SWERVE_MODULE_STEER_CCW_SPEED = 0.20;
+        public static final double SWERVE_MODULE_STEER_CW_SPEED = -0.20;
+
+        public static final String[] swerveModuleNames = {
+                        // Swerve module names in the order in which they are indexed:
+                        "FrontLeft",
+                        "FrontRight",
+                        "BackLeft",
+                        "BackRight"
+        };
+    }
+
 }
