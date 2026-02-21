@@ -24,7 +24,7 @@ public final class Constants
     public static class ClimberConstants
     {
         public static final CANBus WINCH_MOTOR_BUS = Constants.CANIVORE_BUS;
-        public static final int WINCH_MOTOR_CHANNEL = 0;
+        public static final int WINCH_MOTOR_CHANNEL = 48;
         public static final double WINCH_MOTOR_SPEED = 0.6;
         public static final InvertedValue WINCH_MOTOR_INVERTED_VALUE = InvertedValue.CounterClockwise_Positive;
 
