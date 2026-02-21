@@ -212,7 +212,7 @@ public class RobotContainer
 
         // Reset the field-centric heading on left bumper press.
         joystick.leftBumper().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
-        joystick.povLeft().onTrue(this.pathfindToPose(startingPose, 0.0).andThen(auto));
+        joystick.povLeft().onTrue(this.pathfindToPose(startingPose, 0.0, false).andThen(auto));
 
         drivetrain.registerTelemetry(logger::telemeterize);
 
@@ -315,13 +315,12 @@ public class RobotContainer
                 path,
                 constraints);
             lastCommand = lastCommand.andThen(pathfindingCommand);
-            // lastCommand = lastCommand.andThen(Commands.waitSeconds(2));
         }
 
         CommandScheduler.getInstance().schedule(lastCommand);
     }
 
-    public Command pathfindToPose(Pose2d point, Double endVelocity)
+    public Command pathfindToPose(Pose2d point, Double endVelocity, boolean blueAlliance)
     {
         // Creates a command to pathfind to the given pose
 
@@ -329,13 +328,25 @@ public class RobotContainer
         PathConstraints constraints = new PathConstraints(
             5.0, 4.0,
             Units.degreesToRadians(540), Units.degreesToRadians(-180));
-
-        // Since AutoBuilder is configured, we can use it to build pathfinding commands
-        Command pathfindingCommand = AutoBuilder.pathfindToPoseFlipped(
-            point,
-            constraints,
-            endVelocity // Goal end velocity in meters/sec
-        );
+        Command pathfindingCommand;
+        if (blueAlliance == false)
+        {
+            pathfindingCommand = AutoBuilder.pathfindToPoseFlipped(
+                point,
+                constraints,
+                endVelocity // Goal end velocity in meters/sec
+            );
+        }
+        else
+        {
+            // Since AutoBuilder is configured, we can use it to build pathfinding commands
+            // flipped will reflect accross from where pathplanner says the path will start
+            pathfindingCommand = AutoBuilder.pathfindToPose(
+                point,
+                constraints,
+                endVelocity // Goal end velocity in meters/sec
+            );
+        }
         return pathfindingCommand;
     }
 
@@ -344,11 +355,11 @@ public class RobotContainer
 
         // var cmd = pathfindToPose(points.get(0), 10.0);
         var pointsIterator = points.iterator();
-        Command cmd = pathfindToPose(pointsIterator.next(), 5.0);
+        Command cmd = pathfindToPose(pointsIterator.next(), 5.0, false);
         Command lastCommand = cmd;
         while (pointsIterator.hasNext())
         {
-            lastCommand = lastCommand.andThen(pathfindToPose(pointsIterator.next(), 10.0));
+            lastCommand = lastCommand.andThen(pathfindToPose(pointsIterator.next(), 10.0, false));
         }
 
         CommandScheduler.getInstance().schedule(lastCommand);
