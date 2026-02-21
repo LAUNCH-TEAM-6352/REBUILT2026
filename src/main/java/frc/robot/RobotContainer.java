@@ -33,8 +33,12 @@ import frc.robot.Constants.HopperConstants;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.LauncherConstants;
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.commands.test.TestClimber;
 import frc.robot.Constants.PathPlannerConstants;
 import frc.robot.commands.test.TestDrivetrain;
+import frc.robot.commands.test.TestHopper;
+import frc.robot.commands.test.TestIntake;
+import frc.robot.commands.test.TestLauncher;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
@@ -328,6 +332,26 @@ public class RobotContainer
         if (drivetrain.isPresent())
         {
             group.addCommands(new TestDrivetrain(drivetrain.get()));
+        }
+
+        if (intake.isPresent())
+        {
+            group.addCommands(new TestIntake(intake.get()));
+        }
+
+        if (hopper.isPresent())
+        {
+            group.addCommands(new TestHopper(hopper.get()));
+        }
+
+        if (launcher.isPresent())
+        {
+            group.addCommands(new TestLauncher(launcher.get()));
+        }
+
+        if (climber.isPresent())
+        {
+            group.addCommands(new TestClimber(climber.get()));
         }
 
         return group;
