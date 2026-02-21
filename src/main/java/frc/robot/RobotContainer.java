@@ -138,8 +138,10 @@ public class RobotContainer
             ? Optional.of(TunerConstants.createDrivetrain())
             : Optional.empty();
 
-        // Configure the trigger bindings
-        drivetrain.get().setupPathPlanner();
+        if (drivetrain.isPresent())
+        {
+            drivetrain.get().setupPathPlanner();
+        }
         configureBindings();
 
         // Configure dashboard values
