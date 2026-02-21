@@ -7,15 +7,12 @@ package frc.robot;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
-
 import java.util.List;
 import java.util.Optional;
-
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathConstraints;
-
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
@@ -37,6 +34,7 @@ import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.LauncherConstants;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.test.TestClimber;
+import frc.robot.Constants.PathPlannerConstants;
 import frc.robot.commands.test.TestDrivetrain;
 import frc.robot.commands.test.TestHopper;
 import frc.robot.commands.test.TestIntake;
@@ -44,10 +42,11 @@ import frc.robot.commands.test.TestLauncher;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
-import frc.robot.subsystems.Hopper;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Launcher;
 import frc.robot.subsystems.LimeLightVision;
+import frc.robot.subsystems.Hopper;
+import com.pathplanner.lib.path.PathPlannerPath;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -55,6 +54,7 @@ import frc.robot.subsystems.LimeLightVision;
  * periodic methods (other than the scheduler calls). Instead, the structure of the robot (including
  * subsystems, commands, and trigger mappings) should be declared here.
  */
+
 public class RobotContainer
 {
     private double MaxSpeed = 1.0 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top
@@ -142,7 +142,10 @@ public class RobotContainer
             ? Optional.of(TunerConstants.createDrivetrain())
             : Optional.empty();
 
-        // Configure the trigger bindings
+        if (drivetrain.isPresent())
+        {
+            drivetrain.get().setupPathPlanner();
+        }
         configureBindings();
 
         // Configure dashboard values
@@ -258,6 +261,24 @@ public class RobotContainer
                 .withTimeout(5.0),
             // Finally idle for the rest of auton
             drivetrain.applyRequest(() -> idle));
+    }
+
+    // Load the path we want to pathfind to and follow
+    public Command pathfindThenFollowPath(String pathName) throws Exception
+    {
+        PathPlannerPath path = PathPlannerPath.fromPathFile(pathName); // checked exception
+
+        // Create the constraints to use while pathfinding. The constraints defined in the path will only be used for
+        // the path.
+        PathConstraints constraints = new PathConstraints(
+            PathPlannerConstants.MAX_VELOCITY_MPS, PathPlannerConstants.MAX_ACCELERATION_MPS_SQ,
+            PathPlannerConstants.MAX_ANGULAR_VELOCITY_RPS, PathPlannerConstants.MAX_ANGULAR_ACCELERATION_RPS);
+
+        // Since AutoBuilder is configured, we can use it to build pathfinding commands
+        Command pathfindingCommand = AutoBuilder.pathfindThenFollowPath(
+            path,
+            constraints);
+        return pathfindingCommand;
     }
 
     public Command pathfindToPose(Pose2d point, Double endVelocity)
