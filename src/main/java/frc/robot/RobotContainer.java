@@ -218,6 +218,7 @@ public class RobotContainer
         codriverGamepad.povLeft().onTrue(climber.stowCommand());
         codriverGamepad.povUp().onTrue(climber.extendCommand());
         codriverGamepad.povDown().onTrue(climber.climbCommand());
+        codriverGamepad.povRight().onTrue(climber.toggleRatchetCommand());
     }
 
     private void configureBindings(Launcher launcher)

@@ -77,6 +77,11 @@ public class Climber extends SubsystemBase
         setPosition(SmartDashboard.getNumber(DashboardConstants.CLIMBER_STOW_KEY, ClimberConstants.STOWED_POSITION));
     }
 
+    public Command toggleRatchetCommand()
+    {
+        return runOnce(this::toggleRatchet);
+    }
+
     public void toggleRatchet()
     {
         var position = isRatchetEngaged()
