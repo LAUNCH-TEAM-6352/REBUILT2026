@@ -4,28 +4,47 @@
 
 package frc.robot;
 
-import static edu.wpi.first.units.Units.*;
+import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+
+import java.util.List;
+import java.util.Optional;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
-import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.swerve.SwerveRequest;
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.path.PathConstraints;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
+import frc.robot.Constants.ClimberConstants;
+import frc.robot.Constants.DashboardConstants;
+import frc.robot.Constants.HopperConstants;
 import frc.robot.Constants.IntakeConstants;
+import frc.robot.Constants.LauncherConstants;
+import frc.robot.Constants.OperatorConstants;
+import frc.robot.commands.test.TestDrivetrain;
 import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Launcher;
 import frc.robot.subsystems.LimeLightVision;
+import frc.robot.subsystems.Hopper;
 
-import java.io.IOException;
 import java.util.List;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -44,9 +63,7 @@ import edu.wpi.first.math.util.Units;
 
 public class RobotContainer
 {
-   //from looking at the intake front
-    
-
+    // from looking at the intake front
 
     private double MaxSpeed = 1.0 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top
                                                                                         // speed
@@ -67,8 +84,16 @@ public class RobotContainer
     // wrapper class to manage limelight cameras and get position estimates
     public final LimeLightVision limelightVision = new LimeLightVision(List.of("limelight-front"));
 
-    // drive train
-    public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
+    // Subsystems:
+    private final Optional<Climber> climber;
+    private final Optional<Launcher> launcher;
+    private final Optional<Intake> intake;
+    private final Optional<Hopper> hopper;
+    private final Optional<CommandSwerveDrivetrain> drivetrain;
+
+    // OI devices:
+    private final CommandXboxController driverGamepad;
+    private final CommandXboxController codriverGamepad;
 
     public final Intake intake = new Intake();
 
@@ -76,9 +101,65 @@ public class RobotContainer
 
     public RobotContainer()
     {
+        // Get the game data message fom the driver station.
+        // This message is primarily used during development to
+        // construct only certain subsystems.
+        // If the message is blank (or all whitespace),
+        // all subsystems are constructed.
+        // Otherwise, OI devices and subsystems are constructed
+        // depending upon the substrings found in the message:
+        // -dt- Drive train
+        // -oi- OI devices
+        // -c- Climber
+        // -l- Launcher
+        // -i- Intake
+        // -h- Hopper
+
+        var gameData = DriverStation.getGameSpecificMessage().toLowerCase();
+        SmartDashboard.putString("Game Data", gameData);
+
+        // Create OI devices:
+        if (gameData.contains("-oi-"))
+        {
+            // Explicitly look for OI devices:
+            driverGamepad = DriverStation.isJoystickConnected(OperatorConstants.DRIVER_GAMEPAD_PORT)
+                ? new CommandXboxController(OperatorConstants.DRIVER_GAMEPAD_PORT)
+                : null;
+            codriverGamepad = DriverStation.isJoystickConnected(OperatorConstants.CODRIVER_GAMEPAD_PORT)
+                ? new CommandXboxController(OperatorConstants.CODRIVER_GAMEPAD_PORT)
+                : null;
+        }
+        else
+        {
+            // In competition, don't take chances and always create all OI devices:
+            codriverGamepad = new CommandXboxController(OperatorConstants.CODRIVER_GAMEPAD_PORT);
+            driverGamepad = new CommandXboxController(OperatorConstants.DRIVER_GAMEPAD_PORT);
+        }
+
+        // Create subsystems:
+        climber = (gameData.contains("-c-") || gameData.isBlank() || gameData.length() == 1)
+            ? Optional.of(new Climber())
+            : Optional.empty();
+        launcher = (gameData.contains("-l-") || gameData.isBlank() || gameData.length() == 1)
+            ? Optional.of(new Launcher())
+            : Optional.empty();
+        intake = (gameData.contains("-i-") || gameData.isBlank() || gameData.length() == 1)
+            ? Optional.of(new Intake())
+            : Optional.empty();
+        hopper = (gameData.contains("-h-") || gameData.isBlank() || gameData.length() == 1)
+            ? Optional.of(new Hopper())
+            : Optional.empty();
+
+        drivetrain = (gameData.contains("-dt-") || gameData.isBlank() || gameData.length() == 1)
+            ? Optional.of(TunerConstants.createDrivetrain())
+            : Optional.empty();
+
         // Configure the trigger bindings
         drivetrain.setupPathPlanner();
         configureBindings();
+
+        // Configure dashboard values
+        configureDashboard();
     }
 
     /**
@@ -91,6 +172,15 @@ public class RobotContainer
      * joysticks}.
      */
     private void configureBindings()
+    {
+        climber.ifPresent(this::configureBindings);
+        launcher.ifPresent(this::configureBindings);
+        intake.ifPresent(this::configureBindings);
+        hopper.ifPresent(this::configureBindings);
+        drivetrain.ifPresent(this::configureBindings);
+    }
+
+    private void configureBindings(CommandSwerveDrivetrain drivetrain)
     {
         // Note that X is defined as forward according to WPILib convention,
         // and Y is defined as to the left according to WPILib convention.
@@ -134,8 +224,48 @@ public class RobotContainer
         joystick.povLeft().onTrue(pathfindThenFollowPath());
     }
 
+    // TODO: the following bindings are designed for testing and need to changed for the final control scheme.
+    // SCORE FUEL: x-> deploy y-> intake, b-> spinUp shooters, a-> convey, right joystick press-> feed (fuel shoots)
+    // CLIMB: pov up-> extend, pov down-> climb, pov left-> stow
+    // DUMP FUEL: left trigger-> clear launcher, left bumper-> clear hopper, left stick-> eject from intake
+    // COLLAPSE HOPPER: start-> partial deploy, back-> stow
+    // IDLE OR STOP SHOOTER: right bumper-> stop shooter, right trigger-> idle shooter
+
+    private void configureBindings(Climber climber)
+    {
+        codriverGamepad.povLeft().onTrue(climber.stowCommand());
+        codriverGamepad.povUp().onTrue(climber.extendCommand());
+        codriverGamepad.povDown().onTrue(climber.climbCommand());
+    }
+
+    private void configureBindings(Launcher launcher)
+    {
+        codriverGamepad.rightStick().whileTrue(launcher.feedThenStopCommand());
+        codriverGamepad.leftTrigger().whileTrue(launcher.clearThenStopCommand());
+        codriverGamepad.b().onTrue(launcher.spinUpShootersCommand());
+        codriverGamepad.rightBumper().onTrue(launcher.stopShootersCommand());
+        codriverGamepad.rightTrigger().onTrue(launcher.idleShootersCommand());
+    }
+
+    private void configureBindings(Intake intake)
+    {
+        driverGamepad.y().whileTrue(intake.intakeThenStopCommand());
+        driverGamepad.leftStick().whileTrue(intake.ejectThenStopCommand());
+        driverGamepad.x().onTrue(intake.deployCommand());
+        driverGamepad.start().onTrue(intake.partialDeployCommand());
+        driverGamepad.back().onTrue(intake.stowCommand());
+    }
+
+    private void configureBindings(Hopper hopper)
+    {
+        codriverGamepad.a().whileTrue(hopper.feedThenStopCommand());
+        codriverGamepad.leftBumper().whileTrue(hopper.clearThenStopCommand());
+    }
+
     public Command getAutonomousCommand()
     {
+        var drivetrain = this.drivetrain
+            .orElseThrow(() -> new IllegalStateException("Drivetrain subsystem is required for autonomous"));
         // Simple drive forward auton
         final var idle = new SwerveRequest.Idle();
         return Commands.sequence(
@@ -151,27 +281,32 @@ public class RobotContainer
             drivetrain.applyRequest(() -> idle));
     }
 
-    //Load the path we want to pathfind to and follow
-    public Command pathfindThenFollowPath(){
+    // Load the path we want to pathfind to and follow
+    public Command pathfindThenFollowPath()
+    {
         PathPlannerPath path = null;
-    try{
-        path = PathPlannerPath.fromPathFile("climb");
-    }
-    catch(Exception ex){
-        System.out.println("booger!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Q");
-    }
+        try
+        {
+            path = PathPlannerPath.fromPathFile("climb");
+        }
+        catch (Exception ex)
+        {
+            System.out.println("booger!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Q");
+        }
 
-    //Create the constraints to use while pathfinding. The constraints defined in the path will only be used for the path.
-    PathConstraints constraints = new PathConstraints(
+        // Create the constraints to use while pathfinding. The constraints defined in the path will only be used for
+        // the path.
+        PathConstraints constraints = new PathConstraints(
             3.0, 4.0,
             Units.degreesToRadians(540), Units.degreesToRadians(720));
 
-    //Since AutoBuilder is configured, we can use it to build pathfinding commands
-    Command pathfindingCommand = AutoBuilder.pathfindThenFollowPath(
+        // Since AutoBuilder is configured, we can use it to build pathfinding commands
+        Command pathfindingCommand = AutoBuilder.pathfindThenFollowPath(
             path,
             constraints);
-    return pathfindingCommand;
+        return pathfindingCommand;
     }
+
     public Command pathfindToPose(Pose2d point, Double endVelocity)
     {
         // Creates a command to pathfind to the given pose
@@ -189,7 +324,6 @@ public class RobotContainer
         );
         return pathfindingCommand;
     }
-        
 
     public void pathFindToMultiPose(List<Pose2d> points)
     {
@@ -203,15 +337,56 @@ public class RobotContainer
             lastCommand = lastCommand.andThen(pathfindToPose(pointsIterator.next(), 10.0));
         }
 
-        lastCommand.schedule();
+        CommandScheduler.getInstance().schedule(lastCommand);
     }
 
     public void updateVisionEstimate()
     {
+        var drivetrain = this.drivetrain.orElseThrow(
+            () -> new IllegalStateException("Drivetrain subsystem is required to update vision pose estimation"));
         // updatePoseEstimation function assigns estimations to the
         // drive train.
         this.limelightVision.updatePoseEstimation(drivetrain);
     }
 
-    
+    public Command getTestCommand()
+    {
+        var group = new SequentialCommandGroup();
+
+        // Wait for startup messages to be logged to driver station console:
+        group.addCommands(new WaitCommand(5));
+        if (drivetrain.isPresent())
+        {
+            group.addCommands(new TestDrivetrain(drivetrain.get()));
+        }
+
+        return group;
+    }
+
+    private void configureDashboard()
+    {
+        // Climber:
+        SmartDashboard.putNumber(DashboardConstants.CLIMBER_CLIMB_KEY, ClimberConstants.CLIMBED_POSITION);
+        SmartDashboard.putNumber(DashboardConstants.CLIMBER_EXTEND_KEY, ClimberConstants.EXTENDED_POSITION);
+        SmartDashboard.putNumber(DashboardConstants.CLIMBER_STOW_KEY, ClimberConstants.STOWED_POSITION);
+
+        // Hopper:
+        SmartDashboard.putNumber(DashboardConstants.CONVEYOR_FEED_KEY, HopperConstants.FEED_SPEED);
+        SmartDashboard.putNumber(DashboardConstants.CONVEYOR_CLEAR_KEY, HopperConstants.CLEAR_SPEED);
+
+        // Intake:
+        SmartDashboard.putNumber(DashboardConstants.INTAKE_SPEED_KEY, IntakeConstants.INTAKE_SPEED);
+        SmartDashboard.putNumber(DashboardConstants.EJECT_SPEED_KEY, IntakeConstants.EJECT_SPEED);
+        SmartDashboard.putNumber(DashboardConstants.PIVOT_SPEED_KEY, IntakeConstants.PIVOT_SPEED);
+        SmartDashboard.putNumber(DashboardConstants.DEPLOY_KEY, IntakeConstants.DEPLOYED_POSITION);
+        SmartDashboard.putNumber(DashboardConstants.PARTIALLY_DEPLOY_KEY, IntakeConstants.PARTIALLY_DEPLOYED_POSITION);
+        SmartDashboard.putNumber(DashboardConstants.STOW_KEY, IntakeConstants.STOW_POSITION);
+        SmartDashboard.putNumber(DashboardConstants.PIVOT_TOLERANCE_KEY, IntakeConstants.DEPLOY_TOLERANCE);
+
+        // Launcher:
+        SmartDashboard.putNumber(DashboardConstants.LAUNCHER_SHOOTING_KEY, LauncherConstants.SHOOTING_VELOCITY_RPM);
+        SmartDashboard.putNumber(DashboardConstants.LAUNCHER_IDLE_KEY, LauncherConstants.IDLE_VELOCITY_RPM);
+        SmartDashboard.putNumber(DashboardConstants.LAUNCHER_FEED_KEY, LauncherConstants.FEED_SPEED);
+        SmartDashboard.putNumber(DashboardConstants.LAUNCHER_CLEAR_KEY, LauncherConstants.CLEAR_SPEED);
+    }
 }
