@@ -232,11 +232,11 @@ public class RobotContainer
 
     private void configureBindings(Intake intake)
     {
-        driverGamepad.y().whileTrue(intake.intakeThenStopCommand());
-        driverGamepad.leftStick().whileTrue(intake.ejectThenStopCommand());
-        driverGamepad.x().onTrue(intake.deployCommand());
-        driverGamepad.start().onTrue(intake.partialDeployCommand());
-        driverGamepad.back().onTrue(intake.stowCommand());
+        codriverGamepad.y().whileTrue(intake.intakeThenStopCommand());
+        codriverGamepad.leftStick().whileTrue(intake.ejectThenStopCommand());
+        codriverGamepad.x().onTrue(intake.deployCommand());
+        codriverGamepad.start().onTrue(intake.partialDeployCommand());
+        codriverGamepad.back().onTrue(intake.stowCommand());
     }
 
     private void configureBindings(Hopper hopper)

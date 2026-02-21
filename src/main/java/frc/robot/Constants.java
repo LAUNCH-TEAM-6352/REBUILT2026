@@ -60,6 +60,7 @@ public final class Constants
         public static final int INTAKE_MOTOR_CHANNEL = 45;
         public static final CANBus PIVOT_MOTOR_BUS = Constants.CANIVORE_BUS;
         public static final int PIVOT_MOTOR_CHANNEL = 46;
+        public static final CANBus PIVOT_ENCODER_BUS = Constants.CANIVORE_BUS;
         public static final int PIVOT_ENCODER_CHANNEL = 47;
 
         public static final InvertedValue INTAKE_MOTOR_INVERTED_VALUE = InvertedValue.Clockwise_Positive;
@@ -96,8 +97,8 @@ public final class Constants
         public static final InvertedValue LEFT_SHOOTER_MOTOR_INVERTED_VALUE = InvertedValue.Clockwise_Positive;
         public static final InvertedValue RIGHT_SHOOTER_MOTOR_INVERTED_VALUE = InvertedValue.CounterClockwise_Positive;
 
-        public static final double SHOOTING_VELOCITY_RPM = 300;
-        public static final double IDLE_VELOCITY_RPM = 100;
+        public static final double SHOOTING_VELOCITY_RPM = 3000;
+        public static final double IDLE_VELOCITY_RPM = 1000;
         public static final double FEED_SPEED = 0.25;
         public static final double CLEAR_SPEED = -0.25;
 
