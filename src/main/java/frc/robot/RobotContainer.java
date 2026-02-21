@@ -8,8 +8,6 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
@@ -66,8 +64,6 @@ public class RobotContainer
                                                                                         // speed
     private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second
                                                                                       // max angular velocity
-    List<String> paths = new ArrayList<>(Arrays.asList("goneutral", "intake", "go shoot", "goclimbleft"));
-
     /* Setting up bindings for necessary control of the swerve drive platform */
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
         .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
@@ -130,7 +126,7 @@ public class RobotContainer
             driverGamepad = new CommandXboxController(OperatorConstants.DRIVER_GAMEPAD_PORT);
         }
         NamedCommands.registerCommand("runShoot", Commands.runOnce(() -> System.out.println("booger2")));
-
+        // replace command with command for running the launcher
         // Create subsystems:
         climber = (gameData.contains("-c-") || gameData.isBlank() || gameData.length() == 1)
             ? Optional.of(new Climber())
