@@ -8,6 +8,8 @@ import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.pathplanner.lib.config.PIDConstants;
 
+import edu.wpi.first.math.util.Units;
+
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
  * constants. This class should not be used for any other purpose. All constants should be declared
@@ -116,6 +118,10 @@ public final class Constants
     {
         public static final PIDConstants TRANSLATION_PID = new PIDConstants(0.7, 0, 0);
         public static final PIDConstants ANGLE_PID = new PIDConstants(0.4, 0, 0.01);
+        public static final double MAX_VELOCITY_MPS = 3.0;
+        public static final double MAX_ACCELERATION_MPS_SQ = 4.0;
+        public static final double MAX_ANGULAR_VELOCITY_RPS = Units.degreesToRadians(540);
+        public static final double MAX_ANGULAR_ACCELERATION_RPS = Units.degreesToRadians(720);
     }
 
     public static final class DashboardConstants

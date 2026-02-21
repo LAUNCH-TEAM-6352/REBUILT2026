@@ -36,6 +36,7 @@ import frc.robot.Constants.HopperConstants;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.LauncherConstants;
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.Constants.PathPlannerConstants;
 import frc.robot.commands.test.TestDrivetrain;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Climber;
@@ -95,10 +96,6 @@ public class RobotContainer
     private final CommandXboxController driverGamepad;
     private final CommandXboxController codriverGamepad;
 
-    public final Intake intake = new Intake();
-
-    public final Launcher launcher = new Launcher();
-
     public RobotContainer()
     {
         // Get the game data message fom the driver station.
@@ -155,7 +152,7 @@ public class RobotContainer
             : Optional.empty();
 
         // Configure the trigger bindings
-        drivetrain.setupPathPlanner();
+        drivetrain.get().setupPathPlanner();
         configureBindings();
 
         // Configure dashboard values
@@ -214,14 +211,6 @@ public class RobotContainer
         joystick.leftBumper().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
 
         drivetrain.registerTelemetry(logger::telemeterize);
-
-        joystick.leftTrigger().onTrue(launcher.setLaunchSpeed(0.5));
-
-        joystick.rightTrigger().whileTrue(intake.startIntake());
-
-        joystick.leftTrigger().onFalse(launcher.setLaunchSpeed(0.0));
-
-        joystick.povLeft().onTrue(pathfindThenFollowPath());
     }
 
     // TODO: the following bindings are designed for testing and need to changed for the final control scheme.
@@ -282,23 +271,15 @@ public class RobotContainer
     }
 
     // Load the path we want to pathfind to and follow
-    public Command pathfindThenFollowPath()
+    public Command pathfindThenFollowPath(String pathName) throws Exception
     {
-        PathPlannerPath path = null;
-        try
-        {
-            path = PathPlannerPath.fromPathFile("climb");
-        }
-        catch (Exception ex)
-        {
-            System.out.println("booger!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Q");
-        }
+        PathPlannerPath path = PathPlannerPath.fromPathFile(pathName); // checked exception
 
         // Create the constraints to use while pathfinding. The constraints defined in the path will only be used for
         // the path.
         PathConstraints constraints = new PathConstraints(
-            3.0, 4.0,
-            Units.degreesToRadians(540), Units.degreesToRadians(720));
+            PathPlannerConstants.MAX_VELOCITY_MPS, PathPlannerConstants.MAX_ACCELERATION_MPS_SQ,
+            PathPlannerConstants.MAX_ANGULAR_VELOCITY_RPS, PathPlannerConstants.MAX_ANGULAR_ACCELERATION_RPS);
 
         // Since AutoBuilder is configured, we can use it to build pathfinding commands
         Command pathfindingCommand = AutoBuilder.pathfindThenFollowPath(
