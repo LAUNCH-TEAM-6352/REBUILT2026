@@ -28,20 +28,21 @@ public final class Constants
         public static final CANBus WINCH_MOTOR_BUS = Constants.CANIVORE_BUS;
         public static final int WINCH_MOTOR_CHANNEL = 48;
         public static final double WINCH_MOTOR_SPEED = 0.6;
-        public static final InvertedValue WINCH_MOTOR_INVERTED_VALUE = InvertedValue.CounterClockwise_Positive;
+        public static final InvertedValue WINCH_MOTOR_INVERTED_VALUE = InvertedValue.Clockwise_Positive;
 
         public static final double WINCH_KP = 2.4; // An error of 1 rotation results in 2.4 V output
         public static final double WINCH_KI = 0; // no output for integrated error
         public static final double WINCH_KD = 0.1; // A velocity of 1 rps results in 0.1 V output
 
-        public static final double CLIMBED_POSITION = 10;
-        public static final double EXTENDED_POSITION = 15;
+        // These extended and climbed positions are WAGs based upon limited testing on 2026-02-21:
         public static final double STOWED_POSITION = 0;
+        public static final double EXTENDED_POSITION = 55.3;
+        public static final double CLIMBED_POSITION = 39;
 
         public static final int SERVO_CHANNEL = 0;
 
-        public static final int RATCHET_ENGAGED_POSITION = 1500;
-        public static final int RATCHET_RELEASED_POSITION = 1000;
+        public static final int RATCHET_ENGAGED_POSITION = 0;
+        public static final int RATCHET_RELEASED_POSITION = 1;
     }
 
     public static class HopperConstants

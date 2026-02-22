@@ -18,7 +18,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Climber extends SubsystemBase
 {
-    private final TalonFX winchMotor = new TalonFX(ClimberConstants.WINCH_MOTOR_CHANNEL);
+    private final TalonFX winchMotor = new TalonFX(ClimberConstants.WINCH_MOTOR_CHANNEL, ClimberConstants.WINCH_MOTOR_BUS);
     private final Servo servo = new Servo(ClimberConstants.SERVO_CHANNEL);
 
     private final PositionVoltage positionVoltage = new PositionVoltage(0);
@@ -36,9 +36,10 @@ public class Climber extends SubsystemBase
         configs.MotorOutput.Inverted = ClimberConstants.WINCH_MOTOR_INVERTED_VALUE;
         winchMotor.getConfigurator().apply(configs);
         winchMotor.getConfigurator().apply(slot0Configs);
+        winchMotor.setPosition(0);
 
         currentServoPosition = ClimberConstants.RATCHET_ENGAGED_POSITION;
-        servo.setPulseTimeMicroseconds(currentServoPosition);
+        servo.setPosition(currentServoPosition);
     }
 
     private void setPosition(double position)
@@ -87,7 +88,8 @@ public class Climber extends SubsystemBase
         var position = isRatchetEngaged()
             ? ClimberConstants.RATCHET_RELEASED_POSITION
             : ClimberConstants.RATCHET_ENGAGED_POSITION;
-        servo.setPulseTimeMicroseconds(position);
+        System.out.println("Setting ratchet to " + position);
+        servo.setPosition(position);
         currentServoPosition = position;
     }
 
@@ -104,6 +106,6 @@ public class Climber extends SubsystemBase
     @Override
     public void periodic()
     {
-        // This method will be called once per scheduler run
+        SmartDashboard.putNumber("Climber Pos", winchMotor.getPosition().getValueAsDouble());
     }
 }
