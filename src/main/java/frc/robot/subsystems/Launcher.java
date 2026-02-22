@@ -22,9 +22,9 @@ public class Launcher extends SubsystemBase
     private final TalonFX indexerMotor = new TalonFX(LauncherConstants.INDEXER_MOTOR_CHANNEL,
         LauncherConstants.INDEXER_MOTOR_BUS);
     private final TalonFX leftShooterMotor = new TalonFX(LauncherConstants.LEFT_SHOOTER_MOTOR_CHANNEL,
-        LauncherConstants.INDEXER_MOTOR_BUS);
+        LauncherConstants.LEFT_SHOOTER_MOTOR_BUS);
     private final TalonFX rightShooterMotor = new TalonFX(LauncherConstants.RIGHT_SHOOTER_MOTOR_CHANNEL,
-        LauncherConstants.INDEXER_MOTOR_BUS);
+        LauncherConstants.RIGHT_SHOOTER_MOTOR_BUS);
 
     private final VelocityVoltage velocityVoltage = new VelocityVoltage(0);
 
