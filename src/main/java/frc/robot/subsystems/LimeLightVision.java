@@ -70,7 +70,7 @@ public class LimeLightVision
             });
     }
 
-    /*Set Throttle for all Limelight cameras */
+    /* Set Throttle for all Limelight cameras */
     public void setCamThrottle(double throttle)
     {
         cameraNames.forEach(cameraName -> LimelightHelpers.SetThrottle(cameraName, (int) throttle));

@@ -153,7 +153,7 @@ public final class Constants
     public static final class LimeLightConstants
     {
         public static final double LIMELIGHT_THROTTLE_DISABLED = 0.0;
-        public static final double LIMELIGHT_THROTTLE_ENABLED  = 200.0;
+        public static final double LIMELIGHT_THROTTLE_ENABLED = 200.0;
     }
 
     public static class TestConstants
