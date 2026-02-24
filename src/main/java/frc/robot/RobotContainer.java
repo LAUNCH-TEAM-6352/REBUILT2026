@@ -446,5 +446,10 @@ public class RobotContainer
         SmartDashboard.putNumber(DashboardConstants.LAUNCHER_IDLE_KEY, LauncherConstants.IDLE_VELOCITY_RPM);
         SmartDashboard.putNumber(DashboardConstants.LAUNCHER_FEED_KEY, LauncherConstants.FEED_SPEED);
         SmartDashboard.putNumber(DashboardConstants.LAUNCHER_CLEAR_KEY, LauncherConstants.CLEAR_SPEED);
+
+        SmartDashboard.putNumber(DashboardConstants.LIMELIGHT_THROTTLE_DISABLED_KEY,
+            Constants.LimeLightConstants.LIMELIGHT_THROTTLE_DISABLED);
+        SmartDashboard.putNumber(DashboardConstants.LIMELIGHT_THROTTLE_ENABLED_KEY,
+            Constants.LimeLightConstants.LIMELIGHT_THROTTLE_ENABLED);
     }
 }
