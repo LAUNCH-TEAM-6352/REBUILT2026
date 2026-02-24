@@ -7,8 +7,11 @@ package frc.robot;
 import com.ctre.phoenix6.HootAutoReplay;
 
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.Constants.DashboardConstants;
+import frc.robot.Constants.LimeLightConstants;
 
 /**
  * The methods in this class are called automatically corresponding to each mode, as described in
@@ -57,10 +60,20 @@ public class Robot extends TimedRobot
         m_robotContainer.updateVisionEstimate();
     }
 
+    /** This function is called once when the robot is first started up. */
+    @Override
+    public void robotInit()
+    {
+        m_robotContainer.limelightVision.setCamThrottle(SmartDashboard.getNumber(DashboardConstants.LIMELIGHT_THROTTLE_ENABLED_KEY,
+            LimeLightConstants.LIMELIGHT_THROTTLE_ENABLED));
+    }
+
     /** This function is called once each time the robot enters Disabled mode. */
     @Override
     public void disabledInit()
     {
+        m_robotContainer.limelightVision.setCamThrottle(SmartDashboard.getNumber(DashboardConstants.LIMELIGHT_THROTTLE_ENABLED_KEY,
+            LimeLightConstants.LIMELIGHT_THROTTLE_ENABLED));
     }
 
     @Override
@@ -71,6 +84,8 @@ public class Robot extends TimedRobot
     @Override
     public void disabledExit()
     {
+        m_robotContainer.limelightVision.setCamThrottle(SmartDashboard.getNumber(DashboardConstants.LIMELIGHT_THROTTLE_DISABLED_KEY,
+            LimeLightConstants.LIMELIGHT_THROTTLE_DISABLED));
     }
 
     /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
@@ -84,6 +99,9 @@ public class Robot extends TimedRobot
         {
             CommandScheduler.getInstance().schedule(m_autonomousCommand);
         }
+
+        m_robotContainer.limelightVision.setCamThrottle(SmartDashboard.getNumber(DashboardConstants.LIMELIGHT_THROTTLE_DISABLED_KEY,
+            LimeLightConstants.LIMELIGHT_THROTTLE_DISABLED));
     }
 
     /** This function is called periodically during autonomous. */
@@ -95,6 +113,8 @@ public class Robot extends TimedRobot
     @Override
     public void autonomousExit()
     {
+        m_robotContainer.limelightVision.setCamThrottle(SmartDashboard.getNumber(DashboardConstants.LIMELIGHT_THROTTLE_ENABLED_KEY,
+            LimeLightConstants.LIMELIGHT_THROTTLE_ENABLED));
     }
 
     @Override
@@ -108,6 +128,9 @@ public class Robot extends TimedRobot
         {
             CommandScheduler.getInstance().cancel(m_autonomousCommand);
         }
+
+        m_robotContainer.limelightVision.setCamThrottle(SmartDashboard.getNumber(DashboardConstants.LIMELIGHT_THROTTLE_DISABLED_KEY,
+            LimeLightConstants.LIMELIGHT_THROTTLE_DISABLED));
     }
 
     /** This function is called periodically during operator control. */
@@ -119,6 +142,8 @@ public class Robot extends TimedRobot
     @Override
     public void teleopExit()
     {
+        m_robotContainer.limelightVision.setCamThrottle(SmartDashboard.getNumber(DashboardConstants.LIMELIGHT_THROTTLE_ENABLED_KEY,
+            LimeLightConstants.LIMELIGHT_THROTTLE_ENABLED));
     }
 
     @Override
