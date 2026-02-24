@@ -123,6 +123,7 @@ public class RobotContainer
             codriverGamepad = new CommandXboxController(OperatorConstants.CODRIVER_GAMEPAD_PORT);
             driverGamepad = new CommandXboxController(OperatorConstants.DRIVER_GAMEPAD_PORT);
         }
+
         // Create subsystems:
         climber = (gameData.contains("-c-") || gameData.isBlank() || gameData.length() == 1)
             ? Optional.of(new Climber())
@@ -164,7 +165,6 @@ public class RobotContainer
         NamedCommands.registerCommand("runShoot", Commands.runOnce(() -> System.out.println("booger2")));
     }
 
-
     /**
      * Use this method to define your trigger->command mappings. Triggers can be created via the
      * {@link Trigger#Trigger(java.util.function.BooleanSupplier)} constructor with an arbitrary
@@ -185,7 +185,6 @@ public class RobotContainer
 
     private void configureBindings(CommandSwerveDrivetrain drivetrain)
     {
-
         // Note that X is defined as forward according to WPILib convention,
         // and Y is defined as to the left according to WPILib convention.
         drivetrain.setDefaultCommand(
@@ -447,6 +446,7 @@ public class RobotContainer
         SmartDashboard.putNumber(DashboardConstants.LAUNCHER_FEED_KEY, LauncherConstants.FEED_SPEED);
         SmartDashboard.putNumber(DashboardConstants.LAUNCHER_CLEAR_KEY, LauncherConstants.CLEAR_SPEED);
 
+        // Limelight:
         SmartDashboard.putNumber(DashboardConstants.LIMELIGHT_THROTTLE_DISABLED_KEY,
             Constants.LimeLightConstants.LIMELIGHT_THROTTLE_DISABLED);
         SmartDashboard.putNumber(DashboardConstants.LIMELIGHT_THROTTLE_ENABLED_KEY,
