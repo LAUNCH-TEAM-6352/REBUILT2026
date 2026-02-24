@@ -7,11 +7,14 @@ package frc.robot;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
+
 import java.util.List;
 import java.util.Optional;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.path.PathConstraints;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -61,7 +64,6 @@ public class RobotContainer
                                                                                         // speed
     private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second
                                                                                       // max angular velocity
-
     /* Setting up bindings for necessary control of the swerve drive platform */
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
         .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
@@ -123,7 +125,8 @@ public class RobotContainer
             codriverGamepad = new CommandXboxController(OperatorConstants.CODRIVER_GAMEPAD_PORT);
             driverGamepad = new CommandXboxController(OperatorConstants.DRIVER_GAMEPAD_PORT);
         }
-
+        NamedCommands.registerCommand("runShoot", Commands.runOnce(() -> System.out.println("booger2")));
+        // replace command with command for running the launcher
         // Create subsystems:
         climber = (gameData.contains("-c-") || gameData.isBlank() || gameData.length() == 1)
             ? Optional.of(new Climber())
@@ -172,6 +175,7 @@ public class RobotContainer
 
     private void configureBindings(CommandSwerveDrivetrain drivetrain)
     {
+
         // Note that X is defined as forward according to WPILib convention,
         // and Y is defined as to the left according to WPILib convention.
         drivetrain.setDefaultCommand(
@@ -199,11 +203,15 @@ public class RobotContainer
         joystick.back().and(joystick.x()).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
         joystick.start().and(joystick.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
         joystick.start().and(joystick.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
+        PathPlannerAuto auto = new PathPlannerAuto("testAuto");
+        Pose2d startingPose = auto.getStartingPose();
 
         // Reset the field-centric heading on left bumper press.
         joystick.leftBumper().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
+        joystick.povLeft().onTrue(this.pathfindToPose(startingPose, 0.0, false).andThen(auto));
 
         drivetrain.registerTelemetry(logger::telemeterize);
+
     }
 
     // TODO: the following bindings are designed for testing and need to changed for the final control scheme.
@@ -282,7 +290,34 @@ public class RobotContainer
         return pathfindingCommand;
     }
 
-    public Command pathfindToPose(Pose2d point, Double endVelocity)
+    public void pathFindToMultiPath(List<String> pathName) throws Exception
+    {
+        PathConstraints constraints = new PathConstraints(
+            PathPlannerConstants.MAX_VELOCITY_MPS, PathPlannerConstants.MAX_ACCELERATION_MPS_SQ,
+            PathPlannerConstants.MAX_ANGULAR_VELOCITY_RPS, PathPlannerConstants.MAX_ANGULAR_ACCELERATION_RPS);
+
+        // Since AutoBuilder is configured, we can use it to build pathfinding commands
+        var pathIterator = pathName.iterator();
+
+        PathPlannerPath path = PathPlannerPath.fromPathFile(pathIterator.next()); // checked exception
+        Command pathfindingCommand = AutoBuilder.pathfindThenFollowPath(
+            path,
+            constraints);
+        Command lastCommand = pathfindingCommand;
+
+        while (pathIterator.hasNext())
+        {
+            path = PathPlannerPath.fromPathFile(pathIterator.next());
+            pathfindingCommand = AutoBuilder.pathfindThenFollowPath(
+                path,
+                constraints);
+            lastCommand = lastCommand.andThen(pathfindingCommand);
+        }
+
+        CommandScheduler.getInstance().schedule(lastCommand);
+    }
+
+    public Command pathfindToPose(Pose2d point, Double endVelocity, boolean blueAlliance)
     {
         // Creates a command to pathfind to the given pose
 
@@ -290,13 +325,25 @@ public class RobotContainer
         PathConstraints constraints = new PathConstraints(
             5.0, 4.0,
             Units.degreesToRadians(540), Units.degreesToRadians(-180));
-
-        // Since AutoBuilder is configured, we can use it to build pathfinding commands
-        Command pathfindingCommand = AutoBuilder.pathfindToPose(
-            point,
-            constraints,
-            endVelocity // Goal end velocity in meters/sec
-        );
+        Command pathfindingCommand;
+        if (blueAlliance == false)
+        {
+            pathfindingCommand = AutoBuilder.pathfindToPoseFlipped(
+                point,
+                constraints,
+                endVelocity // Goal end velocity in meters/sec
+            );
+        }
+        else
+        {
+            // Since AutoBuilder is configured, we can use it to build pathfinding commands
+            // flipped will reflect accross from where pathplanner says the path will start
+            pathfindingCommand = AutoBuilder.pathfindToPose(
+                point,
+                constraints,
+                endVelocity // Goal end velocity in meters/sec
+            );
+        }
         return pathfindingCommand;
     }
 
@@ -305,11 +352,11 @@ public class RobotContainer
 
         // var cmd = pathfindToPose(points.get(0), 10.0);
         var pointsIterator = points.iterator();
-        Command cmd = pathfindToPose(pointsIterator.next(), 5.0);
+        Command cmd = pathfindToPose(pointsIterator.next(), 5.0, false);
         Command lastCommand = cmd;
         while (pointsIterator.hasNext())
         {
-            lastCommand = lastCommand.andThen(pathfindToPose(pointsIterator.next(), 10.0));
+            lastCommand = lastCommand.andThen(pathfindToPose(pointsIterator.next(), 10.0, false));
         }
 
         CommandScheduler.getInstance().schedule(lastCommand);
