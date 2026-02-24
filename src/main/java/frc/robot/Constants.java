@@ -145,6 +145,15 @@ public final class Constants
         public static final String LAUNCHER_IDLE_KEY = "LauncherIdle";
         public static final String LAUNCHER_FEED_KEY = "LauncherFeed";
         public static final String LAUNCHER_CLEAR_KEY = "LauncherClear";
+
+        public static final String LIMELIGHT_THROTTLE_DISABLED_KEY = "LL Throttle Off";
+        public static final String LIMELIGHT_THROTTLE_ENABLED_KEY = "LL Throttle On";
+    }
+
+    public static final class LimeLightConstants
+    {
+        public static final double LIMELIGHT_THROTTLE_DISABLED = 0.0;
+        public static final double LIMELIGHT_THROTTLE_ENABLED = 200.0;
     }
 
     public static class TestConstants

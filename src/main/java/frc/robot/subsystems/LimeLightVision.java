@@ -69,4 +69,10 @@ public class LimeLightVision
                 swerveDrive.addVisionMeasurement(mt2.pose, mt2.timestampSeconds);
             });
     }
+
+    /* Set Throttle for all Limelight cameras */
+    public void setCamThrottle(double throttle)
+    {
+        cameraNames.forEach(cameraName -> LimelightHelpers.SetThrottle(cameraName, (int) throttle));
+    }
 }
