@@ -4,9 +4,9 @@
 
 package frc.robot.subsystems;
 
-import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.PositionVoltage;
+import com.ctre.phoenix6.controls.DutyCycleOut;
+import com.ctre.phoenix6.controls.PositionDutyCycle;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.wpilibj2.command.Command;
@@ -20,32 +20,44 @@ public class Climber extends SubsystemBase
 {
     private final TalonFX winchMotor = new TalonFX(ClimberConstants.WINCH_MOTOR_CHANNEL,
         ClimberConstants.WINCH_MOTOR_BUS);
+
     private final Servo servo = new Servo(ClimberConstants.SERVO_CHANNEL);
 
-    private final PositionVoltage positionVoltage = new PositionVoltage(0);
-
-    private int currentServoPosition;
+    private final DutyCycleOut dutyCycleControl = new DutyCycleOut(0);
+    private final PositionDutyCycle positionControl = new PositionDutyCycle(0);
 
     /** Creates a new Climber. */
     public Climber()
     {
         var configs = new TalonFXConfiguration();
-        var slot0Configs = new Slot0Configs();
-        slot0Configs.kP = ClimberConstants.WINCH_KP;
-        slot0Configs.kI = ClimberConstants.WINCH_KI;
-        slot0Configs.kD = ClimberConstants.WINCH_KD;
+        configs.Slot0.kP = ClimberConstants.WINCH_KP;
+        configs.Slot0.kI = ClimberConstants.WINCH_KI;
+        configs.Slot0.kD = ClimberConstants.WINCH_KD;
+
         configs.MotorOutput.Inverted = ClimberConstants.WINCH_MOTOR_INVERTED_VALUE;
+
+        configs.SoftwareLimitSwitch.ForwardSoftLimitThreshold = ClimberConstants.CLIMBED_POSITION;
+        configs.SoftwareLimitSwitch.ReverseSoftLimitThreshold = ClimberConstants.STOWED_POSITION;
+        configs.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
+        configs.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
+
+        configs.MotorOutput.PeakForwardDutyCycle = ClimberConstants.WINCH_MAX_FWD_SPEED;
+        configs.MotorOutput.PeakReverseDutyCycle = ClimberConstants.WINCH_MAX_REV_SPEED;
+
         winchMotor.getConfigurator().apply(configs);
-        winchMotor.getConfigurator().apply(slot0Configs);
         winchMotor.setPosition(0);
 
-        currentServoPosition = ClimberConstants.RATCHET_ENGAGED_POSITION;
-        servo.setPosition(currentServoPosition);
+        servo.setPosition(ClimberConstants.RATCHET_ENGAGED_POSITION);
+    }
+
+    public void setWinchMotorSpeed(double speed)
+    {
+        winchMotor.setControl(dutyCycleControl.withOutput(speed));
     }
 
     private void setPosition(double position)
     {
-        winchMotor.setControl(positionVoltage.withPosition(position));
+        winchMotor.setControl(positionControl.withPosition(position));
     }
 
     public Command climbCommand()
@@ -79,24 +91,24 @@ public class Climber extends SubsystemBase
         setPosition(SmartDashboard.getNumber(DashboardConstants.CLIMBER_STOW_KEY, ClimberConstants.STOWED_POSITION));
     }
 
-    public Command toggleRatchetCommand()
+    private void engageRatchet()
     {
-        return runOnce(this::toggleRatchet);
+        servo.setPosition(ClimberConstants.RATCHET_ENGAGED_POSITION);
     }
 
-    public void toggleRatchet()
+    private void releaseRatchet()
     {
-        var position = isRatchetEngaged()
-            ? ClimberConstants.RATCHET_RELEASED_POSITION
-            : ClimberConstants.RATCHET_ENGAGED_POSITION;
-        System.out.println("Setting ratchet to " + position);
-        servo.setPosition(position);
-        currentServoPosition = position;
+        servo.setPosition(ClimberConstants.RATCHET_RELEASED_POSITION);
     }
 
-    public boolean isRatchetEngaged()
+    public Command engageRatchetCommand()
     {
-        return currentServoPosition == ClimberConstants.RATCHET_ENGAGED_POSITION;
+        return runOnce(this::engageRatchet);
+    }
+
+    public Command releaseRatchetCommand()
+    {
+        return runOnce(this::releaseRatchet);
     }
 
     public double getPosition()

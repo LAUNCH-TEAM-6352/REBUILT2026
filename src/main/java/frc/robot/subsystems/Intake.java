@@ -8,12 +8,11 @@ import static edu.wpi.first.units.Units.Degrees;
 
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.PositionVoltage;
+import com.ctre.phoenix6.controls.PositionDutyCycle;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import com.ctre.phoenix6.signals.SensorDirectionValue;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -31,7 +30,7 @@ public class Intake extends SubsystemBase
     private final CANcoder pivotEncoder = new CANcoder(IntakeConstants.PIVOT_ENCODER_CHANNEL,
         IntakeConstants.PIVOT_ENCODER_BUS);
 
-    private final PositionVoltage positionVoltage = new PositionVoltage(0);
+    private final PositionDutyCycle positionControl = new PositionDutyCycle(0);
 
     /** Creates a new Intake. */
     public Intake()
@@ -42,22 +41,27 @@ public class Intake extends SubsystemBase
 
         var pivotConfigs = new TalonFXConfiguration();
         pivotConfigs.MotorOutput.Inverted = IntakeConstants.PIVOT_MOTOR_INVERTED_VALUE;
+
         pivotConfigs.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
         pivotConfigs.Feedback.FeedbackRemoteSensorID = pivotEncoder.getDeviceID();
+
         pivotConfigs.Slot0.kP = IntakeConstants.INTAKE_KP;
         pivotConfigs.Slot0.kI = IntakeConstants.INTAKE_KI;
         pivotConfigs.Slot0.kD = IntakeConstants.INTAKE_KD;
+
+        pivotConfigs.MotorOutput.PeakForwardDutyCycle = IntakeConstants.PIVOT_MAX_FWD_SPEED;
+        pivotConfigs.MotorOutput.PeakReverseDutyCycle = IntakeConstants.PIVOT_MAX_REV_SPEED;
         pivotConfigs.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-        pivotConfigs.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 1
-            * (SmartDashboard.getNumber(DashboardConstants.DEPLOY_KEY, IntakeConstants.DEPLOYED_POSITION) / 360.0);
+
+        pivotConfigs.SoftwareLimitSwitch.ForwardSoftLimitThreshold = IntakeConstants.MAX_POSITION;
         pivotConfigs.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
-        pivotConfigs.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 1
-            * (SmartDashboard.getNumber(DashboardConstants.STOW_KEY, IntakeConstants.STOW_POSITION) / 360.0);
+        pivotConfigs.SoftwareLimitSwitch.ReverseSoftLimitThreshold = IntakeConstants.MIN_POSITION;
         pivotConfigs.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
+
         pivotMotor.getConfigurator().apply(pivotConfigs);
 
         var canCoderConfig = new CANcoderConfiguration();
-        canCoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
+        canCoderConfig.MagnetSensor.SensorDirection = IntakeConstants.ENCODER_DIRECTION_VALUE;
         pivotEncoder.getConfigurator().apply(canCoderConfig);
 
         pivotMotor.clearStickyFaults();
@@ -70,9 +74,10 @@ public class Intake extends SubsystemBase
         intakeMotor.set(speed);
     }
 
-    private void pivotToPosition(double position)
+    // Pivots the intake to a specified position, specified in degrtees.
+    private void pivotToPositionInDegrees(double position)
     {
-        pivotMotor.setControl(positionVoltage.withPosition(position));
+        pivotMotor.setControl(positionControl.withPosition(Degrees.of(position)));
     }
 
     public Command stowCommand()
@@ -82,7 +87,8 @@ public class Intake extends SubsystemBase
 
     public void stow()
     {
-        pivotToPosition(SmartDashboard.getNumber(DashboardConstants.STOW_KEY, IntakeConstants.STOW_POSITION));
+        pivotToPositionInDegrees(
+            SmartDashboard.getNumber(DashboardConstants.STOWED_KEY, IntakeConstants.STOWED_POSITION.magnitude()));
     }
 
     public Command deployCommand()
@@ -92,7 +98,8 @@ public class Intake extends SubsystemBase
 
     public void deploy()
     {
-        pivotToPosition(SmartDashboard.getNumber(DashboardConstants.DEPLOY_KEY, IntakeConstants.DEPLOYED_POSITION));
+        pivotToPositionInDegrees(
+            SmartDashboard.getNumber(DashboardConstants.DEPLOYED_KEY, IntakeConstants.DEPLOYED_POSITION.magnitude()));
     }
 
     public Command partialDeployCommand()
@@ -102,8 +109,8 @@ public class Intake extends SubsystemBase
 
     public void partialDeploy()
     {
-        pivotToPosition(SmartDashboard.getNumber(DashboardConstants.PARTIALLY_DEPLOY_KEY,
-            IntakeConstants.PARTIALLY_DEPLOYED_POSITION));
+        pivotToPositionInDegrees(SmartDashboard.getNumber(DashboardConstants.PARTIALLY_DEPLOYED_KEY,
+            IntakeConstants.PARTIALLY_DEPLOYED_POSITION.magnitude()));
     }
 
     // Intended for use with a press-and-hold binding
@@ -132,6 +139,7 @@ public class Intake extends SubsystemBase
 
     public void eject()
     {
+        // TODO: Determine if intake is at desired position within some tolerance?
         setIntakeSpeed(
             SmartDashboard.getNumber(DashboardConstants.EJECT_SPEED_KEY, IntakeConstants.EJECT_SPEED));
     }

@@ -36,6 +36,7 @@ import frc.robot.Constants.HopperConstants;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.LauncherConstants;
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.commands.MoveClimberWithGamepad;
 import frc.robot.commands.test.TestClimber;
 import frc.robot.Constants.PathPlannerConstants;
 import frc.robot.commands.test.TestDrivetrain;
@@ -227,7 +228,8 @@ public class RobotContainer
 
     // TODO: the following bindings are designed for testing and need to changed for the final control scheme.
     // SCORE FUEL: x-> deploy y-> intake, b-> spinUp shooters, a-> convey, right joystick press-> feed (fuel shoots)
-    // CLIMB: pov up-> extend, pov down-> climb, pov left-> stow
+    // CLIMB: pov up-> extend, pov down-> climb, pov left-> stow, pov right-> move with left stick up/down,
+    // left stick left-> release ratchet, left stick right-> engage ratchet
     // DUMP FUEL: left trigger-> clear launcher, left bumper-> clear hopper, left stick-> eject from intake
     // COLLAPSE HOPPER: start-> partial deploy, back-> stow
     // IDLE OR STOP SHOOTER: right bumper-> stop shooter, right trigger-> idle shooter
@@ -237,7 +239,9 @@ public class RobotContainer
         codriverGamepad.povLeft().onTrue(climber.stowCommand());
         codriverGamepad.povUp().onTrue(climber.extendCommand());
         codriverGamepad.povDown().onTrue(climber.climbCommand());
-        codriverGamepad.povRight().onTrue(climber.toggleRatchetCommand());
+        codriverGamepad.povRight().onTrue(new MoveClimberWithGamepad(climber, codriverGamepad));
+        new Trigger(() -> codriverGamepad.getLeftX() < -0.8).onTrue(climber.releaseRatchetCommand());
+        new Trigger(() -> codriverGamepad.getLeftX() > 0.8).onTrue(climber.engageRatchetCommand());
     }
 
     private void configureBindings(Launcher launcher)
@@ -435,10 +439,11 @@ public class RobotContainer
         SmartDashboard.putNumber(DashboardConstants.INTAKE_SPEED_KEY, IntakeConstants.INTAKE_SPEED);
         SmartDashboard.putNumber(DashboardConstants.EJECT_SPEED_KEY, IntakeConstants.EJECT_SPEED);
         SmartDashboard.putNumber(DashboardConstants.PIVOT_SPEED_KEY, IntakeConstants.PIVOT_SPEED);
-        SmartDashboard.putNumber(DashboardConstants.DEPLOY_KEY, IntakeConstants.DEPLOYED_POSITION);
-        SmartDashboard.putNumber(DashboardConstants.PARTIALLY_DEPLOY_KEY, IntakeConstants.PARTIALLY_DEPLOYED_POSITION);
-        SmartDashboard.putNumber(DashboardConstants.STOW_KEY, IntakeConstants.STOW_POSITION);
-        SmartDashboard.putNumber(DashboardConstants.PIVOT_TOLERANCE_KEY, IntakeConstants.DEPLOY_TOLERANCE);
+        SmartDashboard.putNumber(DashboardConstants.DEPLOYED_KEY, IntakeConstants.DEPLOYED_POSITION.magnitude());
+        SmartDashboard.putNumber(DashboardConstants.PARTIALLY_DEPLOYED_KEY,
+            IntakeConstants.PARTIALLY_DEPLOYED_POSITION.magnitude());
+        SmartDashboard.putNumber(DashboardConstants.STOWED_KEY, IntakeConstants.STOWED_POSITION.magnitude());
+        SmartDashboard.putNumber(DashboardConstants.PIVOT_TOLERANCE_KEY, IntakeConstants.PIVOT_TOLERANCE);
 
         // Launcher:
         SmartDashboard.putNumber(DashboardConstants.LAUNCHER_SHOOTING_KEY, LauncherConstants.SHOOTING_VELOCITY_RPM);
