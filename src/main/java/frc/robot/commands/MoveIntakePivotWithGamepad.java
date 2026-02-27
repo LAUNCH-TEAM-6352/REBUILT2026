@@ -4,25 +4,27 @@
 
 package frc.robot.commands;
 
+import static edu.wpi.first.units.Units.Rotations;
+
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.Constants.ClimberConstants;
-import frc.robot.subsystems.Climber;
+import frc.robot.Constants.IntakeConstants;
+import frc.robot.subsystems.Intake;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class MovePivotWithGamepad extends Command
+public class MoveIntakePivotWithGamepad extends Command
 {
-    private final Climber climber;
+    private final Intake intake;
     private final CommandXboxController gamepad;
 
     /** Creates a new MoveClimberWithGamepad. */
-    public MovePivotWithGamepad(Climber climber, CommandXboxController gamnepad)
+    public MoveIntakePivotWithGamepad(Intake intake, CommandXboxController gamepad)
     {
-        this.climber = climber;
-        this.gamepad = gamnepad;
+        this.intake = intake;
+        this.gamepad = gamepad;
 
-        addRequirements(climber);
+        addRequirements(intake);
     }
 
     // Called when the command is initially scheduled.
@@ -35,10 +37,10 @@ public class MovePivotWithGamepad extends Command
     @Override
     public void execute()
     {
-        var speed = -gamepad.getLeftY() * ClimberConstants.WINCH_MAX_MAN_SPEED;
-        var position = climber.getPosition();
-        if ((speed < 0 && position <= ClimberConstants.MIN_POSITION) ||
-            (speed > 0 && position >= ClimberConstants.MAX_POSITION))
+        var speed = -gamepad.getLeftY() * IntakeConstants.PIVOT_MAX_MAN_SPEED;
+        var position = intake.getPivotPosition().in(Rotations);
+        if ((speed < 0 && position <= IntakeConstants.MIN_POSITION) ||
+            (speed > 0 && position >= IntakeConstants.MAX_POSITION))
         {
             speed = 0;
             gamepad.setRumble(RumbleType.kBothRumble, 1);
@@ -47,7 +49,7 @@ public class MovePivotWithGamepad extends Command
         {
             gamepad.setRumble(RumbleType.kBothRumble, 0);
         }
-        climber.setWinchMotorSpeed(speed);
+        intake.setPivotMotorSpeed(speed);
     }
 
     // Called once the command ends or is interrupted.

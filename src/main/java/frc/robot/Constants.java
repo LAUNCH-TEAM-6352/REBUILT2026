@@ -91,6 +91,8 @@ public final class Constants
         public static final double PIVOT_MAX_FWD_SPEED = .6;
         public static final double PIVOT_MAX_REV_SPEED = -1;
 
+        public static final double PIVOT_MAX_MAN_SPEED = 0.5;
+
         public static final double PIVOT_TOLERANCE = 10;
 
         // These positions are in degrees and represent the angle of the intake
