@@ -36,6 +36,7 @@ import frc.robot.Constants.HopperConstants;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.LauncherConstants;
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.commands.MoveClimberWithGamepad;
 import frc.robot.commands.test.TestClimber;
 import frc.robot.Constants.PathPlannerConstants;
 import frc.robot.commands.test.TestDrivetrain;
@@ -72,8 +73,6 @@ public class RobotContainer
     private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
 
     private final Telemetry logger = new Telemetry(MaxSpeed);
-
-    private final CommandXboxController joystick = new CommandXboxController(0);
 
     // wrapper class to manage limelight cameras and get position estimates
     public final LimeLightVision limelightVision = new LimeLightVision(List.of("limelight-front"));
@@ -125,8 +124,7 @@ public class RobotContainer
             codriverGamepad = new CommandXboxController(OperatorConstants.CODRIVER_GAMEPAD_PORT);
             driverGamepad = new CommandXboxController(OperatorConstants.DRIVER_GAMEPAD_PORT);
         }
-        NamedCommands.registerCommand("runShoot", Commands.runOnce(() -> System.out.println("booger2")));
-        // replace command with command for running the launcher
+
         // Create subsystems:
         climber = (gameData.contains("-c-") || gameData.isBlank() || gameData.length() == 1)
             ? Optional.of(new Climber())
@@ -149,10 +147,23 @@ public class RobotContainer
         {
             drivetrain.get().setupPathPlanner();
         }
+
+        configurePathPlannerNamedCommands();
+
         configureBindings();
 
         // Configure dashboard values
         configureDashboard();
+    }
+
+    private void configurePathPlannerNamedCommands()
+    {
+        // Register any commands that should be available in PathPlanner's command builder here.
+        // For example:
+        // NamedCommands.registerCommand("runShoot", new RunLauncher(launcher));
+
+        // TODO: replace command with command for running the launcher
+        NamedCommands.registerCommand("runShoot", Commands.runOnce(() -> System.out.println("booger2")));
     }
 
     /**
@@ -175,17 +186,17 @@ public class RobotContainer
 
     private void configureBindings(CommandSwerveDrivetrain drivetrain)
     {
-
         // Note that X is defined as forward according to WPILib convention,
         // and Y is defined as to the left according to WPILib convention.
         drivetrain.setDefaultCommand(
             // Drivetrain will execute this command periodically
-            drivetrain.applyRequest(() -> drive.withVelocityX(-joystick.getLeftY() * MaxSpeed) // Drive forward with
-                                                                                               // negative Y (forward)
-                .withVelocityY(-joystick.getLeftX() * MaxSpeed) // Drive left with negative X (left)
-                .withRotationalRate(-joystick.getRightX() * MaxAngularRate) // Drive counterclockwise with negative X
-                                                                            // (left)
-            ));
+            drivetrain.applyRequest(() -> drive
+                // Drive forward with negative Y (forward)
+                .withVelocityX(-driverGamepad.getLeftY() * MaxSpeed)
+                // Drive left with negative X (left)
+                .withVelocityY(-driverGamepad.getLeftX() * MaxSpeed)
+                // Drive counterclockwise with negative X (left)
+                .withRotationalRate(-driverGamepad.getRightX() * MaxAngularRate)));
 
         // Idle while the robot is disabled. This ensures the configured
         // neutral mode is applied to the drive motors while disabled.
@@ -193,30 +204,32 @@ public class RobotContainer
         RobotModeTriggers.disabled().whileTrue(
             drivetrain.applyRequest(() -> idle).ignoringDisable(true));
 
-        joystick.a().whileTrue(drivetrain.applyRequest(() -> brake));
-        joystick.b().whileTrue(drivetrain
-            .applyRequest(() -> point.withModuleDirection(new Rotation2d(-joystick.getLeftY(), -joystick.getLeftX()))));
+        driverGamepad.a().whileTrue(drivetrain.applyRequest(() -> brake));
+        driverGamepad.b().whileTrue(drivetrain
+            .applyRequest(
+                () -> point.withModuleDirection(new Rotation2d(-driverGamepad.getLeftY(), -driverGamepad.getLeftX()))));
 
         // Run SysId routines when holding back/start and X/Y.
         // Note that each routine should be run exactly once in a single log.
-        joystick.back().and(joystick.y()).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
-        joystick.back().and(joystick.x()).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
-        joystick.start().and(joystick.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
-        joystick.start().and(joystick.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
-        PathPlannerAuto auto = new PathPlannerAuto("testAuto");
-        Pose2d startingPose = auto.getStartingPose();
+        driverGamepad.back().and(driverGamepad.y()).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
+        driverGamepad.back().and(driverGamepad.x()).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
+        driverGamepad.start().and(driverGamepad.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
+        driverGamepad.start().and(driverGamepad.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
 
         // Reset the field-centric heading on left bumper press.
-        joystick.leftBumper().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
-        joystick.povLeft().onTrue(this.pathfindToPose(startingPose, 0.0, false).andThen(auto));
+        driverGamepad.leftBumper().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
+
+        PathPlannerAuto auto = new PathPlannerAuto("testAuto");
+        Pose2d startingPose = auto.getStartingPose();
+        driverGamepad.povLeft().onTrue(this.pathfindToPose(startingPose, 0.0, false).andThen(auto));
 
         drivetrain.registerTelemetry(logger::telemeterize);
-
     }
 
     // TODO: the following bindings are designed for testing and need to changed for the final control scheme.
     // SCORE FUEL: x-> deploy y-> intake, b-> spinUp shooters, a-> convey, right joystick press-> feed (fuel shoots)
-    // CLIMB: pov up-> extend, pov down-> climb, pov left-> stow
+    // CLIMB: pov up-> extend, pov down-> climb, pov left-> stow, pov right-> move with left stick up/down,
+    // left stick left-> release ratchet, left stick right-> engage ratchet
     // DUMP FUEL: left trigger-> clear launcher, left bumper-> clear hopper, left stick-> eject from intake
     // COLLAPSE HOPPER: start-> partial deploy, back-> stow
     // IDLE OR STOP SHOOTER: right bumper-> stop shooter, right trigger-> idle shooter
@@ -226,7 +239,9 @@ public class RobotContainer
         codriverGamepad.povLeft().onTrue(climber.stowCommand());
         codriverGamepad.povUp().onTrue(climber.extendCommand());
         codriverGamepad.povDown().onTrue(climber.climbCommand());
-        codriverGamepad.povRight().onTrue(climber.toggleRatchetCommand());
+        codriverGamepad.povRight().onTrue(new MoveClimberWithGamepad(climber, codriverGamepad));
+        new Trigger(() -> codriverGamepad.getLeftX() < -0.8).onTrue(climber.releaseRatchetCommand());
+        new Trigger(() -> codriverGamepad.getLeftX() > 0.8).onTrue(climber.engageRatchetCommand());
     }
 
     private void configureBindings(Launcher launcher)
@@ -240,11 +255,11 @@ public class RobotContainer
 
     private void configureBindings(Intake intake)
     {
-        driverGamepad.y().whileTrue(intake.intakeThenStopCommand());
-        driverGamepad.leftStick().whileTrue(intake.ejectThenStopCommand());
-        driverGamepad.x().onTrue(intake.deployCommand());
-        driverGamepad.start().onTrue(intake.partialDeployCommand());
-        driverGamepad.back().onTrue(intake.stowCommand());
+        codriverGamepad.y().whileTrue(intake.intakeThenStopCommand());
+        codriverGamepad.leftStick().whileTrue(intake.ejectThenStopCommand());
+        codriverGamepad.x().onTrue(intake.deployCommand());
+        codriverGamepad.start().onTrue(intake.partialDeployCommand());
+        codriverGamepad.back().onTrue(intake.stowCommand());
     }
 
     private void configureBindings(Hopper hopper)
@@ -364,6 +379,10 @@ public class RobotContainer
 
     public void updateVisionEstimate()
     {
+        if (this.drivetrain.isEmpty())
+        {
+            return;
+        }
         var drivetrain = this.drivetrain.orElseThrow(
             () -> new IllegalStateException("Drivetrain subsystem is required to update vision pose estimation"));
         // updatePoseEstimation function assigns estimations to the
@@ -419,11 +438,11 @@ public class RobotContainer
         // Intake:
         SmartDashboard.putNumber(DashboardConstants.INTAKE_SPEED_KEY, IntakeConstants.INTAKE_SPEED);
         SmartDashboard.putNumber(DashboardConstants.EJECT_SPEED_KEY, IntakeConstants.EJECT_SPEED);
-        SmartDashboard.putNumber(DashboardConstants.PIVOT_SPEED_KEY, IntakeConstants.PIVOT_SPEED);
-        SmartDashboard.putNumber(DashboardConstants.DEPLOY_KEY, IntakeConstants.DEPLOYED_POSITION);
-        SmartDashboard.putNumber(DashboardConstants.PARTIALLY_DEPLOY_KEY, IntakeConstants.PARTIALLY_DEPLOYED_POSITION);
-        SmartDashboard.putNumber(DashboardConstants.STOW_KEY, IntakeConstants.STOW_POSITION);
-        SmartDashboard.putNumber(DashboardConstants.PIVOT_TOLERANCE_KEY, IntakeConstants.DEPLOY_TOLERANCE);
+        SmartDashboard.putNumber(DashboardConstants.DEPLOYED_KEY, IntakeConstants.DEPLOYED_POSITION.magnitude());
+        SmartDashboard.putNumber(DashboardConstants.PARTIALLY_DEPLOYED_KEY,
+            IntakeConstants.PARTIALLY_DEPLOYED_POSITION.magnitude());
+        SmartDashboard.putNumber(DashboardConstants.STOWED_KEY, IntakeConstants.STOWED_POSITION.magnitude());
+        SmartDashboard.putNumber(DashboardConstants.PIVOT_TOLERANCE_KEY, IntakeConstants.PIVOT_TOLERANCE);
 
         // Launcher:
         SmartDashboard.putNumber(DashboardConstants.LAUNCHER_SHOOTING_KEY, LauncherConstants.SHOOTING_VELOCITY_RPM);
@@ -431,6 +450,7 @@ public class RobotContainer
         SmartDashboard.putNumber(DashboardConstants.LAUNCHER_FEED_KEY, LauncherConstants.FEED_SPEED);
         SmartDashboard.putNumber(DashboardConstants.LAUNCHER_CLEAR_KEY, LauncherConstants.CLEAR_SPEED);
 
+        // Limelight:
         SmartDashboard.putNumber(DashboardConstants.LIMELIGHT_THROTTLE_DISABLED_KEY,
             Constants.LimeLightConstants.LIMELIGHT_THROTTLE_DISABLED);
         SmartDashboard.putNumber(DashboardConstants.LIMELIGHT_THROTTLE_ENABLED_KEY,

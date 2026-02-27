@@ -4,11 +4,16 @@
 
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Rotations;
+
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.pathplanner.lib.config.PIDConstants;
 
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.measure.Angle;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
@@ -28,20 +33,28 @@ public final class Constants
         public static final CANBus WINCH_MOTOR_BUS = Constants.CANIVORE_BUS;
         public static final int WINCH_MOTOR_CHANNEL = 48;
         public static final double WINCH_MOTOR_SPEED = 0.6;
-        public static final InvertedValue WINCH_MOTOR_INVERTED_VALUE = InvertedValue.CounterClockwise_Positive;
+        public static final InvertedValue WINCH_MOTOR_INVERTED_VALUE = InvertedValue.Clockwise_Positive;
 
-        public static final double WINCH_KP = 2.4; // An error of 1 rotation results in 2.4 V output
-        public static final double WINCH_KI = 0; // no output for integrated error
-        public static final double WINCH_KD = 0.1; // A velocity of 1 rps results in 0.1 V output
+        public static final double WINCH_KP = 0.14;
+        public static final double WINCH_KI = 0;
+        public static final double WINCH_KD = 0;
 
-        public static final double CLIMBED_POSITION = 10;
-        public static final double EXTENDED_POSITION = 15;
+        public static final double WINCH_MAX_FWD_SPEED = 0.1;
+        public static final double WINCH_MAX_REV_SPEED = -0.4;
+        public static final double WINCH_MAX_MAN_SPEED = 0.4;
+
+        // These extended and climbed positions are WAGs based upon limited testing on 2026-02-21:
         public static final double STOWED_POSITION = 0;
+        public static final double EXTENDED_POSITION = 55.3;
+        public static final double CLIMBED_POSITION = 39;
+
+        public static final double MIN_POSITION = STOWED_POSITION;
+        public static final double MAX_POSITION = EXTENDED_POSITION;
 
         public static final int SERVO_CHANNEL = 0;
 
-        public static final int RATCHET_ENGAGED_POSITION = 1500;
-        public static final int RATCHET_RELEASED_POSITION = 1000;
+        public static final int RATCHET_ENGAGED_POSITION = 0;
+        public static final int RATCHET_RELEASED_POSITION = 1;
     }
 
     public static class HopperConstants
@@ -60,27 +73,35 @@ public final class Constants
         public static final int INTAKE_MOTOR_CHANNEL = 45;
         public static final CANBus PIVOT_MOTOR_BUS = Constants.CANIVORE_BUS;
         public static final int PIVOT_MOTOR_CHANNEL = 46;
+        public static final CANBus PIVOT_ENCODER_BUS = Constants.CANIVORE_BUS;
         public static final int PIVOT_ENCODER_CHANNEL = 47;
 
         public static final InvertedValue INTAKE_MOTOR_INVERTED_VALUE = InvertedValue.Clockwise_Positive;
         public static final InvertedValue PIVOT_MOTOR_INVERTED_VALUE = InvertedValue.CounterClockwise_Positive;
 
+        public static final SensorDirectionValue ENCODER_DIRECTION_VALUE = SensorDirectionValue.Clockwise_Positive;
+
         public static final double INTAKE_SPEED = 0.5;
         public static final double EJECT_SPEED = -0.5;
 
-        public static final double PIVOT_SPEED = 0.5;
+        public static final double PIVOT_KP = 0.8;
+        public static final double PIVOT_KI = 0.0;
+        public static final double PIVOT_KD = 0.0;
 
-        public static final double INTAKE_KP = 0.15;
-        public static final double INTAKE_KI = 0.0;
-        public static final double INTAKE_KD = 0.0;
+        public static final double PIVOT_MAX_FWD_SPEED = .6;
+        public static final double PIVOT_MAX_REV_SPEED = -1;
 
-        public static final double DEPLOY_TOLERANCE = 10;
+        public static final double PIVOT_TOLERANCE = 10;
 
-        // These positions are in degrees, and represent the angle of the pivot motor when the intake is in each
-        // position.
-        public static final double STOW_POSITION = 0;
-        public static final double DEPLOYED_POSITION = 130;
-        public static final double PARTIALLY_DEPLOYED_POSITION = 65;
+        // These positions are in degrees and represent the angle of the intake
+        // relative to its starting/stowed position.
+        public static final Angle STOWED_POSITION = Degrees.of(0);
+        public static final Angle DEPLOYED_POSITION = Degrees.of(130);
+        public static final Angle PARTIALLY_DEPLOYED_POSITION = Degrees.of(65);
+
+        // These positions are in rotations and are used to set software limits on the pivot motor.
+        public static final double MIN_POSITION = STOWED_POSITION.in(Rotations);
+        public static final double MAX_POSITION = DEPLOYED_POSITION.in(Rotations);
     }
 
     public static class LauncherConstants
@@ -96,8 +117,8 @@ public final class Constants
         public static final InvertedValue LEFT_SHOOTER_MOTOR_INVERTED_VALUE = InvertedValue.Clockwise_Positive;
         public static final InvertedValue RIGHT_SHOOTER_MOTOR_INVERTED_VALUE = InvertedValue.CounterClockwise_Positive;
 
-        public static final double SHOOTING_VELOCITY_RPM = 300;
-        public static final double IDLE_VELOCITY_RPM = 100;
+        public static final double SHOOTING_VELOCITY_RPM = 3000;
+        public static final double IDLE_VELOCITY_RPM = 1000;
         public static final double FEED_SPEED = 0.25;
         public static final double CLEAR_SPEED = -0.25;
 
@@ -133,13 +154,12 @@ public final class Constants
         public static final String CONVEYOR_FEED_KEY = "HopperFeed";
         public static final String CONVEYOR_CLEAR_KEY = "HopperClear";
 
-        public static final String INTAKE_SPEED_KEY = "Intake";
-        public static final String EJECT_SPEED_KEY = "Eject";
-        public static final String PIVOT_SPEED_KEY = "Pivot";
+        public static final String INTAKE_SPEED_KEY = "IntakeSpd";
+        public static final String EJECT_SPEED_KEY = "EjectSpd";
         public static final String PIVOT_TOLERANCE_KEY = "PivotTol";
-        public static final String DEPLOY_KEY = "Deploy";
-        public static final String PARTIALLY_DEPLOY_KEY = "PartialDeploy";
-        public static final String STOW_KEY = "Stow";
+        public static final String DEPLOYED_KEY = "DeployedPos";
+        public static final String PARTIALLY_DEPLOYED_KEY = "PartialDeployedPos";
+        public static final String STOWED_KEY = "StowedPos";
 
         public static final String LAUNCHER_SHOOTING_KEY = "LauncherShooting";
         public static final String LAUNCHER_IDLE_KEY = "LauncherIdle";

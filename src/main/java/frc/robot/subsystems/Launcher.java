@@ -22,18 +22,17 @@ public class Launcher extends SubsystemBase
     private final TalonFX indexerMotor = new TalonFX(LauncherConstants.INDEXER_MOTOR_CHANNEL,
         LauncherConstants.INDEXER_MOTOR_BUS);
     private final TalonFX leftShooterMotor = new TalonFX(LauncherConstants.LEFT_SHOOTER_MOTOR_CHANNEL,
-        LauncherConstants.INDEXER_MOTOR_BUS);
+        LauncherConstants.LEFT_SHOOTER_MOTOR_BUS);
     private final TalonFX rightShooterMotor = new TalonFX(LauncherConstants.RIGHT_SHOOTER_MOTOR_CHANNEL,
-        LauncherConstants.INDEXER_MOTOR_BUS);
+        LauncherConstants.RIGHT_SHOOTER_MOTOR_BUS);
 
-    private final VelocityVoltage velocityVoltage = new VelocityVoltage(0);
+    private final VelocityVoltage velocityVoltage = new VelocityVoltage(0).withSlot(0);
 
     /** Creates a new Launcher. */
     public Launcher()
     {
         var configs = new TalonFXConfiguration();
         configs.MotorOutput.Inverted = LauncherConstants.INDEXER_MOTOR_INVERTED_VALUE;
-        indexerMotor.getConfigurator().apply(new TalonFXConfiguration());
         indexerMotor.getConfigurator().apply(configs);
 
         configs.MotorOutput.Inverted = LauncherConstants.LEFT_SHOOTER_MOTOR_INVERTED_VALUE;
@@ -43,7 +42,6 @@ public class Launcher extends SubsystemBase
         slot0Configs.kP = LauncherConstants.SHOOTER_KP;
         slot0Configs.kI = LauncherConstants.SHOOTER_KI;
         slot0Configs.kD = LauncherConstants.SHOOTER_KD;
-        leftShooterMotor.getConfigurator().apply(new TalonFXConfiguration());
         leftShooterMotor.getConfigurator().apply(configs);
         leftShooterMotor.getConfigurator().apply(slot0Configs);
 
