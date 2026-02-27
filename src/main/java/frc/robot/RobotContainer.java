@@ -438,7 +438,6 @@ public class RobotContainer
         // Intake:
         SmartDashboard.putNumber(DashboardConstants.INTAKE_SPEED_KEY, IntakeConstants.INTAKE_SPEED);
         SmartDashboard.putNumber(DashboardConstants.EJECT_SPEED_KEY, IntakeConstants.EJECT_SPEED);
-        SmartDashboard.putNumber(DashboardConstants.PIVOT_SPEED_KEY, IntakeConstants.PIVOT_SPEED);
         SmartDashboard.putNumber(DashboardConstants.DEPLOYED_KEY, IntakeConstants.DEPLOYED_POSITION.magnitude());
         SmartDashboard.putNumber(DashboardConstants.PARTIALLY_DEPLOYED_KEY,
             IntakeConstants.PARTIALLY_DEPLOYED_POSITION.magnitude());

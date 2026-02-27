@@ -84,14 +84,12 @@ public final class Constants
         public static final double INTAKE_SPEED = 0.5;
         public static final double EJECT_SPEED = -0.5;
 
-        public static final double PIVOT_SPEED = 0.5;
+        public static final double PIVOT_KP = 0.8;
+        public static final double PIVOT_KI = 0.0;
+        public static final double PIVOT_KD = 0.0;
 
-        public static final double INTAKE_KP = 0.15;
-        public static final double INTAKE_KI = 0.0;
-        public static final double INTAKE_KD = 0.0;
-
-        public static final double PIVOT_MAX_FWD_SPEED = 0.5;
-        public static final double PIVOT_MAX_REV_SPEED = -0.5;
+        public static final double PIVOT_MAX_FWD_SPEED = .6;
+        public static final double PIVOT_MAX_REV_SPEED = -1;
 
         public static final double PIVOT_TOLERANCE = 10;
 
@@ -156,9 +154,8 @@ public final class Constants
         public static final String CONVEYOR_FEED_KEY = "HopperFeed";
         public static final String CONVEYOR_CLEAR_KEY = "HopperClear";
 
-        public static final String INTAKE_SPEED_KEY = "Intake";
-        public static final String EJECT_SPEED_KEY = "Eject";
-        public static final String PIVOT_SPEED_KEY = "Pivot";
+        public static final String INTAKE_SPEED_KEY = "IntakeSpd";
+        public static final String EJECT_SPEED_KEY = "EjectSpd";
         public static final String PIVOT_TOLERANCE_KEY = "PivotTol";
         public static final String DEPLOYED_KEY = "DeployedPos";
         public static final String PARTIALLY_DEPLOYED_KEY = "PartialDeployedPos";

@@ -36,8 +36,8 @@ public class Climber extends SubsystemBase
 
         configs.MotorOutput.Inverted = ClimberConstants.WINCH_MOTOR_INVERTED_VALUE;
 
-        configs.SoftwareLimitSwitch.ForwardSoftLimitThreshold = ClimberConstants.CLIMBED_POSITION;
-        configs.SoftwareLimitSwitch.ReverseSoftLimitThreshold = ClimberConstants.STOWED_POSITION;
+        configs.SoftwareLimitSwitch.ForwardSoftLimitThreshold = ClimberConstants.MAX_POSITION;
+        configs.SoftwareLimitSwitch.ReverseSoftLimitThreshold = ClimberConstants.MIN_POSITION;
         configs.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
         configs.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
 

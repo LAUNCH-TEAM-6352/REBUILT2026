@@ -7,6 +7,7 @@ package frc.robot.subsystems;
 import static edu.wpi.first.units.Units.Degrees;
 
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
+import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.PositionDutyCycle;
 import com.ctre.phoenix6.hardware.CANcoder;
@@ -19,6 +20,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.DashboardConstants;
 import frc.robot.Constants.IntakeConstants;
+import frc.robot.Constants.LauncherConstants;
 
 public class Intake extends SubsystemBase
 {
@@ -30,7 +32,7 @@ public class Intake extends SubsystemBase
     private final CANcoder pivotEncoder = new CANcoder(IntakeConstants.PIVOT_ENCODER_CHANNEL,
         IntakeConstants.PIVOT_ENCODER_BUS);
 
-    private final PositionDutyCycle positionControl = new PositionDutyCycle(0);
+    private final PositionDutyCycle positionControl = new PositionDutyCycle(0).withSlot(0);
 
     /** Creates a new Intake. */
     public Intake()
@@ -45,9 +47,10 @@ public class Intake extends SubsystemBase
         pivotConfigs.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
         pivotConfigs.Feedback.FeedbackRemoteSensorID = pivotEncoder.getDeviceID();
 
-        pivotConfigs.Slot0.kP = IntakeConstants.INTAKE_KP;
-        pivotConfigs.Slot0.kI = IntakeConstants.INTAKE_KI;
-        pivotConfigs.Slot0.kD = IntakeConstants.INTAKE_KD;
+        var slot0Configs = new Slot0Configs();
+        slot0Configs.kP = IntakeConstants.PIVOT_KP;
+        slot0Configs.kI = IntakeConstants.PIVOT_KI;
+        slot0Configs.kD = IntakeConstants.PIVOT_KD;
 
         pivotConfigs.MotorOutput.PeakForwardDutyCycle = IntakeConstants.PIVOT_MAX_FWD_SPEED;
         pivotConfigs.MotorOutput.PeakReverseDutyCycle = IntakeConstants.PIVOT_MAX_REV_SPEED;
@@ -59,6 +62,7 @@ public class Intake extends SubsystemBase
         pivotConfigs.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
 
         pivotMotor.getConfigurator().apply(pivotConfigs);
+        pivotMotor.getConfigurator().apply(slot0Configs);
 
         var canCoderConfig = new CANcoderConfiguration();
         canCoderConfig.MagnetSensor.SensorDirection = IntakeConstants.ENCODER_DIRECTION_VALUE;
@@ -139,21 +143,24 @@ public class Intake extends SubsystemBase
 
     public void eject()
     {
-        // TODO: Determine if intake is at desired position within some tolerance?
         setIntakeSpeed(
             SmartDashboard.getNumber(DashboardConstants.EJECT_SPEED_KEY, IntakeConstants.EJECT_SPEED));
-    }
-
-    // Stop the intake motor
-    public void stop()
-    {
-        intakeMotor.stopMotor();
-    }
-
-    @Override
-    public void periodic()
-    {
-        // This method will be called once per scheduler run
+        }
+        
+        // Stop the intake motor
+        public void stop()
+        {
+            intakeMotor.stopMotor();
+        }
+        
+        @Override
+        public void periodic()
+        {
+            // This method will be called once per scheduler run
+            // TODO: Determine if intake is at desired position within some tolerance?
         SmartDashboard.putNumber("Intake Pos", pivotEncoder.getAbsolutePosition().getValue().in(Degrees));
+        SmartDashboard.putNumber("PivotSpd", pivotMotor.getDutyCycle().getValueAsDouble());
+        
+
     }
 }
