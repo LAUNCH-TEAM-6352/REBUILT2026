@@ -20,7 +20,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.DashboardConstants;
 import frc.robot.Constants.IntakeConstants;
-import frc.robot.Constants.LauncherConstants;
 
 public class Intake extends SubsystemBase
 {
@@ -145,22 +144,21 @@ public class Intake extends SubsystemBase
     {
         setIntakeSpeed(
             SmartDashboard.getNumber(DashboardConstants.EJECT_SPEED_KEY, IntakeConstants.EJECT_SPEED));
-        }
-        
-        // Stop the intake motor
-        public void stop()
-        {
-            intakeMotor.stopMotor();
-        }
-        
-        @Override
-        public void periodic()
-        {
-            // This method will be called once per scheduler run
-            // TODO: Determine if intake is at desired position within some tolerance?
+    }
+
+    // Stop the intake motor
+    public void stop()
+    {
+        intakeMotor.stopMotor();
+    }
+
+    @Override
+    public void periodic()
+    {
+        // This method will be called once per scheduler run
+        // TODO: Determine if intake is at desired position within some tolerance?
         SmartDashboard.putNumber("Intake Pos", pivotEncoder.getAbsolutePosition().getValue().in(Degrees));
         SmartDashboard.putNumber("PivotSpd", pivotMotor.getDutyCycle().getValueAsDouble());
-        
 
     }
 }
