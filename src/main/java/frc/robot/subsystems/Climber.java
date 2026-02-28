@@ -46,7 +46,7 @@ public class Climber extends SubsystemBase
 
         winchMotor.getConfigurator().apply(configs);
         winchMotor.clearStickyFaults();
-        
+
         winchMotor.setPosition(0);
 
         servo.setPosition(ClimberConstants.RATCHET_ENGAGED_POSITION);
