@@ -76,7 +76,7 @@ public class RobotContainer
     private final Telemetry logger = new Telemetry(MaxSpeed);
 
     // wrapper class to manage limelight cameras and get position estimates
-    public final LimeLightVision limelightVision = new LimeLightVision(List.of("limelight-front"));
+    public final LimeLightVision limelightVision = new LimeLightVision(List.of("limelight-front", "limelight-br", "limelight-bl", "limelight-climber"));
 
     // Subsystems:
     private final Optional<Climber> climber;
@@ -249,7 +249,7 @@ public class RobotContainer
 
     private void configureBindings(Launcher launcher)
     {
-        codriverGamepad.rightStick().whileTrue(launcher.feedThenStopCommand());
+        codriverGamepad.a().whileTrue(launcher.feedThenStopCommand());
         codriverGamepad.leftTrigger().whileTrue(launcher.clearThenStopCommand());
         codriverGamepad.b().onTrue(launcher.spinUpShootersCommand());
         codriverGamepad.rightBumper().onTrue(launcher.stopShootersCommand());
@@ -269,7 +269,7 @@ public class RobotContainer
 
     private void configureBindings(Hopper hopper)
     {
-        codriverGamepad.a().whileTrue(hopper.feedThenStopCommand());
+        driverGamepad.a().whileTrue(hopper.feedThenStopCommand());
         codriverGamepad.leftBumper().whileTrue(hopper.clearThenStopCommand());
     }
 

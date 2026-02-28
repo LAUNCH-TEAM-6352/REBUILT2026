@@ -40,6 +40,7 @@ public class Intake extends SubsystemBase
         var intakeConfigs = new TalonFXConfiguration();
         intakeConfigs.MotorOutput.Inverted = IntakeConstants.INTAKE_MOTOR_INVERTED_VALUE;
         intakeMotor.getConfigurator().apply(intakeConfigs);
+        intakeMotor.clearStickyFaults();
 
         var pivotConfigs = new TalonFXConfiguration();
         pivotConfigs.MotorOutput.Inverted = IntakeConstants.PIVOT_MOTOR_INVERTED_VALUE;
@@ -171,6 +172,8 @@ public class Intake extends SubsystemBase
         // This method will be called once per scheduler run
         // TODO: Determine if intake is at desired position within some tolerance?
         SmartDashboard.putNumber("Intake Pos", getPivotPosition().in(Degrees));
+        SmartDashboard.putNumber("IntakeOut", intakeMotor.getDutyCycle().getValueAsDouble());
+        SmartDashboard.putNumber("IntakeRPM", intakeMotor.getVelocity().getValueAsDouble() * 60);
         SmartDashboard.putNumber("PivotSpd", pivotMotor.getDutyCycle().getValueAsDouble());
 
     }

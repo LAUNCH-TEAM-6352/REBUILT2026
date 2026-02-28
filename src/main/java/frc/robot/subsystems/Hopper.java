@@ -25,6 +25,7 @@ public class Hopper extends SubsystemBase
         var configs = new TalonFXConfiguration();
         configs.MotorOutput.Inverted = Constants.HopperConstants.CONVEYOR_MOTOR_INVERTED_VALUE;
         conveyorMotor.getConfigurator().apply(configs);
+        conveyorMotor.clearStickyFaults();
     }
 
     // Set the lower indexer motor to a specific speed

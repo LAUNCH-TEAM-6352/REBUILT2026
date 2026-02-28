@@ -63,7 +63,7 @@ public final class Constants
         public static final int CONVEYOR_MOTOR_CHANNEL = 41;
         public static final InvertedValue CONVEYOR_MOTOR_INVERTED_VALUE = InvertedValue.CounterClockwise_Positive;
 
-        public static final double FEED_SPEED = 0.25;
+        public static final double FEED_SPEED = 0.5;
         public static final double CLEAR_SPEED = -0.25;
     }
 
@@ -91,7 +91,7 @@ public final class Constants
         public static final double PIVOT_MAX_FWD_SPEED = .6;
         public static final double PIVOT_MAX_REV_SPEED = -1;
 
-        public static final double PIVOT_MAX_MAN_SPEED = 0.5;
+        public static final double PIVOT_MAX_MAN_SPEED = 0.25;
 
         public static final double PIVOT_TOLERANCE = 10;
 
@@ -119,7 +119,7 @@ public final class Constants
         public static final InvertedValue LEFT_SHOOTER_MOTOR_INVERTED_VALUE = InvertedValue.Clockwise_Positive;
         public static final InvertedValue RIGHT_SHOOTER_MOTOR_INVERTED_VALUE = InvertedValue.CounterClockwise_Positive;
 
-        public static final double SHOOTING_VELOCITY_RPM = 3000;
+        public static final double SHOOTING_VELOCITY_RPM = 4000;
         public static final double IDLE_VELOCITY_RPM = 1000;
         public static final double FEED_SPEED = 0.25;
         public static final double CLEAR_SPEED = -0.25;

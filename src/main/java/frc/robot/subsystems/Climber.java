@@ -45,6 +45,8 @@ public class Climber extends SubsystemBase
         configs.MotorOutput.PeakReverseDutyCycle = ClimberConstants.WINCH_MAX_REV_SPEED;
 
         winchMotor.getConfigurator().apply(configs);
+        winchMotor.clearStickyFaults();
+        
         winchMotor.setPosition(0);
 
         servo.setPosition(ClimberConstants.RATCHET_ENGAGED_POSITION);

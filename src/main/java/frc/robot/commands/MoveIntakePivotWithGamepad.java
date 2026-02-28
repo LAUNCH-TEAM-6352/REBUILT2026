@@ -37,7 +37,7 @@ public class MoveIntakePivotWithGamepad extends Command
     @Override
     public void execute()
     {
-        var speed = -gamepad.getLeftY() * IntakeConstants.PIVOT_MAX_MAN_SPEED;
+        var speed = -gamepad.getRightY() * IntakeConstants.PIVOT_MAX_MAN_SPEED;
         var position = intake.getPivotPosition().in(Rotations);
         if ((speed < 0 && position <= IntakeConstants.MIN_POSITION) ||
             (speed > 0 && position >= IntakeConstants.MAX_POSITION))
