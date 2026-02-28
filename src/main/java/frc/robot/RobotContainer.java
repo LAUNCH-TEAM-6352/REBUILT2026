@@ -37,6 +37,7 @@ import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.LauncherConstants;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.MoveClimberWithGamepad;
+import frc.robot.commands.MoveIntakePivotWithGamepad;
 import frc.robot.commands.test.TestClimber;
 import frc.robot.Constants.PathPlannerConstants;
 import frc.robot.commands.test.TestDrivetrain;
@@ -75,7 +76,8 @@ public class RobotContainer
     private final Telemetry logger = new Telemetry(MaxSpeed);
 
     // wrapper class to manage limelight cameras and get position estimates
-    public final LimeLightVision limelightVision = new LimeLightVision(List.of("limelight-front"));
+    public final LimeLightVision limelightVision = new LimeLightVision(
+        List.of("limelight-front", "limelight-br", "limelight-bl", "limelight-climber"));
 
     // Subsystems:
     private final Optional<Climber> climber;
@@ -233,6 +235,8 @@ public class RobotContainer
     // DUMP FUEL: left trigger-> clear launcher, left bumper-> clear hopper, left stick-> eject from intake
     // COLLAPSE HOPPER: start-> partial deploy, back-> stow
     // IDLE OR STOP SHOOTER: right bumper-> stop shooter, right trigger-> idle shooter
+    // MANUAL CONTROL OF INTAKE PIVIOT: right stick left->enable manual control, right stick forward/back-> move intake
+    // pivot in/out
 
     private void configureBindings(Climber climber)
     {
@@ -246,7 +250,7 @@ public class RobotContainer
 
     private void configureBindings(Launcher launcher)
     {
-        codriverGamepad.rightStick().whileTrue(launcher.feedThenStopCommand());
+        codriverGamepad.a().whileTrue(launcher.feedThenStopCommand());
         codriverGamepad.leftTrigger().whileTrue(launcher.clearThenStopCommand());
         codriverGamepad.b().onTrue(launcher.spinUpShootersCommand());
         codriverGamepad.rightBumper().onTrue(launcher.stopShootersCommand());
@@ -260,11 +264,13 @@ public class RobotContainer
         codriverGamepad.x().onTrue(intake.deployCommand());
         codriverGamepad.start().onTrue(intake.partialDeployCommand());
         codriverGamepad.back().onTrue(intake.stowCommand());
+        new Trigger(() -> codriverGamepad.getRightX() < -0.8)
+            .onTrue(new MoveIntakePivotWithGamepad(intake, codriverGamepad));
     }
 
     private void configureBindings(Hopper hopper)
     {
-        codriverGamepad.a().whileTrue(hopper.feedThenStopCommand());
+        driverGamepad.a().whileTrue(hopper.feedThenStopCommand());
         codriverGamepad.leftBumper().whileTrue(hopper.clearThenStopCommand());
     }
 

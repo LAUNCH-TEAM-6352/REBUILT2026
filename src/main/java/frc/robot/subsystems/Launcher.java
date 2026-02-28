@@ -34,6 +34,7 @@ public class Launcher extends SubsystemBase
         var configs = new TalonFXConfiguration();
         configs.MotorOutput.Inverted = LauncherConstants.INDEXER_MOTOR_INVERTED_VALUE;
         indexerMotor.getConfigurator().apply(configs);
+        indexerMotor.clearStickyFaults();
 
         configs.MotorOutput.Inverted = LauncherConstants.LEFT_SHOOTER_MOTOR_INVERTED_VALUE;
         var slot0Configs = new Slot0Configs();
@@ -44,12 +45,14 @@ public class Launcher extends SubsystemBase
         slot0Configs.kD = LauncherConstants.SHOOTER_KD;
         leftShooterMotor.getConfigurator().apply(configs);
         leftShooterMotor.getConfigurator().apply(slot0Configs);
+        leftShooterMotor.clearStickyFaults();
 
         configs.MotorOutput.Inverted = LauncherConstants.RIGHT_SHOOTER_MOTOR_INVERTED_VALUE;
         rightShooterMotor.getConfigurator().apply(new TalonFXConfiguration());
         rightShooterMotor.getConfigurator().apply(configs);
         rightShooterMotor
             .setControl(new Follower(leftShooterMotor.getDeviceID(), MotorAlignmentValue.Opposed));
+        rightShooterMotor.clearStickyFaults();
     }
 
     private void setIndexerSpeed(double speed)

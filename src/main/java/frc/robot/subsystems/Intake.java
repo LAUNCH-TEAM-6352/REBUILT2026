@@ -15,6 +15,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -39,6 +40,7 @@ public class Intake extends SubsystemBase
         var intakeConfigs = new TalonFXConfiguration();
         intakeConfigs.MotorOutput.Inverted = IntakeConstants.INTAKE_MOTOR_INVERTED_VALUE;
         intakeMotor.getConfigurator().apply(intakeConfigs);
+        intakeMotor.clearStickyFaults();
 
         var pivotConfigs = new TalonFXConfiguration();
         pivotConfigs.MotorOutput.Inverted = IntakeConstants.PIVOT_MOTOR_INVERTED_VALUE;
@@ -75,6 +77,12 @@ public class Intake extends SubsystemBase
     private void setIntakeSpeed(double speed)
     {
         intakeMotor.set(speed);
+    }
+
+    // Set the piviot motor to a specific speed (intended for manual control, not position control)
+    public void setPivotMotorSpeed(double speed)
+    {
+        pivotMotor.set(speed);
     }
 
     // Pivots the intake to a specified position, specified in degrtees.
@@ -152,12 +160,20 @@ public class Intake extends SubsystemBase
         intakeMotor.stopMotor();
     }
 
+    // Returns the current pivot position as an angle relative to the stowed position.
+    public Angle getPivotPosition()
+    {
+        return pivotEncoder.getAbsolutePosition().getValue();
+    }
+
     @Override
     public void periodic()
     {
         // This method will be called once per scheduler run
         // TODO: Determine if intake is at desired position within some tolerance?
-        SmartDashboard.putNumber("Intake Pos", pivotEncoder.getAbsolutePosition().getValue().in(Degrees));
+        SmartDashboard.putNumber("Intake Pos", getPivotPosition().in(Degrees));
+        SmartDashboard.putNumber("IntakeOut", intakeMotor.getDutyCycle().getValueAsDouble());
+        SmartDashboard.putNumber("IntakeRPM", intakeMotor.getVelocity().getValueAsDouble() * 60);
         SmartDashboard.putNumber("PivotSpd", pivotMotor.getDutyCycle().getValueAsDouble());
 
     }
