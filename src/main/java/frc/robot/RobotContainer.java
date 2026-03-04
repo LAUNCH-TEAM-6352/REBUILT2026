@@ -44,6 +44,7 @@ import frc.robot.commands.MoveClimberWithGamepad;
 import frc.robot.commands.MoveIntakePivotWithGamepad;
 import frc.robot.commands.test.TestClimber;
 import frc.robot.Constants.PathPlannerConstants;
+import frc.robot.Constants.automationConstants;
 import frc.robot.commands.test.TestDrivetrain;
 import frc.robot.commands.test.TestHopper;
 import frc.robot.commands.test.TestIntake;
@@ -444,12 +445,10 @@ public class RobotContainer
 
     public void autoShoot()
     {
-
-    }
-
-    public Pose2d convertBlueToRedPose(Pose2d bluePose)
-    {
-        return new Pose2d(bluePose.getX() + 100, bluePose.getY(), bluePose.getRotation().times(-1));
+        goToShootPoint(SmartDashboard.getNumber(DashboardConstants.SHOOTING_POINT_RADIUS_KEY, automationConstants.shootPointRadius));
+        drivetrain.ifPresent(dt -> 
+        CommandScheduler.getInstance().schedule(dt.applyRequest(() -> m_brakeRequest))
+    );
     }
 
     public Pose2d shootingCircle(double theta, double radius, boolean yesBlue)
@@ -567,5 +566,8 @@ public class RobotContainer
             Constants.LimeLightConstants.LIMELIGHT_THROTTLE_DISABLED);
         SmartDashboard.putNumber(DashboardConstants.LIMELIGHT_THROTTLE_ENABLED_KEY,
             Constants.LimeLightConstants.LIMELIGHT_THROTTLE_ENABLED);
+
+        //Automation:
+        SmartDashboard.putNumber(DashboardConstants.SHOOTING_POINT_RADIUS_KEY, automationConstants.shootPointRadius);
     }
 }
