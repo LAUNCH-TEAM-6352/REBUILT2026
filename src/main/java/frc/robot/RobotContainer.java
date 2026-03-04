@@ -443,11 +443,24 @@ public class RobotContainer
         return group;
     }
 
-    public void autoShoot()
+    public Command autoShootCommand()
     {
-        goToShootPoint(SmartDashboard.getNumber(DashboardConstants.SHOOTING_POINT_RADIUS_KEY, automationConstants.shootPointRadius));
-        drivetrain.ifPresent(dt -> 
-        CommandScheduler.getInstance().schedule(dt.applyRequest(() -> m_brakeRequest))
+    return Commands.sequence(
+
+        Commands.runOnce(() -> goToShootPoint(
+            SmartDashboard.getNumber(DashboardConstants.SHOOTING_POINT_RADIUS_KEY,
+                automationConstants.shootPointRadius))),
+
+        Commands.parallel(
+            drivetrain.map(dt -> dt.applyRequest(() -> m_brakeRequest))
+                      .orElse(Commands.none()),
+            intake.map(i -> i.intakeThenStopCommand())
+                  .orElse(Commands.none()),
+            launcher.map(l -> l.feedThenStopCommand())
+                    .orElse(Commands.none()),
+            hopper.map(h -> h.feedThenStopCommand())
+                  .orElse(Commands.none())
+        )
     );
     }
 
