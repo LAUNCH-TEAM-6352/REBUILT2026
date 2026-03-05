@@ -99,10 +99,12 @@ public class RobotContainer
     Translation2d redHub = new Translation2d(12, 4);
     Translation2d blueHub = new Translation2d(4.65, 4);
 
-    Translation2d topAllianceSideBump = new Translation2d();
-    Translation2d bottomAllianceSideBump = new Translation2d();
-    Translation2d topHubSideBump = new Translation2d();
-    Translation2d bottomHubSideBump = new Translation2d();
+    Translation2d topAllianceSideBump = new Translation2d(3.0, 5.6);
+    Translation2d bottomAllianceSideBump = new Translation2d(3.0, 2.5);
+    Translation2d topHubSideBump = new Translation2d(6.1, 5.6);
+    Translation2d bottomHubSideBump = new Translation2d(6.1, 2.5);
+    Translation2d topMiddleBump = new Translation2d(4.6, 5.6);
+    Translation2d bottomMiddleBump = new Translation2d(4.6, 2.5);
 
     public RobotContainer()
     {
@@ -388,16 +390,16 @@ public class RobotContainer
         return pathfindingCommand;
     }
 
-    public void pathFindToMultiPose(List<Pose2d> points)
+    public void pathFindToMultiPose(List<Pose2d> points, boolean blueAlliance)
     {
 
         // var cmd = pathfindToPose(points.get(0), 10.0);
         var pointsIterator = points.iterator();
-        Command cmd = pathfindToPose(pointsIterator.next(), 5.0, false);
+        Command cmd = pathfindToPose(pointsIterator.next(), 5.0, blueAlliance);
         Command lastCommand = cmd;
         while (pointsIterator.hasNext())
         {
-            lastCommand = lastCommand.andThen(pathfindToPose(pointsIterator.next(), 10.0, false));
+            lastCommand = lastCommand.andThen(pathfindToPose(pointsIterator.next(), 10.0, blueAlliance));
         }
 
         CommandScheduler.getInstance().schedule(lastCommand);
@@ -469,12 +471,14 @@ public class RobotContainer
                     .orElse(Commands.none())));
     }
 
-    public Command autoFerry(){
+    public Command autoFerry()
+    {
         Rotation2d angle = Rotation2d.fromDegrees(0);
         if (isBlueAlliance())
         {
             angle = Rotation2d.fromDegrees(180);
-        } else
+        }
+        else
         {
             angle = Rotation2d.fromDegrees(0);
         }
@@ -482,18 +486,48 @@ public class RobotContainer
         return Commands.sequence(
             facePose2D(angle),
             Commands.parallel(
-        intake.map(i -> i.intakeThenStopCommand())
-            .orElse(Commands.none()),
-        launcher.map(l -> l.feedThenStopCommand())
-            .orElse(Commands.none()),
-        hopper.map(h -> h.feedThenStopCommand())
-            .orElse(Commands.none())
-    ));
+                intake.map(i -> i.intakeThenStopCommand())
+                    .orElse(Commands.none()),
+                launcher.map(l -> l.feedThenStopCommand())
+                    .orElse(Commands.none()),
+                hopper.map(h -> h.feedThenStopCommand())
+                    .orElse(Commands.none())));
     }
 
-    public void autoCrossBump(){
+    public void autoCrossBump()
+    {
         boolean isBlue = isBlueAlliance();
+        if (drivetrain.get().getPosition().getX() < 4.6)
+        {
+            if (drivetrain.get().getPosition().getY() > 4.0)
+            {
+                pathFindToMultiPose(List.of(new Pose2d(topMiddleBump, new Rotation2d(Math.PI / 4)),
+                    new Pose2d(topHubSideBump, new Rotation2d(0))), isBlue);
+            }
+            else
+            {
+                pathFindToMultiPose(List.of(new Pose2d(bottomMiddleBump, new Rotation2d(Math.PI / 4)),
+                    new Pose2d(bottomHubSideBump, new Rotation2d(0))), isBlue);
+            }
+        }
+        else
+        {
+            if (drivetrain.get().getPosition().getY() > 4.0)
+            {
+                pathFindToMultiPose(List.of(new Pose2d(topMiddleBump, new Rotation2d(Math.PI / 4)),
+                    new Pose2d(topAllianceSideBump, new Rotation2d(180))), isBlue);
+            }
+            else
+            {
+                pathFindToMultiPose(List.of(new Pose2d(bottomMiddleBump, new Rotation2d(Math.PI / 4)),
+                    new Pose2d(bottomAllianceSideBump, new Rotation2d(180))), isBlue);
+            }
 
+        }
+    }
+
+    public Command autoClimb(){
+        
     }
 
     public boolean isBlueAlliance()
