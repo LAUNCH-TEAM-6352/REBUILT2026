@@ -139,6 +139,12 @@ public class Launcher extends SubsystemBase
         leftShooterMotor.stopMotor();
     }
 
+    public boolean isAtTargetVelocity()
+    {
+        return true; 
+        // TODO: determine if shooter is at target velocity within some tolerance?
+    }
+
     // Stops all 3 motors in launcher
     public void stopAll()
     {
@@ -150,5 +156,6 @@ public class Launcher extends SubsystemBase
     public void periodic()
     {
         // TODO: determine if shooter is at target velocity?
+
     }
 }

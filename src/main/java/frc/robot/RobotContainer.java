@@ -38,6 +38,7 @@ import frc.robot.Constants.LauncherConstants;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.MoveClimberWithGamepad;
 import frc.robot.commands.MoveIntakePivotWithGamepad;
+import frc.robot.commands.ScoreFuel;
 import frc.robot.commands.test.TestClimber;
 import frc.robot.Constants.PathPlannerConstants;
 import frc.robot.commands.test.TestDrivetrain;
@@ -184,6 +185,15 @@ public class RobotContainer
         intake.ifPresent(this::configureBindings);
         hopper.ifPresent(this::configureBindings);
         drivetrain.ifPresent(this::configureBindings);
+        if (intake.isPresent() && hopper.isPresent() && launcher.isPresent())
+        {
+            configureBindings(intake.get(), hopper.get(), launcher.get());
+        }
+    }
+
+    private void configureBindings(Intake intake, Hopper hopper, Launcher launcher)
+    {
+        driverGamepad.x().whileTrue(new ScoreFuel(launcher, hopper, intake));
     }
 
     private void configureBindings(CommandSwerveDrivetrain drivetrain)
@@ -260,7 +270,6 @@ public class RobotContainer
     private void configureBindings(Intake intake)
     {
         codriverGamepad.y().whileTrue(intake.intakeThenStopCommand());
-        codriverGamepad.leftStick().whileTrue(intake.ejectThenStopCommand());
         codriverGamepad.x().onTrue(intake.deployCommand());
         codriverGamepad.start().onTrue(intake.partialDeployCommand());
         codriverGamepad.back().onTrue(intake.stowCommand());
@@ -442,13 +451,12 @@ public class RobotContainer
         SmartDashboard.putNumber(DashboardConstants.CONVEYOR_CLEAR_KEY, HopperConstants.CLEAR_SPEED);
 
         // Intake:
-        SmartDashboard.putNumber(DashboardConstants.INTAKE_SPEED_KEY, IntakeConstants.INTAKE_SPEED);
-        SmartDashboard.putNumber(DashboardConstants.EJECT_SPEED_KEY, IntakeConstants.EJECT_SPEED);
+        SmartDashboard.putNumber(DashboardConstants.INTAKE_VELOCITY_KEY, IntakeConstants.INTAKE_VELOCITY_RPM);
         SmartDashboard.putNumber(DashboardConstants.DEPLOYED_KEY, IntakeConstants.DEPLOYED_POSITION.magnitude());
         SmartDashboard.putNumber(DashboardConstants.PARTIALLY_DEPLOYED_KEY,
             IntakeConstants.PARTIALLY_DEPLOYED_POSITION.magnitude());
         SmartDashboard.putNumber(DashboardConstants.STOWED_KEY, IntakeConstants.STOWED_POSITION.magnitude());
-        SmartDashboard.putNumber(DashboardConstants.PIVOT_TOLERANCE_KEY, IntakeConstants.PIVOT_TOLERANCE);
+        SmartDashboard.putNumber(DashboardConstants.PIVOT_TOLERANCE_KEY, IntakeConstants.PIVOT_TOLERANCE_DEG);
 
         // Launcher:
         SmartDashboard.putNumber(DashboardConstants.LAUNCHER_SHOOTING_KEY, LauncherConstants.SHOOTING_VELOCITY_RPM);

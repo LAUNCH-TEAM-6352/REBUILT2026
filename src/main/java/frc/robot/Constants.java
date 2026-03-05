@@ -28,6 +28,14 @@ public final class Constants
 {
     public static final CANBus CANIVORE_BUS = new CANBus("skycan");
 
+    public static class AutomationConstants
+    {
+        public static final double AGITATE_START_DELAY_SECS = 3;
+        public static final double AGITATE_DOWN_TIME_SECS = 0.5;
+        public static final double AGITATE_UP_TIME_SECS = 0.5;
+        public static final double[] AGITATE_UP_POSITIONS_DEG = { 110, 80, 50, 30, 10, 0 };
+    }
+
     public static class ClimberConstants
     {
         public static final CANBus WINCH_MOTOR_BUS = Constants.CANIVORE_BUS;
@@ -80,12 +88,17 @@ public final class Constants
         public static final InvertedValue PIVOT_MOTOR_INVERTED_VALUE = InvertedValue.CounterClockwise_Positive;
 
         public static final SensorDirectionValue ENCODER_DIRECTION_VALUE = SensorDirectionValue.Clockwise_Positive;
-
-        public static final double INTAKE_SPEED = 0.5;
-        public static final double EJECT_SPEED = -0.5;
+        
+        public static final double INTAKE_VELOCITY_RPM = 1500;
+        public static final double AGITATE_VELOCITY_RPM = 500;
+        public static final double INTAKE_KS = 0.1; // Add 0.1 V output to overcome static friction
+        public static final double INTAKE_KV = 0.12; // A velocity target of 1 rps results in 0.12 V output
+        public static final double INTAKE_KP = 0.11; // An error of 1 rps results in 0.11 V output
+        public static final double INTAKE_KI = 0.0; // no output for integrated error
+        public static final double INTAKE_KD = 0.0; // no output for error derivative
 
         public static final double PIVOT_KP = 0.8;
-        public static final double PIVOT_KI = 0.0;
+        public static final double PIVOT_KI = 0.25;
         public static final double PIVOT_KD = 0.0;
 
         public static final double PIVOT_MAX_FWD_SPEED = .6;
@@ -93,12 +106,12 @@ public final class Constants
 
         public static final double PIVOT_MAX_MAN_SPEED = 0.25;
 
-        public static final double PIVOT_TOLERANCE = 10;
+        public static final double PIVOT_TOLERANCE_DEG = 1; 
 
         // These positions are in degrees and represent the angle of the intake
         // relative to its starting/stowed position.
         public static final Angle STOWED_POSITION = Degrees.of(0);
-        public static final Angle DEPLOYED_POSITION = Degrees.of(130);
+        public static final Angle DEPLOYED_POSITION = Degrees.of(128);
         public static final Angle PARTIALLY_DEPLOYED_POSITION = Degrees.of(65);
 
         // These positions are in rotations and are used to set software limits on the pivot motor.
@@ -156,8 +169,7 @@ public final class Constants
         public static final String CONVEYOR_FEED_KEY = "HopperFeed";
         public static final String CONVEYOR_CLEAR_KEY = "HopperClear";
 
-        public static final String INTAKE_SPEED_KEY = "IntakeSpd";
-        public static final String EJECT_SPEED_KEY = "EjectSpd";
+        public static final String INTAKE_VELOCITY_KEY = "IntakeVelRPM";
         public static final String PIVOT_TOLERANCE_KEY = "PivotTol";
         public static final String DEPLOYED_KEY = "DeployedPos";
         public static final String PARTIALLY_DEPLOYED_KEY = "PartialDeployedPos";

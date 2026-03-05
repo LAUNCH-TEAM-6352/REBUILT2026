@@ -5,11 +5,13 @@
 package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.RPM;
 
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.PositionDutyCycle;
+import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
@@ -21,6 +23,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.DashboardConstants;
 import frc.robot.Constants.IntakeConstants;
+import frc.robot.Constants.LauncherConstants;
 
 public class Intake extends SubsystemBase
 {
@@ -32,14 +35,28 @@ public class Intake extends SubsystemBase
     private final CANcoder pivotEncoder = new CANcoder(IntakeConstants.PIVOT_ENCODER_CHANNEL,
         IntakeConstants.PIVOT_ENCODER_BUS);
 
+    private final VelocityVoltage velocityVoltage = new VelocityVoltage(0).withSlot(0);
     private final PositionDutyCycle positionControl = new PositionDutyCycle(0).withSlot(0);
+
+    private double targetPosition;
+    private double targetTolerance;
+    private boolean atTargetPosition = false;
+    private boolean isPositioningStarted;
+    private double lastPosition;
 
     /** Creates a new Intake. */
     public Intake()
     {
         var intakeConfigs = new TalonFXConfiguration();
-        intakeConfigs.MotorOutput.Inverted = IntakeConstants.INTAKE_MOTOR_INVERTED_VALUE;
+         intakeConfigs.MotorOutput.Inverted = IntakeConstants.INTAKE_MOTOR_INVERTED_VALUE;
+        var slot0Configs = new Slot0Configs();
+        slot0Configs.kS = IntakeConstants.INTAKE_KS;
+        slot0Configs.kV = IntakeConstants.INTAKE_KV;
+        slot0Configs.kP = IntakeConstants.INTAKE_KP;
+        slot0Configs.kI = IntakeConstants.INTAKE_KI;
+        slot0Configs.kD = IntakeConstants.INTAKE_KD;
         intakeMotor.getConfigurator().apply(intakeConfigs);
+        intakeMotor.getConfigurator().apply(slot0Configs);
         intakeMotor.clearStickyFaults();
 
         var pivotConfigs = new TalonFXConfiguration();
@@ -47,11 +64,10 @@ public class Intake extends SubsystemBase
 
         pivotConfigs.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
         pivotConfigs.Feedback.FeedbackRemoteSensorID = pivotEncoder.getDeviceID();
-
-        var slot0Configs = new Slot0Configs();
-        slot0Configs.kP = IntakeConstants.PIVOT_KP;
-        slot0Configs.kI = IntakeConstants.PIVOT_KI;
-        slot0Configs.kD = IntakeConstants.PIVOT_KD;
+        
+        pivotConfigs.Slot0.kP = IntakeConstants.PIVOT_KP;
+        pivotConfigs.Slot0.kI = IntakeConstants.PIVOT_KI;
+        pivotConfigs.Slot0.kD = IntakeConstants.PIVOT_KD;
 
         pivotConfigs.MotorOutput.PeakForwardDutyCycle = IntakeConstants.PIVOT_MAX_FWD_SPEED;
         pivotConfigs.MotorOutput.PeakReverseDutyCycle = IntakeConstants.PIVOT_MAX_REV_SPEED;
@@ -63,7 +79,6 @@ public class Intake extends SubsystemBase
         pivotConfigs.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
 
         pivotMotor.getConfigurator().apply(pivotConfigs);
-        pivotMotor.getConfigurator().apply(slot0Configs);
 
         var canCoderConfig = new CANcoderConfiguration();
         canCoderConfig.MagnetSensor.SensorDirection = IntakeConstants.ENCODER_DIRECTION_VALUE;
@@ -73,10 +88,10 @@ public class Intake extends SubsystemBase
         pivotEncoder.setPosition(0);
     }
 
-    // Set the intake motor to a specific speed
-    private void setIntakeSpeed(double speed)
+    // Set the intake motor to a specific velocity in RPM
+    public void setIntakeVelocity(double velocity)
     {
-        intakeMotor.set(speed);
+        intakeMotor.setControl(velocityVoltage.withVelocity(velocity / 60));
     }
 
     // Set the piviot motor to a specific speed (intended for manual control, not position control)
@@ -86,9 +101,14 @@ public class Intake extends SubsystemBase
     }
 
     // Pivots the intake to a specified position, specified in degrtees.
-    private void pivotToPositionInDegrees(double position)
+    public void pivotToPositionInDegrees(double position)
     {
         pivotMotor.setControl(positionControl.withPosition(Degrees.of(position)));
+        lastPosition = getPivotPosition().in(Degrees);
+        targetPosition = position;
+        targetTolerance = IntakeConstants.PIVOT_TOLERANCE_DEG;
+        isPositioningStarted = true;
+        atTargetPosition = false;
     }
 
     public Command stowCommand()
@@ -138,20 +158,8 @@ public class Intake extends SubsystemBase
 
     public void intake()
     {
-        setIntakeSpeed(
-            SmartDashboard.getNumber(DashboardConstants.INTAKE_SPEED_KEY, IntakeConstants.INTAKE_SPEED));
-    }
-
-    // Intended for use with a press-and-hold binding
-    public Command ejectThenStopCommand()
-    {
-        return startEnd(this::eject, this::stop);
-    }
-
-    public void eject()
-    {
-        setIntakeSpeed(
-            SmartDashboard.getNumber(DashboardConstants.EJECT_SPEED_KEY, IntakeConstants.EJECT_SPEED));
+        setIntakeVelocity(
+            SmartDashboard.getNumber(DashboardConstants.INTAKE_VELOCITY_KEY, IntakeConstants.INTAKE_VELOCITY_RPM));
     }
 
     // Stop the intake motor
@@ -166,14 +174,28 @@ public class Intake extends SubsystemBase
         return pivotEncoder.getAbsolutePosition().getValue();
     }
 
+    public boolean atTargetPosition()
+    {
+        return atTargetPosition;
+    }
+
     @Override
     public void periodic()
     {
-        // This method will be called once per scheduler run
-        // TODO: Determine if intake is at desired position within some tolerance?
+        var pivotPosition = getPivotPosition().in(Degrees);
+
+        if (isPositioningStarted)
+        {
+            if (Math.abs(pivotPosition - targetPosition) <= targetTolerance)
+            {
+                atTargetPosition = true;
+                isPositioningStarted = false;
+            }
+        }
+
         SmartDashboard.putNumber("Intake Pos", getPivotPosition().in(Degrees));
         SmartDashboard.putNumber("IntakeOut", intakeMotor.getDutyCycle().getValueAsDouble());
-        SmartDashboard.putNumber("IntakeRPM", intakeMotor.getVelocity().getValueAsDouble() * 60);
+        SmartDashboard.putNumber("IntakeRPM", intakeMotor.getVelocity().getValue().in(RPM));
         SmartDashboard.putNumber("PivotSpd", pivotMotor.getDutyCycle().getValueAsDouble());
 
     }

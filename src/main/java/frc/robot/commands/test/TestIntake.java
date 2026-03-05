@@ -32,10 +32,6 @@ public class TestIntake extends SequentialCommandGroup
             intake.intakeThenStopCommand().withTimeout(TestConstants.INSTANT_BETWEEN_TIME_SECS),
             new WaitCommand(TestConstants.BETWEEN_TIME_SECS),
 
-            new InstantCommand(() -> System.out.println("Testing Intake: Ejecting")),
-            intake.ejectThenStopCommand().withTimeout(TestConstants.INSTANT_BETWEEN_TIME_SECS),
-            new WaitCommand(TestConstants.BETWEEN_TIME_SECS),
-
             new InstantCommand(() -> System.out.println("Testing Intake: Stowing")),
             intake.stowCommand(),
             new WaitCommand(TestConstants.BETWEEN_TIME_SECS));
