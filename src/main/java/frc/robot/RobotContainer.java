@@ -8,11 +8,9 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
-import java.io.Serial;
 import java.util.List;
 import java.util.Optional;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
-import com.fasterxml.jackson.databind.EnumNamingStrategies.LowerCamelCaseStrategy;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
@@ -78,6 +76,7 @@ public class RobotContainer
     private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
     private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
     private final SwerveRequest.SwerveDriveBrake m_brakeRequest = new SwerveRequest.SwerveDriveBrake();
+    private final SwerveRequest.FieldCentricFacingAngle faceAngle = new SwerveRequest.FieldCentricFacingAngle();
 
     private final Telemetry logger = new Telemetry(MaxSpeed);
 
@@ -198,6 +197,8 @@ public class RobotContainer
 
     private void configureBindings(CommandSwerveDrivetrain drivetrain)
     {
+        faceAngle.HeadingController.setPID(5.0, 0.0, 0.0);
+
         // Note that X is defined as forward according to WPILib convention,
         // and Y is defined as to the left according to WPILib convention.
         drivetrain.setDefaultCommand(
@@ -238,7 +239,8 @@ public class RobotContainer
         drivetrain.registerTelemetry(logger::telemeterize);
 
         driverGamepad
-            .povUp().whileTrue(drivetrain.runOnce(() -> this.goToShootPoint(2.2)));
+            .povUp().whileTrue(this.autoShootCommand());
+        driverGamepad.rightBumper().whileTrue(this.autoFerry());
     }
 
     // TODO: the following bindings are designed for testing and need to changed for the final control scheme.
@@ -445,45 +447,75 @@ public class RobotContainer
 
     public Command autoShootCommand()
     {
-    return Commands.sequence(
+        return Commands.sequence(
 
-        Commands.runOnce(() -> goToShootPoint(
-            SmartDashboard.getNumber(DashboardConstants.SHOOTING_POINT_RADIUS_KEY,
-                automationConstants.shootPointRadius))),
+            Commands.runOnce(() -> goToShootPoint(
+                SmartDashboard.getNumber(DashboardConstants.SHOOTING_POINT_RADIUS_KEY,
+                    automationConstants.shootPointRadius))),
 
-        Commands.parallel(
-            drivetrain.map(dt -> dt.applyRequest(() -> m_brakeRequest))
-                      .orElse(Commands.none()),
-            intake.map(i -> i.intakeThenStopCommand())
-                  .orElse(Commands.none()),
-            launcher.map(l -> l.feedThenStopCommand())
+            Commands.parallel(
+                drivetrain.map(dt -> dt.applyRequest(() -> m_brakeRequest))
                     .orElse(Commands.none()),
-            hopper.map(h -> h.feedThenStopCommand())
-                  .orElse(Commands.none())
-        )
-    );
+                intake.map(i -> i.intakeThenStopCommand())
+                    .orElse(Commands.none()),
+                launcher.map(l -> l.feedThenStopCommand())
+                    .orElse(Commands.none()),
+                hopper.map(h -> h.feedThenStopCommand())
+                    .orElse(Commands.none())));
+    }
+
+    public Command autoFerry(){
+        Optional<Alliance> botAlliance = DriverStation.getAlliance();
+        Rotation2d angle = Rotation2d.fromDegrees(0);
+        if (botAlliance.isPresent() && botAlliance.get() == Alliance.Red)
+        {
+            angle = Rotation2d.fromDegrees(0);
+        } else
+        {
+            angle = Rotation2d.fromDegrees(180);
+        }
+
+        return Commands.sequence(
+            facePose2D(angle),
+            Commands.parallel(
+        intake.map(i -> i.intakeThenStopCommand())
+            .orElse(Commands.none()),
+        launcher.map(l -> l.feedThenStopCommand())
+            .orElse(Commands.none()),
+        hopper.map(h -> h.feedThenStopCommand())
+            .orElse(Commands.none())
+    ));
+    }
+
+    public Command facePose2D(Rotation2d angle)
+    {
+        return drivetrain.map(dt -> dt.applyRequest(() -> faceAngle
+            .withVelocityX(-driverGamepad.getLeftY() * MaxSpeed)
+            .withVelocityY(-driverGamepad.getLeftX() * MaxSpeed)
+            .withTargetDirection(angle)))
+            .orElse(Commands.none());
     }
 
     public Pose2d shootingCircle(double theta, double radius, boolean yesBlue)
     {
-        //if (yesBlue)
-        //{
-            double x = (radius * Math.cos(theta)) + blueHub.getX();
-            double y = (radius * Math.sin(theta)) + blueHub.getY();
+        // if (yesBlue)
+        // {
+        double x = (radius * Math.cos(theta)) + blueHub.getX();
+        double y = (radius * Math.sin(theta)) + blueHub.getY();
 
-            Pose2d circlePos = new Pose2d(x, y, new Rotation2d(0));
-            return circlePos;
-        //}
+        Pose2d circlePos = new Pose2d(x, y, new Rotation2d(0));
+        return circlePos;
+        // }
         /*
-        else
-        {
-            double x = (radius * Math.cos(theta)) + redHub.getX();
-            double y = (radius * Math.sin(theta)) + redHub.getY();
-            System.out.println("X: " + x + ", Y: " + y);
-            Pose2d circlePos = new Pose2d(x, y, new Rotation2d(0));
-            return circlePos;
-        }
-        */
+         * else
+         * {
+         * double x = (radius * Math.cos(theta)) + redHub.getX();
+         * double y = (radius * Math.sin(theta)) + redHub.getY();
+         * System.out.println("X: " + x + ", Y: " + y);
+         * Pose2d circlePos = new Pose2d(x, y, new Rotation2d(0));
+         * return circlePos;
+         * }
+         */
     }
 
     public void goToShootPoint(double Radius)
@@ -491,31 +523,33 @@ public class RobotContainer
         Translation2d RobotPose = drivetrain.get().getPosition().getTranslation();
         System.out.println("RobotPose: " + RobotPose);
         double upperLim = (4 * Math.PI) / 3;
-        double lowerLim = (2 * Math.PI) / 3;;
+        double lowerLim = (2 * Math.PI) / 3;
+        ;
         boolean isBlue = true;
         double minRad = lowerLim;
         Optional<Alliance> botAlliance = DriverStation.getAlliance();
-        if (botAlliance.isPresent() && botAlliance.get() == Alliance.Red){
+        if (botAlliance.isPresent() && botAlliance.get() == Alliance.Red)
+        {
             isBlue = false;
-        } 
-        
+        }
+
         /*
-        if (botAlliance.get() == Alliance.Red)
-        {
-            isBlue = false;
-            upperLim = (Math.PI) / 3 + 2 * Math.PI;
-            lowerLim = (5 * Math.PI) / 3;
-            minRad = lowerLim;
-        }
-        else
-        {
-            isBlue = true;
-            lowerLim = (2 * Math.PI) / 3;
-            upperLim = (4 * Math.PI) / 3;
-            minRad = lowerLim;
-        }
-        */
-        
+         * if (botAlliance.get() == Alliance.Red)
+         * {
+         * isBlue = false;
+         * upperLim = (Math.PI) / 3 + 2 * Math.PI;
+         * lowerLim = (5 * Math.PI) / 3;
+         * minRad = lowerLim;
+         * }
+         * else
+         * {
+         * isBlue = true;
+         * lowerLim = (2 * Math.PI) / 3;
+         * upperLim = (4 * Math.PI) / 3;
+         * minRad = lowerLim;
+         * }
+         */
+
         double minDistance = RobotPose.getDistance(shootingCircle(minRad, Radius, isBlue).getTranslation());
         for (double i = lowerLim; i < upperLim; i += 0.01)
         {
@@ -533,12 +567,7 @@ public class RobotContainer
         Rotation2d rotation = Rotation2d.fromRadians(minRad + Math.PI);
         if (minDistance < 0.5)
         {
-            List<Pose2d> path2 = List.of(
-                new Pose2d(shootingCircle(minRad, Radius, isBlue).getX() + 0.5,
-                    shootingCircle(minRad, Radius, isBlue).getY() + 0.5, rotation),
-                new Pose2d(shootingCircle(minRad, Radius, isBlue).getX(), shootingCircle(minRad, Radius, isBlue).getY(),
-                    rotation));
-            this.pathFindToMultiPose(path2);
+            facePose2D(rotation).withTimeout(0.5).schedule();
         }
         else
         {
@@ -580,7 +609,7 @@ public class RobotContainer
         SmartDashboard.putNumber(DashboardConstants.LIMELIGHT_THROTTLE_ENABLED_KEY,
             Constants.LimeLightConstants.LIMELIGHT_THROTTLE_ENABLED);
 
-        //Automation:
+        // Automation:
         SmartDashboard.putNumber(DashboardConstants.SHOOTING_POINT_RADIUS_KEY, automationConstants.shootPointRadius);
     }
 }

@@ -146,8 +146,9 @@ public final class Constants
         public static final double MAX_ANGULAR_VELOCITY_RPS = Units.degreesToRadians(540);
         public static final double MAX_ANGULAR_ACCELERATION_RPS = Units.degreesToRadians(720);
     }
-    
-    public static final class automationConstants{
+
+    public static final class automationConstants
+    {
 
         public static final double shootPointRadius = 2.2;
 
