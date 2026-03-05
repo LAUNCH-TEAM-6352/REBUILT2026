@@ -99,6 +99,11 @@ public class RobotContainer
     Translation2d redHub = new Translation2d(12, 4);
     Translation2d blueHub = new Translation2d(4.65, 4);
 
+    Translation2d topAllianceSideBump = new Translation2d();
+    Translation2d bottomAllianceSideBump = new Translation2d();
+    Translation2d topHubSideBump = new Translation2d();
+    Translation2d bottomHubSideBump = new Translation2d();
+
     public RobotContainer()
     {
         // Get the game data message fom the driver station.
@@ -465,14 +470,13 @@ public class RobotContainer
     }
 
     public Command autoFerry(){
-        Optional<Alliance> botAlliance = DriverStation.getAlliance();
         Rotation2d angle = Rotation2d.fromDegrees(0);
-        if (botAlliance.isPresent() && botAlliance.get() == Alliance.Red)
-        {
-            angle = Rotation2d.fromDegrees(0);
-        } else
+        if (isBlueAlliance())
         {
             angle = Rotation2d.fromDegrees(180);
+        } else
+        {
+            angle = Rotation2d.fromDegrees(0);
         }
 
         return Commands.sequence(
@@ -485,6 +489,17 @@ public class RobotContainer
         hopper.map(h -> h.feedThenStopCommand())
             .orElse(Commands.none())
     ));
+    }
+
+    public void autoCrossBump(){
+        boolean isBlue = isBlueAlliance();
+
+    }
+
+    public boolean isBlueAlliance()
+    {
+        Optional<Alliance> botAlliance = DriverStation.getAlliance();
+        return botAlliance.isPresent() && botAlliance.get() == Alliance.Blue;
     }
 
     public Command facePose2D(Rotation2d angle)
@@ -525,13 +540,8 @@ public class RobotContainer
         double upperLim = (4 * Math.PI) / 3;
         double lowerLim = (2 * Math.PI) / 3;
         ;
-        boolean isBlue = true;
+        boolean isBlue = isBlueAlliance();
         double minRad = lowerLim;
-        Optional<Alliance> botAlliance = DriverStation.getAlliance();
-        if (botAlliance.isPresent() && botAlliance.get() == Alliance.Red)
-        {
-            isBlue = false;
-        }
 
         /*
          * if (botAlliance.get() == Alliance.Red)
