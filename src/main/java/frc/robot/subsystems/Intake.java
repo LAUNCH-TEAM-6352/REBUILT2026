@@ -10,6 +10,7 @@ import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.PositionDutyCycle;
+import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
@@ -39,6 +40,11 @@ public class Intake extends SubsystemBase
     {
         var intakeConfigs = new TalonFXConfiguration();
         intakeConfigs.MotorOutput.Inverted = IntakeConstants.INTAKE_MOTOR_INVERTED_VALUE;
+
+        intakeConfigs.Slot0.kP = IntakeConstants.INTAKE_KP;
+        intakeConfigs.Slot0.kI = IntakeConstants.INTAKE_KI;
+        intakeConfigs.Slot0.kD = IntakeConstants.INTAKE_KD;
+
         intakeMotor.getConfigurator().apply(intakeConfigs);
         intakeMotor.clearStickyFaults();
 
@@ -76,7 +82,7 @@ public class Intake extends SubsystemBase
     // Set the intake motor to a specific speed
     private void setIntakeSpeed(double speed)
     {
-        intakeMotor.set(speed);
+        intakeMotor.setControl(new VelocityVoltage(speed));
     }
 
     // Set the piviot motor to a specific speed (intended for manual control, not position control)

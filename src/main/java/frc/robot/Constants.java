@@ -88,6 +88,10 @@ public final class Constants
         public static final double PIVOT_KI = 0.0;
         public static final double PIVOT_KD = 0.0;
 
+        public static final double INTAKE_KP = 0.8;
+        public static final double INTAKE_KI = 0.0;
+        public static final double INTAKE_KD = 0.0;
+
         public static final double PIVOT_MAX_FWD_SPEED = .6;
         public static final double PIVOT_MAX_REV_SPEED = -1;
 
