@@ -14,7 +14,6 @@ import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
-import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.path.PathConstraints;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -96,7 +95,7 @@ public class RobotContainer
     private final CommandXboxController codriverGamepad;
 
     // Points for Paths/Automation
-    Translation2d redHub = new Translation2d(12, 4);
+    Translation2d redHub = new Translation2d(11.9, 4);
     Translation2d blueHub = new Translation2d(4.65, 4);
 
     Translation2d topAllianceSideBump = new Translation2d(3.0, 5.6);
@@ -239,15 +238,20 @@ public class RobotContainer
         // Reset the field-centric heading on left bumper press.
         driverGamepad.leftBumper().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
 
-        PathPlannerAuto auto = new PathPlannerAuto("testAuto");
-        Pose2d startingPose = auto.getStartingPose();
-        driverGamepad.povLeft().onTrue(this.pathfindToPose(startingPose, 0.0, false).andThen(auto));
+        /*
+         * PathPlannerAuto auto = new PathPlannerAuto("testAuto");
+         * Pose2d startingPose = auto.getStartingPose();
+         * driverGamepad.povLeft().onTrue(this.pathfindToPose(startingPose, 0.0, false).andThen(auto));
+         */
 
         drivetrain.registerTelemetry(logger::telemeterize);
 
         driverGamepad
             .povUp().whileTrue(this.autoShootCommand());
-        driverGamepad.rightBumper().whileTrue(this.autoFerry());
+
+        driverGamepad.povRight().whileTrue(this.autoFerry());
+
+        driverGamepad.povLeft().whileTrue(drivetrain.runOnce(() -> this.autoCrossBump()));
     }
 
     // TODO: the following bindings are designed for testing and need to changed for the final control scheme.
@@ -476,11 +480,11 @@ public class RobotContainer
         Rotation2d angle = Rotation2d.fromDegrees(0);
         if (isBlueAlliance())
         {
-            angle = Rotation2d.fromDegrees(180);
+            angle = Rotation2d.fromDegrees(0);
         }
         else
         {
-            angle = Rotation2d.fromDegrees(0);
+            angle = Rotation2d.fromDegrees(180);
         }
 
         return Commands.sequence(
@@ -497,39 +501,37 @@ public class RobotContainer
     public void autoCrossBump()
     {
         boolean isBlue = isBlueAlliance();
-        if (drivetrain.get().getPosition().getX() < 4.6)
+        double bumpX = isBlue ? 4.6 : 11.8;
+        boolean onTopHalf = isBlue
+            ? drivetrain.get().getPosition().getY() > 4.0
+            : drivetrain.get().getPosition().getY() < 4.0;
+
+        boolean onLeftSide = drivetrain.get().getPosition().getX() < bumpX;
+        boolean goingToHub = (isBlue == onLeftSide);
+
+        Translation2d middleBump = onTopHalf ? topMiddleBump : bottomMiddleBump;
+
+        if (goingToHub)
         {
-            if (drivetrain.get().getPosition().getY() > 4.0)
-            {
-                pathFindToMultiPose(List.of(new Pose2d(topMiddleBump, new Rotation2d(Math.PI / 4)),
-                    new Pose2d(topHubSideBump, new Rotation2d(0))), isBlue);
-            }
-            else
-            {
-                pathFindToMultiPose(List.of(new Pose2d(bottomMiddleBump, new Rotation2d(Math.PI / 4)),
-                    new Pose2d(bottomHubSideBump, new Rotation2d(0))), isBlue);
-            }
+            Translation2d hubSide = onTopHalf ? topHubSideBump : bottomHubSideBump;
+            pathFindToMultiPose(List.of(
+                new Pose2d(middleBump, new Rotation2d(Math.PI / 4)),
+                new Pose2d(hubSide, new Rotation2d(0))), isBlue);
         }
         else
         {
-            if (drivetrain.get().getPosition().getY() > 4.0)
-            {
-                pathFindToMultiPose(List.of(new Pose2d(topMiddleBump, new Rotation2d(Math.PI / 4)),
-                    new Pose2d(topAllianceSideBump, new Rotation2d(180))), isBlue);
-            }
-            else
-            {
-                pathFindToMultiPose(List.of(new Pose2d(bottomMiddleBump, new Rotation2d(Math.PI / 4)),
-                    new Pose2d(bottomAllianceSideBump, new Rotation2d(180))), isBlue);
-            }
-
+            Translation2d allianceSide = onTopHalf ? topAllianceSideBump : bottomAllianceSideBump;
+            pathFindToMultiPose(List.of(
+                new Pose2d(middleBump, new Rotation2d(3 * Math.PI / 4)),
+                new Pose2d(allianceSide, new Rotation2d(Math.PI))), isBlue);
         }
     }
 
-    public Command autoClimb(){
-        
-    }
-
+    /*
+     * public Command autoClimb(){
+     *
+     * }
+     */
     public boolean isBlueAlliance()
     {
         Optional<Alliance> botAlliance = DriverStation.getAlliance();
@@ -547,77 +549,49 @@ public class RobotContainer
 
     public Pose2d shootingCircle(double theta, double radius, boolean yesBlue)
     {
-        // if (yesBlue)
-        // {
         double x = (radius * Math.cos(theta)) + blueHub.getX();
         double y = (radius * Math.sin(theta)) + blueHub.getY();
-
         Pose2d circlePos = new Pose2d(x, y, new Rotation2d(0));
         return circlePos;
-        // }
-        /*
-         * else
-         * {
-         * double x = (radius * Math.cos(theta)) + redHub.getX();
-         * double y = (radius * Math.sin(theta)) + redHub.getY();
-         * System.out.println("X: " + x + ", Y: " + y);
-         * Pose2d circlePos = new Pose2d(x, y, new Rotation2d(0));
-         * return circlePos;
-         * }
-         */
     }
 
     public void goToShootPoint(double Radius)
     {
         Translation2d RobotPose = drivetrain.get().getPosition().getTranslation();
-        System.out.println("RobotPose: " + RobotPose);
-        double upperLim = (4 * Math.PI) / 3;
-        double lowerLim = (2 * Math.PI) / 3;
-        ;
         boolean isBlue = isBlueAlliance();
+        double lowerLim = (2 * Math.PI) / 3;
+        double upperLim = (4 * Math.PI) / 3;
         double minRad = lowerLim;
+        double minDistance = Double.MAX_VALUE;
 
-        /*
-         * if (botAlliance.get() == Alliance.Red)
-         * {
-         * isBlue = false;
-         * upperLim = (Math.PI) / 3 + 2 * Math.PI;
-         * lowerLim = (5 * Math.PI) / 3;
-         * minRad = lowerLim;
-         * }
-         * else
-         * {
-         * isBlue = true;
-         * lowerLim = (2 * Math.PI) / 3;
-         * upperLim = (4 * Math.PI) / 3;
-         * minRad = lowerLim;
-         * }
-         */
+        Translation2d searchPose = RobotPose;
+        if (!isBlue)
+        {
+            searchPose = new Translation2d(16.54 - RobotPose.getX(), 8.21 - RobotPose.getY());
+        }
 
-        double minDistance = RobotPose.getDistance(shootingCircle(minRad, Radius, isBlue).getTranslation());
         for (double i = lowerLim; i < upperLim; i += 0.01)
         {
-            if (RobotPose.getDistance(this.shootingCircle(i, Radius, isBlue).getTranslation()) < minDistance)
+            double dist = searchPose.getDistance(shootingCircle(i, Radius, isBlue).getTranslation());
+            if (dist < minDistance)
             {
-                minDistance = RobotPose.getDistance(this.shootingCircle(i, Radius, isBlue).getTranslation());
+                minDistance = dist;
                 minRad = i;
             }
-            System.out.println("i: " + i);
         }
-        System.out.println("booger3");
-        System.out.println("Pose: " + this.shootingCircle(minRad, Radius, isBlue));
-        System.out.println("minRad: " + minRad);
-        System.out.println("minDistance: " + minDistance);
-        Rotation2d rotation = Rotation2d.fromRadians(minRad + Math.PI);
+
+        Pose2d circlePos = shootingCircle(minRad, Radius, isBlue);
+
+        Rotation2d facingRotation = Rotation2d.fromRadians(minRad + Math.PI);
+
         if (minDistance < 0.5)
         {
-            facePose2D(rotation).withTimeout(0.5).schedule();
+            facePose2D(facingRotation).withTimeout(0.5).schedule();
         }
         else
         {
-            var cmd1 = this.pathfindToPose(new Pose2d(shootingCircle(minRad, Radius, isBlue).getX(),
-                shootingCircle(minRad, Radius, isBlue).getY(), rotation), 0.0, isBlue);
-            CommandScheduler.getInstance().schedule(cmd1);
+            var cmd = pathfindToPose(new Pose2d(circlePos.getTranslation(), facingRotation), 0.0, isBlue);
+            CommandScheduler.getInstance().schedule(cmd);
         }
     }
 
