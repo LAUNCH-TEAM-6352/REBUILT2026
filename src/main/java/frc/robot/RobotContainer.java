@@ -531,19 +531,7 @@ public class RobotContainer
                 new Pose2d(allianceSide, new Rotation2d(Math.PI))), isBlue);
         }
     }
-
-    /*
-     * drivetrain.setDefaultCommand(
-     * // Drivetrain will execute this command periodically
-     * drivetrain.applyRequest(() -> drive
-     * // Drive forward with negative Y (forward)
-     * .withVelocityX(-driverGamepad.getLeftY() * MaxSpeed)
-     * // Drive left with negative X (left)
-     * .withVelocityY(-driverGamepad.getLeftX() * MaxSpeed)
-     * // Drive counterclockwise with negative X (left)
-     * .withRotationalRate(-driverGamepad.getRightX() * MaxAngularRate)));
-     */
-
+    
     public Command autoClimb()
     {
         return Commands.sequence(
