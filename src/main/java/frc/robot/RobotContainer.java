@@ -246,12 +246,17 @@ public class RobotContainer
 
         drivetrain.registerTelemetry(logger::telemeterize);
 
+        // THESE BINDS ARE JUST TESTING ONCE AGAIN THESE WILL CHANGE FOR THE FINAL CONTROL SCHEME
         driverGamepad
             .povUp().whileTrue(this.autoShootCommand());
 
         driverGamepad.povRight().whileTrue(this.autoFerry());
 
         driverGamepad.povLeft().whileTrue(drivetrain.runOnce(() -> this.autoCrossBump()));
+
+        driverGamepad.povDown().whileTrue(this.autoClimb());
+
+        driverGamepad.leftStick().whileTrue(this.autoDeclimbCommand());
     }
 
     // TODO: the following bindings are designed for testing and need to changed for the final control scheme.
@@ -528,10 +533,44 @@ public class RobotContainer
     }
 
     /*
-     * public Command autoClimb(){
-     *
-     * }
+     * drivetrain.setDefaultCommand(
+     * // Drivetrain will execute this command periodically
+     * drivetrain.applyRequest(() -> drive
+     * // Drive forward with negative Y (forward)
+     * .withVelocityX(-driverGamepad.getLeftY() * MaxSpeed)
+     * // Drive left with negative X (left)
+     * .withVelocityY(-driverGamepad.getLeftX() * MaxSpeed)
+     * // Drive counterclockwise with negative X (left)
+     * .withRotationalRate(-driverGamepad.getRightX() * MaxAngularRate)));
      */
+
+    public Command autoClimb()
+    {
+        return Commands.sequence(
+            pathfindToPose(new Pose2d(2.0, 3.75, Rotation2d.fromDegrees(180)), 0.5 * MaxSpeed, isBlueAlliance()),
+            climber.map(c -> c.releaseRatchetCommand()).orElse(Commands.none()),
+            climber.map(c -> c.extendCommand()).orElse(Commands.none()),
+            new WaitCommand(1),
+            drivetrain
+                .map(dt -> dt
+                    .applyRequest(() -> drive.withVelocityX(-0.5 * MaxSpeed).withVelocityY(0).withRotationalRate(0)))
+                .orElse(Commands.none()).withTimeout(1.0),
+            climber.map(c -> c.climbCommand()).orElse(Commands.none()),
+            climber.map(c -> c.engageRatchetCommand()).orElse(Commands.none()));
+    }
+
+    public Command autoDeclimbCommand()
+    {
+        return Commands.sequence(
+            climber.map(c -> c.releaseRatchetCommand()).orElse(Commands.none()),
+            climber.map(c -> c.extendCommand()).orElse(Commands.none()),
+            drivetrain.map(
+                dt -> dt.applyRequest(() -> drive.withVelocityX(0.5 * MaxSpeed).withVelocityY(0).withRotationalRate(0)))
+                .orElse(Commands.none()).withTimeout(1.0),
+            climber.map(c -> c.stowCommand()).orElse(Commands.none()),
+            climber.map(c -> c.engageRatchetCommand()).orElse(Commands.none()));
+    }
+
     public boolean isBlueAlliance()
     {
         Optional<Alliance> botAlliance = DriverStation.getAlliance();
