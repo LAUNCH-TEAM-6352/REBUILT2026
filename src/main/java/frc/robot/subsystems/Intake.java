@@ -185,6 +185,7 @@ public class Intake extends SubsystemBase
         SmartDashboard.putNumber("IntakeOut", intakeMotor.getDutyCycle().getValueAsDouble());
         SmartDashboard.putNumber("IntakeRPM", intakeMotor.getVelocity().getValueAsDouble() * 60);
         SmartDashboard.putNumber("PivotSpd", pivotMotor.getDutyCycle().getValueAsDouble());
-        atTargetPosition = getPivotPosition().minus(targetPosition).baseUnitMagnitude() < IntakeConstants.PIVOT_TOLERANCE ? true : false;
+        atTargetPosition = getPivotPosition().minus(targetPosition)
+            .baseUnitMagnitude() < IntakeConstants.PIVOT_TOLERANCE ? true : false;
     }
 }

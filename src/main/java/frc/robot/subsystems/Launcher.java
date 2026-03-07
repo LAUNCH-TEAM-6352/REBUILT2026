@@ -4,8 +4,6 @@
 
 package frc.robot.subsystems;
 
-import java.text.AttributedCharacterIterator.Attribute;
-
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
@@ -13,7 +11,6 @@ import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
 
-import edu.wpi.first.hal.HAL.SimPeriodicAfterCallback;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -163,6 +160,7 @@ public class Launcher extends SubsystemBase
     public void periodic()
     {
         // TODO: determine if shooter is at target velocity?
-        atTargetVelocity =Math.abs(leftShooterMotor.getVelocity().getValueAsDouble() - targetVelocity) < LauncherConstants.SHOOTER_TOLERANCE;
+        atTargetVelocity = Math.abs(
+            leftShooterMotor.getVelocity().getValueAsDouble() - targetVelocity) < LauncherConstants.SHOOTER_TOLERANCE;
     }
 }
