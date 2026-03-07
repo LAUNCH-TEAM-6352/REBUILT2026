@@ -159,7 +159,6 @@ public class Launcher extends SubsystemBase
     @Override
     public void periodic()
     {
-        // TODO: determine if shooter is at target velocity?
         atTargetVelocity = Math.abs(
             leftShooterMotor.getVelocity().getValueAsDouble() - targetVelocity) < LauncherConstants.SHOOTER_TOLERANCE;
     }
