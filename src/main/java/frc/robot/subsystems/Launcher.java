@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.RPM;
+
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
@@ -160,6 +162,6 @@ public class Launcher extends SubsystemBase
     public void periodic()
     {
         atTargetVelocity = Math.abs(
-            leftShooterMotor.getVelocity().getValueAsDouble() - targetVelocity) < LauncherConstants.SHOOTER_TOLERANCE;
+            leftShooterMotor.getVelocity().getValue().in(RPM) - targetVelocity) < LauncherConstants.SHOOTER_TOLERANCE;
     }
 }
