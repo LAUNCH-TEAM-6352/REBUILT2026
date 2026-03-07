@@ -193,7 +193,14 @@ public class RobotContainer
 
     private void configureBindings(Intake intake, Hopper hopper, Launcher launcher)
     {
-        driverGamepad.x().whileTrue(new ScoreFuel(launcher, hopper, intake));
+        driverGamepad.x().whileTrue(
+            new ScoreFuel(launcher, hopper, intake).finallyDo(() ->
+            {
+                launcher.stopShooters();
+                launcher.stopIndexer();
+                hopper.stop();
+            })
+        );
     }
 
     private void configureBindings(CommandSwerveDrivetrain drivetrain)
@@ -269,7 +276,7 @@ public class RobotContainer
 
     private void configureBindings(Intake intake)
     {
-        codriverGamepad.y().whileTrue(intake.intakeThenStopCommand());
+        codriverGamepad.y().whileTrue(intake.intakeThenStopCommand()); 
         codriverGamepad.x().onTrue(intake.deployCommand());
         codriverGamepad.start().onTrue(intake.partialDeployCommand());
         codriverGamepad.back().onTrue(intake.stowCommand());
@@ -461,8 +468,8 @@ public class RobotContainer
         // Launcher:
         SmartDashboard.putNumber(DashboardConstants.LAUNCHER_SHOOTING_KEY, LauncherConstants.SHOOTING_VELOCITY_RPM);
         SmartDashboard.putNumber(DashboardConstants.LAUNCHER_IDLE_KEY, LauncherConstants.IDLE_VELOCITY_RPM);
-        SmartDashboard.putNumber(DashboardConstants.LAUNCHER_FEED_KEY, LauncherConstants.FEED_SPEED);
-        SmartDashboard.putNumber(DashboardConstants.LAUNCHER_CLEAR_KEY, LauncherConstants.CLEAR_SPEED);
+        SmartDashboard.putNumber(DashboardConstants.LAUNCHER_FEED_KEY, LauncherConstants.FEED_VELOCITY_RPM);
+        SmartDashboard.putNumber(DashboardConstants.LAUNCHER_CLEAR_KEY, LauncherConstants.CLEAR_VELOCITY_RPM);
 
         // Limelight:
         SmartDashboard.putNumber(DashboardConstants.LIMELIGHT_THROTTLE_DISABLED_KEY,

@@ -11,6 +11,7 @@ import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.PositionDutyCycle;
+import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -35,14 +36,13 @@ public class Intake extends SubsystemBase
     private final CANcoder pivotEncoder = new CANcoder(IntakeConstants.PIVOT_ENCODER_CHANNEL,
         IntakeConstants.PIVOT_ENCODER_BUS);
 
-    private final VelocityVoltage velocityVoltage = new VelocityVoltage(0).withSlot(0);
-    private final PositionDutyCycle positionControl = new PositionDutyCycle(0).withSlot(0);
+    private final VelocityVoltage velocityControl = new VelocityVoltage(0).withSlot(0);
+    private final PositionVoltage positionControl = new PositionVoltage(0).withSlot(0);
 
     private double targetPosition;
     private double targetTolerance;
     private boolean atTargetPosition = false;
     private boolean isPositioningStarted;
-    private double lastPosition;
 
     /** Creates a new Intake. */
     public Intake()
@@ -68,6 +68,11 @@ public class Intake extends SubsystemBase
         pivotConfigs.Slot0.kP = IntakeConstants.PIVOT_KP;
         pivotConfigs.Slot0.kI = IntakeConstants.PIVOT_KI;
         pivotConfigs.Slot0.kD = IntakeConstants.PIVOT_KD;
+        pivotConfigs.Slot0.kG = IntakeConstants.PIVOT_KG;
+        pivotConfigs.Slot0.kS = IntakeConstants.PIVOT_KS;
+        pivotConfigs.Slot0.StaticFeedforwardSign = IntakeConstants.PIVOT_STATIC_FF_SIGN;
+        pivotConfigs.Slot0.GravityType = IntakeConstants.PIVOT_GRAVITY_TYPE;
+        pivotConfigs.Slot0.GravityArmPositionOffset = IntakeConstants.PIVOT_GRAVITY_ARM_POSITION_OFFSET;
 
         pivotConfigs.MotorOutput.PeakForwardDutyCycle = IntakeConstants.PIVOT_MAX_FWD_SPEED;
         pivotConfigs.MotorOutput.PeakReverseDutyCycle = IntakeConstants.PIVOT_MAX_REV_SPEED;
@@ -85,13 +90,13 @@ public class Intake extends SubsystemBase
         pivotEncoder.getConfigurator().apply(canCoderConfig);
 
         pivotMotor.clearStickyFaults();
-        pivotEncoder.setPosition(0);
+        pivotEncoder.setPosition(IntakeConstants.STOWED_POSITION);
     }
 
     // Set the intake motor to a specific velocity in RPM
     public void setIntakeVelocity(double velocity)
     {
-        intakeMotor.setControl(velocityVoltage.withVelocity(velocity / 60));
+        intakeMotor.setControl(velocityControl.withVelocity(velocity / 60));
     }
 
     // Set the piviot motor to a specific speed (intended for manual control, not position control)
@@ -100,11 +105,15 @@ public class Intake extends SubsystemBase
         pivotMotor.set(speed);
     }
 
+    public void setPivotMotorVolts(double volts)
+    {
+        pivotMotor.setVoltage(volts);
+    }
+
     // Pivots the intake to a specified position, specified in degrtees.
     public void pivotToPositionInDegrees(double position)
     {
         pivotMotor.setControl(positionControl.withPosition(Degrees.of(position)));
-        lastPosition = getPivotPosition().in(Degrees);
         targetPosition = position;
         targetTolerance = IntakeConstants.PIVOT_TOLERANCE_DEG;
         isPositioningStarted = true;
@@ -197,6 +206,6 @@ public class Intake extends SubsystemBase
         SmartDashboard.putNumber("IntakeOut", intakeMotor.getDutyCycle().getValueAsDouble());
         SmartDashboard.putNumber("IntakeRPM", intakeMotor.getVelocity().getValue().in(RPM));
         SmartDashboard.putNumber("PivotSpd", pivotMotor.getDutyCycle().getValueAsDouble());
-
+        SmartDashboard.putNumber("PivotV", pivotMotor.getMotorVoltage().getValueAsDouble());
     }
 }

@@ -46,6 +46,11 @@ public class Hopper extends SubsystemBase
         return runOnce(this::feed);
     }
 
+    public Command stopCommand()
+    {
+        return runOnce(this::stop);
+    }
+
     // Feed fuel from the hopper to the launcher
     public void feed()
     {
