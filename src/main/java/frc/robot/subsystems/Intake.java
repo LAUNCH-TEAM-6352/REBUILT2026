@@ -34,9 +34,6 @@ public class Intake extends SubsystemBase
 
     private final PositionDutyCycle positionControl = new PositionDutyCycle(0).withSlot(0);
 
-    private Angle targetPosition = Degrees.of(0);
-    private boolean atTargetPosition = false;
-
     /** Creates a new Intake. */
     public Intake()
     {
@@ -91,9 +88,7 @@ public class Intake extends SubsystemBase
     // Pivots the intake to a specified position, specified in degrtees.
     private void pivotToPositionInDegrees(double position)
     {
-        targetPosition = Degrees.of(position);
         pivotMotor.setControl(positionControl.withPosition(Degrees.of(position)));
-        atTargetPosition = false;
     }
 
     public Command stowCommand()
@@ -171,21 +166,13 @@ public class Intake extends SubsystemBase
         return pivotEncoder.getAbsolutePosition().getValue();
     }
 
-    public boolean isAtPosition()
-    {
-        return atTargetPosition;
-    }
-
     @Override
     public void periodic()
     {
         // This method will be called once per scheduler run
-        // TODO: Determine if intake is at desired position within some tolerance?
         SmartDashboard.putNumber("Intake Pos", getPivotPosition().in(Degrees));
         SmartDashboard.putNumber("IntakeOut", intakeMotor.getDutyCycle().getValueAsDouble());
         SmartDashboard.putNumber("IntakeRPM", intakeMotor.getVelocity().getValueAsDouble() * 60);
         SmartDashboard.putNumber("PivotSpd", pivotMotor.getDutyCycle().getValueAsDouble());
-        atTargetPosition = getPivotPosition().minus(targetPosition)
-            .baseUnitMagnitude() < IntakeConstants.PIVOT_TOLERANCE ? true : false;
     }
 }
