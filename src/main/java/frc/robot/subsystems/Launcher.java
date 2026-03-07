@@ -26,6 +26,9 @@ public class Launcher extends SubsystemBase
 
     private final VelocityVoltage velocityVoltage = new VelocityVoltage(0).withSlot(0);
 
+    private double targetVelocity = 0;
+    private boolean atTargetVelocity = false;
+
     /** Creates a new Launcher. */
     public Launcher()
     {
@@ -91,7 +94,9 @@ public class Launcher extends SubsystemBase
     // Set shooter velocity in RPM
     private void setShooterVelocity(double velocity)
     {
+        targetVelocity = velocity;
         leftShooterMotor.setControl(velocityVoltage.withVelocity(velocity / 60));
+        atTargetVelocity = false;
     }
 
     public Command spinUpShootersCommand()
@@ -150,9 +155,17 @@ public class Launcher extends SubsystemBase
         stopShooters();
     }
 
+    public boolean isAtShooterVelocity()
+    {
+        return atTargetVelocity;
+    }
+
     @Override
     public void periodic()
     {
+        atTargetVelocity = Math.abs(
+            leftShooterMotor.getVelocity().getValue().in(RPM) - targetVelocity) < LauncherConstants.SHOOTER_TOLERANCE_RPM;
+
         SmartDashboard.putNumber("ShooterV", leftShooterMotor.getVelocity().getValue().in(RPM));
         SmartDashboard.putNumber("IndexerV", indexerMotor.getVelocity().getValue().in(RPM));
     }
