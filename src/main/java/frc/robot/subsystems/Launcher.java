@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems;
 
+import java.text.AttributedCharacterIterator.Attribute;
+
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
@@ -11,6 +13,7 @@ import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
 
+import edu.wpi.first.hal.HAL.SimPeriodicAfterCallback;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -27,6 +30,9 @@ public class Launcher extends SubsystemBase
         LauncherConstants.RIGHT_SHOOTER_MOTOR_BUS);
 
     private final VelocityVoltage velocityVoltage = new VelocityVoltage(0).withSlot(0);
+
+    private double targetVelocity = 0;
+    private boolean atTargetVelocity = false;
 
     /** Creates a new Launcher. */
     public Launcher()
@@ -93,7 +99,9 @@ public class Launcher extends SubsystemBase
     // Set shooter velocity in RPM
     private void setShooterVelocity(double velocity)
     {
+        targetVelocity = velocity;
         leftShooterMotor.setControl(velocityVoltage.withVelocity(velocity / 60));
+        atTargetVelocity = false;
     }
 
     public Command spinUpShootersCommand()
@@ -146,9 +154,15 @@ public class Launcher extends SubsystemBase
         stopShooters();
     }
 
+    public boolean isAtShooterVelocity()
+    {
+        return atTargetVelocity;
+    }
+
     @Override
     public void periodic()
     {
         // TODO: determine if shooter is at target velocity?
+        atTargetVelocity =Math.abs(leftShooterMotor.getVelocity().getValueAsDouble() - targetVelocity) < LauncherConstants.SHOOTER_TOLERANCE;
     }
 }

@@ -123,6 +123,7 @@ public final class Constants
         public static final double IDLE_VELOCITY_RPM = 1000;
         public static final double FEED_SPEED = 0.25;
         public static final double CLEAR_SPEED = -0.25;
+        public static final double SHOOTER_TOLERANCE = 100; // in RPM
 
         public static final double SHOOTER_KS = 0.1; // Add 0.1 V output to overcome static friction
         public static final double SHOOTER_KV = 0.12; // A velocity target of 1 rps results in 0.12 V output
