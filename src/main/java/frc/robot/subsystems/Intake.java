@@ -170,11 +170,9 @@ public class Intake extends SubsystemBase
     public void periodic()
     {
         // This method will be called once per scheduler run
-        // TODO: Determine if intake is at desired position within some tolerance?
         SmartDashboard.putNumber("Intake Pos", getPivotPosition().in(Degrees));
         SmartDashboard.putNumber("IntakeOut", intakeMotor.getDutyCycle().getValueAsDouble());
         SmartDashboard.putNumber("IntakeRPM", intakeMotor.getVelocity().getValueAsDouble() * 60);
         SmartDashboard.putNumber("PivotSpd", pivotMotor.getDutyCycle().getValueAsDouble());
-
     }
 }
