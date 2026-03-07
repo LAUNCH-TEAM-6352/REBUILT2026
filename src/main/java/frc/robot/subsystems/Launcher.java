@@ -164,7 +164,8 @@ public class Launcher extends SubsystemBase
     public void periodic()
     {
         atTargetVelocity = Math.abs(
-            leftShooterMotor.getVelocity().getValue().in(RPM) - targetVelocity) < LauncherConstants.SHOOTER_TOLERANCE_RPM;
+            leftShooterMotor.getVelocity().getValue().in(RPM)
+                - targetVelocity) < LauncherConstants.SHOOTER_TOLERANCE_RPM;
 
         SmartDashboard.putNumber("ShooterV", leftShooterMotor.getVelocity().getValue().in(RPM));
         SmartDashboard.putNumber("IndexerV", indexerMotor.getVelocity().getValue().in(RPM));

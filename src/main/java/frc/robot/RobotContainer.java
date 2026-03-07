@@ -199,8 +199,7 @@ public class RobotContainer
                 launcher.stopShooters();
                 launcher.stopIndexer();
                 hopper.stop();
-            })
-        );
+            }));
     }
 
     private void configureBindings(CommandSwerveDrivetrain drivetrain)
@@ -276,7 +275,7 @@ public class RobotContainer
 
     private void configureBindings(Intake intake)
     {
-        codriverGamepad.y().whileTrue(intake.intakeThenStopCommand()); 
+        codriverGamepad.y().whileTrue(intake.intakeThenStopCommand());
         codriverGamepad.x().onTrue(intake.deployCommand());
         codriverGamepad.start().onTrue(intake.partialDeployCommand());
         codriverGamepad.back().onTrue(intake.stowCommand());

@@ -10,7 +10,6 @@ import static edu.wpi.first.units.Units.RPM;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.PositionDutyCycle;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.CANcoder;
@@ -24,7 +23,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.DashboardConstants;
 import frc.robot.Constants.IntakeConstants;
-import frc.robot.Constants.LauncherConstants;
 
 public class Intake extends SubsystemBase
 {
@@ -48,7 +46,7 @@ public class Intake extends SubsystemBase
     public Intake()
     {
         var intakeConfigs = new TalonFXConfiguration();
-         intakeConfigs.MotorOutput.Inverted = IntakeConstants.INTAKE_MOTOR_INVERTED_VALUE;
+        intakeConfigs.MotorOutput.Inverted = IntakeConstants.INTAKE_MOTOR_INVERTED_VALUE;
         var slot0Configs = new Slot0Configs();
         slot0Configs.kS = IntakeConstants.INTAKE_KS;
         slot0Configs.kV = IntakeConstants.INTAKE_KV;
@@ -64,7 +62,7 @@ public class Intake extends SubsystemBase
 
         pivotConfigs.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
         pivotConfigs.Feedback.FeedbackRemoteSensorID = pivotEncoder.getDeviceID();
-        
+
         pivotConfigs.Slot0.kP = IntakeConstants.PIVOT_KP;
         pivotConfigs.Slot0.kI = IntakeConstants.PIVOT_KI;
         pivotConfigs.Slot0.kD = IntakeConstants.PIVOT_KD;

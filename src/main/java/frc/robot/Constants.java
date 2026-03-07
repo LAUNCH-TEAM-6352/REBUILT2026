@@ -90,7 +90,7 @@ public final class Constants
         public static final InvertedValue PIVOT_MOTOR_INVERTED_VALUE = InvertedValue.Clockwise_Positive;
 
         public static final SensorDirectionValue ENCODER_DIRECTION_VALUE = SensorDirectionValue.CounterClockwise_Positive;
-        
+
         public static final double INTAKE_VELOCITY_RPM = 1500;
         public static final double AGITATE_VELOCITY_RPM = 500;
         public static final double INTAKE_KS = 0.1; // Add 0.1 V output to overcome static friction
@@ -102,7 +102,7 @@ public final class Constants
         public static final double PIVOT_KP = 14;
         public static final double PIVOT_KI = 0.0;
         public static final double PIVOT_KD = 4;
-        public static final double PIVOT_KS = 0.6; 
+        public static final double PIVOT_KS = 0.6;
         public static final double PIVOT_KG = 1;
         public static final StaticFeedforwardSignValue PIVOT_STATIC_FF_SIGN = StaticFeedforwardSignValue.UseClosedLoopSign;
         public static final GravityTypeValue PIVOT_GRAVITY_TYPE = GravityTypeValue.Arm_Cosine;
@@ -114,8 +114,7 @@ public final class Constants
         public static final double PIVOT_MAX_MAN_SPEED = 0.25;
         public static final double PIVOT_MAX_MAN_VOLTS = 3.0;
 
-
-        public static final double PIVOT_TOLERANCE_DEG = 3; 
+        public static final double PIVOT_TOLERANCE_DEG = 3;
 
         // These positions are in degrees and represent the angle of the intake
         // relative to its starting/stowed position.
@@ -138,9 +137,9 @@ public final class Constants
         public static final InvertedValue INDEXER_MOTOR_INVERTED_VALUE = InvertedValue.Clockwise_Positive;
         public static final InvertedValue LEFT_SHOOTER_MOTOR_INVERTED_VALUE = InvertedValue.Clockwise_Positive;
 
-        public static final double SHOOTING_VELOCITY_RPM = 3000;
+        public static final double SHOOTING_VELOCITY_RPM = 3200;
         public static final double IDLE_VELOCITY_RPM = 1000;
-        public static final double FEED_VELOCITY_RPM = 2000;
+        public static final double FEED_VELOCITY_RPM = 800;
         public static final double CLEAR_VELOCITY_RPM = -500;
 
         public static final double SHOOTER_KS = 0.1; // Add 0.1 V output to overcome static friction

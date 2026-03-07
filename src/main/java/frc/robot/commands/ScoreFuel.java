@@ -23,14 +23,17 @@ public class ScoreFuel extends SequentialCommandGroup
         addRequirements(launcher, hopper, intake);
 
         addCommands(
-            new FunctionalCommand(() -> launcher.spinUpShooters(), () -> {}, (b) -> {}, () -> launcher.isAtTargetVelocity(), launcher),
+            new FunctionalCommand(() -> launcher.spinUpShooters(), () ->
+            {
+            }, (b) ->
+            {
+            }, () -> launcher.isAtTargetVelocity(), launcher),
             launcher.feedCommand(),
             hopper.feedCommand(),
             new WaitCommand(AutomationConstants.AGITATE_START_DELAY_SECS),
             new AgitateFuel(intake),
             launcher.stopShootersCommand(),
             launcher.stopIndexerCommand(),
-            hopper.stopCommand()
-        );
+            hopper.stopCommand());
     }
 }
