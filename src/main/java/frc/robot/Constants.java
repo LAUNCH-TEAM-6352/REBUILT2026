@@ -36,7 +36,8 @@ public final class Constants
         public static final double AGITATE_DOWN_TIME_SECS = 0.5;
         public static final double AGITATE_UP_TIME_SECS = 0.5;
         public static final double[] AGITATE_UP_POSITIONS_DEG = { 0, 10, 30, 50, 80, 110, 128 };
-        // Timeout in case of a jam where pivot cannot reach the target position. Prevents PID loop from endlessly driving into jammed fuel.
+        // Timeout in case of a jam where pivot cannot reach the target position. Prevents PID loop from endlessly
+        // driving into jammed fuel.
         public static final double AGITATE_MOVING_TIMEOUT_SECS = 4.0;
     }
 

@@ -188,9 +188,11 @@ public class Intake extends SubsystemBase
 
     public boolean isPivotStalled()
     {
-        // If the pivot motor is applying significant voltage but the pivot velocity is not changing, we can assume the pivot is stalled
+        // If the pivot motor is applying significant voltage but the pivot velocity is not changing, we can assume the
+        // pivot is stalled
         return Math.abs(pivotMotor.getMotorVoltage().getValueAsDouble()) > IntakeConstants.PIVOT_STALL_VOLTAGE_THRESHOLD
-            && Math.abs(pivotMotor.getVelocity().getValue().in(RPM)) < IntakeConstants.PIVOT_STALL_VELOCITY_THRESHOLD_RPM;
+            && Math
+                .abs(pivotMotor.getVelocity().getValue().in(RPM)) < IntakeConstants.PIVOT_STALL_VELOCITY_THRESHOLD_RPM;
     }
 
     @Override
