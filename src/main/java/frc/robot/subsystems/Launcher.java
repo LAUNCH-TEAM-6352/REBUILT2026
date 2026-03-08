@@ -34,6 +34,8 @@ public class Launcher extends SubsystemBase
     {
         var configs = new TalonFXConfiguration();
         configs.MotorOutput.Inverted = LauncherConstants.INDEXER_MOTOR_INVERTED_VALUE;
+        configs.CurrentLimits.StatorCurrentLimitEnable = true;
+        configs.CurrentLimits.StatorCurrentLimit = 230;
         configs.Slot0.kS = LauncherConstants.INDEXER_KS;
         configs.Slot0.kV = LauncherConstants.INDEXER_KV;
         configs.Slot0.kP = LauncherConstants.INDEXER_KP;
@@ -77,18 +79,6 @@ public class Launcher extends SubsystemBase
     {
         setIndexerVelocity(
             SmartDashboard.getNumber(DashboardConstants.LAUNCHER_FEED_KEY, LauncherConstants.FEED_VELOCITY_RPM));
-    }
-
-    // Intended for use with a press-and-hold binding
-    public Command clearThenStopCommand()
-    {
-        return startEnd(this::clear, this::stopIndexer);
-    }
-
-    public void clear()
-    {
-        setIndexerVelocity(
-            SmartDashboard.getNumber(DashboardConstants.LAUNCHER_CLEAR_KEY, LauncherConstants.CLEAR_VELOCITY_RPM));
     }
 
     // Set shooter velocity in RPM

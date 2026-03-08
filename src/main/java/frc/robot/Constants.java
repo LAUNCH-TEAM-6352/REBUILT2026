@@ -47,7 +47,7 @@ public final class Constants
         public static final double WINCH_MOTOR_SPEED = 0.6;
         public static final InvertedValue WINCH_MOTOR_INVERTED_VALUE = InvertedValue.Clockwise_Positive;
 
-        public static final double WINCH_KP = 0.14;
+        public static final double WINCH_KP = 0.4;
         public static final double WINCH_KI = 0;
         public static final double WINCH_KD = 0;
 
@@ -57,8 +57,10 @@ public final class Constants
 
         // These extended and climbed positions are WAGs based upon limited testing on 2026-02-21:
         public static final double STOWED_POSITION = 0;
-        public static final double EXTENDED_POSITION = 55.3;
-        public static final double CLIMBED_POSITION = 39;
+        public static final double EXTENDED_POSITION = 58;
+        public static final double CLIMBED_POSITION = 36;
+
+        public static final double CLIMBER_TOLERANCE = 0.5; 
 
         public static final double MIN_POSITION = STOWED_POSITION;
         public static final double MAX_POSITION = EXTENDED_POSITION;
@@ -76,7 +78,6 @@ public final class Constants
         public static final InvertedValue CONVEYOR_MOTOR_INVERTED_VALUE = InvertedValue.CounterClockwise_Positive;
 
         public static final double FEED_SPEED = 0.5;
-        public static final double CLEAR_SPEED = -0.25;
     }
 
     public static class IntakeConstants
@@ -141,14 +142,13 @@ public final class Constants
         public static final InvertedValue INDEXER_MOTOR_INVERTED_VALUE = InvertedValue.Clockwise_Positive;
         public static final InvertedValue LEFT_SHOOTER_MOTOR_INVERTED_VALUE = InvertedValue.Clockwise_Positive;
 
-        public static final double SHOOTING_VELOCITY_RPM = 3200;
+        public static final double SHOOTING_VELOCITY_RPM = 3300;
         public static final double IDLE_VELOCITY_RPM = 1000;
-        public static final double FEED_VELOCITY_RPM = 800;
-        public static final double CLEAR_VELOCITY_RPM = -500;
+        public static final double FEED_VELOCITY_RPM = 600;
 
         public static final double SHOOTER_KS = 0.1; // Add 0.1 V output to overcome static friction
         public static final double SHOOTER_KV = 0.12; // A velocity target of 1 rps results in 0.12 V output
-        public static final double SHOOTER_KP = 0.11; // An error of 1 rps results in 0.11 V output
+        public static final double SHOOTER_KP = 0.17; // An error of 1 rps results in 0.11 V output
         public static final double SHOOTER_KI = 0.0; // no output for integrated error
         public static final double SHOOTER_KD = 0.0; // no output for error derivative
 
@@ -156,10 +156,9 @@ public final class Constants
 
         public static final double INDEXER_KS = 0.1; // Add 0.1 V output to overcome static friction
         public static final double INDEXER_KV = 0.12; // A velocity target of 1 rps results in 0.12 V output
-        public static final double INDEXER_KP = 0.11; // An error of 1 rps results in 0.11 V output
+        public static final double INDEXER_KP = 0.17; // An error of 1 rps results in 0.11 V output
         public static final double INDEXER_KI = 0.0; // no output for integrated error
         public static final double INDEXER_KD = 0.0; // no output for error derivative
-
     }
 
     public static class OperatorConstants
@@ -185,7 +184,6 @@ public final class Constants
         public static final String CLIMBER_STOW_KEY = "Stowed Position";
 
         public static final String CONVEYOR_FEED_KEY = "HopperFeed";
-        public static final String CONVEYOR_CLEAR_KEY = "HopperClear";
 
         public static final String INTAKE_VELOCITY_KEY = "IntakeVelRPM";
         public static final String PIVOT_TOLERANCE_KEY = "PivotTol";
@@ -196,7 +194,6 @@ public final class Constants
         public static final String LAUNCHER_SHOOTING_KEY = "LauncherShooting";
         public static final String LAUNCHER_IDLE_KEY = "LauncherIdle";
         public static final String LAUNCHER_FEED_KEY = "LauncherFeed";
-        public static final String LAUNCHER_CLEAR_KEY = "LauncherClear";
 
         public static final String LIMELIGHT_THROTTLE_DISABLED_KEY = "LL Throttle Off";
         public static final String LIMELIGHT_THROTTLE_ENABLED_KEY = "LL Throttle On";

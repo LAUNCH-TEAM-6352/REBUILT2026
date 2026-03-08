@@ -24,10 +24,6 @@ public class TestLauncher extends SequentialCommandGroup
             launcher.feedThenStopCommand().withTimeout(TestConstants.INSTANT_BETWEEN_TIME_SECS),
             new WaitCommand(TestConstants.BETWEEN_TIME_SECS),
 
-            new InstantCommand(() -> System.out.println("Testing Launcher Indexers: Clearing")),
-            launcher.clearThenStopCommand().withTimeout(TestConstants.INSTANT_BETWEEN_TIME_SECS),
-            new WaitCommand(TestConstants.BETWEEN_TIME_SECS),
-
             new InstantCommand(() -> System.out.println("Testing Launcher Shooters: Idling")),
             launcher.idleShootersCommand(),
             new WaitCommand(TestConstants.INSTANT_BETWEEN_TIME_SECS),

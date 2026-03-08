@@ -58,19 +58,6 @@ public class Hopper extends SubsystemBase
             SmartDashboard.getNumber(DashboardConstants.CONVEYOR_FEED_KEY, HopperConstants.FEED_SPEED));
     }
 
-    // Intended for use with a press-and-hold binding
-    public Command clearThenStopCommand()
-    {
-        return startEnd(this::clear, this::stop);
-    }
-
-    // Clear the hopper by running the feeding motor in reverse
-    public void clear()
-    {
-        setConveyor(
-            SmartDashboard.getNumber(DashboardConstants.CONVEYOR_CLEAR_KEY, HopperConstants.CLEAR_SPEED));
-    }
-
     // Stop the indexer motor
     public void stop()
     {
