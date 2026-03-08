@@ -61,7 +61,7 @@ public final class Constants
         public static final double EXTENDED_POSITION = 58;
         public static final double CLIMBED_POSITION = 36;
 
-        public static final double CLIMBER_TOLERANCE = 0.5; 
+        public static final double CLIMBER_TOLERANCE = 0.5;
 
         public static final double MIN_POSITION = STOWED_POSITION;
         public static final double MAX_POSITION = EXTENDED_POSITION;

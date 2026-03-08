@@ -8,6 +8,11 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.subsystems.Intake;
 
+/*
+ * Implements a simple agitator that vibrates the intake back and forth
+ * around its current position.
+ */
+
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class AgitateFuel2 extends Command
 {
@@ -72,10 +77,14 @@ public class AgitateFuel2 extends Command
         {
             if (state == State.MOVING_UP)
             {
+                // TODO: we can additional code check to see if the motor is
+                // being positioned already and avoid calling this method
                 intake.pivotToPositionInDegrees(startPosition - agitateAngle);
             }
             else if (state == State.MOVING_DOWN)
             {
+                // TODO: we can additional code check to see if the motor is
+                // being positioned already and avoid calling this method
                 intake.pivotToPositionInDegrees(startPosition + agitateAngle);
             }
         }

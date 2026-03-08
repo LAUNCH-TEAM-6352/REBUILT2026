@@ -148,12 +148,12 @@ public class Climber extends SubsystemBase
 
         if (isClimbing)
         {
-           if (Math.abs(position - ClimberConstants.CLIMBED_POSITION) <= ClimberConstants.CLIMBER_TOLERANCE)
-           {
-               atClimbPosition = true;
-               isClimbing = false;
-               stop();
-           }
+            if (Math.abs(position - ClimberConstants.CLIMBED_POSITION) <= ClimberConstants.CLIMBER_TOLERANCE)
+            {
+                atClimbPosition = true;
+                isClimbing = false;
+                stop();
+            }
         }
 
         SmartDashboard.putNumber("Climber Pos", winchMotor.getPosition().getValueAsDouble());
