@@ -186,6 +186,13 @@ public class Intake extends SubsystemBase
         return atTargetPosition;
     }
 
+    public boolean isPivotStalled()
+    {
+        // If the pivot motor is applying significant voltage but the pivot velocity is not changing, we can assume the pivot is stalled
+        return Math.abs(pivotMotor.getMotorVoltage().getValueAsDouble()) > IntakeConstants.PIVOT_STALL_VOLTAGE_THRESHOLD
+            && Math.abs(pivotMotor.getVelocity().getValue().in(RPM)) < IntakeConstants.PIVOT_STALL_VELOCITY_THRESHOLD_RPM;
+    }
+
     @Override
     public void periodic()
     {
@@ -205,5 +212,6 @@ public class Intake extends SubsystemBase
         SmartDashboard.putNumber("IntakeRPM", intakeMotor.getVelocity().getValue().in(RPM));
         SmartDashboard.putNumber("PivotSpd", pivotMotor.getDutyCycle().getValueAsDouble());
         SmartDashboard.putNumber("PivotV", pivotMotor.getMotorVoltage().getValueAsDouble());
+        SmartDashboard.putBoolean("IsStalled", isPivotStalled());
     }
 }

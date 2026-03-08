@@ -56,6 +56,12 @@ public class AgitateFuel extends Command
                     state = State.DOWN;
                     timer.restart();
                 }
+                else if (intake.isPivotStalled())
+                {
+                    state = State.MOVING_UP;
+                    intake.pivotToPositionInDegrees(AutomationConstants.AGITATE_UP_POSITIONS_DEG[upPositionIndex++]);
+                    timer.restart();
+                }
                 break;
 
             case DOWN:
@@ -69,12 +75,18 @@ public class AgitateFuel extends Command
             case MOVING_UP:
                 if (intake.atTargetPosition())
                 {
-                    if (upPositionIndex > AutomationConstants.AGITATE_UP_POSITIONS_DEG.length - 3)
+                    if (upPositionIndex > 0)
                     {
                         intake.setIntakeVelocity(IntakeConstants.AGITATE_VELOCITY_RPM);
                     }
                     state = State.UP;
                     timer.restart();
+                }
+                else if (intake.isPivotStalled())
+                {
+                    state = State.MOVING_DOWN;
+                    intake.stop();
+                    intake.deploy();
                 }
                 break;
 

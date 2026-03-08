@@ -36,6 +36,8 @@ public final class Constants
         public static final double AGITATE_DOWN_TIME_SECS = 0.5;
         public static final double AGITATE_UP_TIME_SECS = 0.5;
         public static final double[] AGITATE_UP_POSITIONS_DEG = { 0, 10, 30, 50, 80, 110, 128 };
+        // Timeout in case of a jam where pivot cannot reach the target position. Prevents PID loop from endlessly driving into jammed fuel.
+        public static final double AGITATE_MOVING_TIMEOUT_SECS = 4.0;
     }
 
     public static class ClimberConstants
@@ -107,6 +109,8 @@ public final class Constants
         public static final StaticFeedforwardSignValue PIVOT_STATIC_FF_SIGN = StaticFeedforwardSignValue.UseClosedLoopSign;
         public static final GravityTypeValue PIVOT_GRAVITY_TYPE = GravityTypeValue.Arm_Cosine;
         public static final double PIVOT_GRAVITY_ARM_POSITION_OFFSET = 0;
+        public static final double PIVOT_STALL_VOLTAGE_THRESHOLD = 2.0;
+        public static final double PIVOT_STALL_VELOCITY_THRESHOLD_RPM = 5.0;
 
         public static final double PIVOT_MAX_FWD_SPEED = .6;
         public static final double PIVOT_MAX_REV_SPEED = -1;
