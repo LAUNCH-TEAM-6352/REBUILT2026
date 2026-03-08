@@ -5,21 +5,28 @@
     "data": {
       "commands": [
         {
-          "type": "path",
+          "type": "deadline",
           "data": {
-            "pathName": "goneutral"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "human"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "runIntake"
+                }
+              }
+            ]
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "intake"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "go shoot"
+            "pathName": "humanClimbLeft"
           }
         },
         {
@@ -29,22 +36,16 @@
               {
                 "type": "wait",
                 "data": {
-                  "waitTime": 7.0
+                  "waitTime": 4.0
                 }
               },
               {
                 "type": "named",
                 "data": {
-                  "name": "runShoot"
+                  "name": "runClimb"
                 }
               }
             ]
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "goclimbright"
           }
         }
       ]
