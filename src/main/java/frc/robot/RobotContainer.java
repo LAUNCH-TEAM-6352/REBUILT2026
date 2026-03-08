@@ -10,21 +10,25 @@ import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
-import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.path.PathConstraints;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
@@ -40,6 +44,7 @@ import frc.robot.commands.MoveClimberWithGamepad;
 import frc.robot.commands.MoveIntakePivotWithGamepad;
 import frc.robot.commands.test.TestClimber;
 import frc.robot.Constants.PathPlannerConstants;
+import frc.robot.Constants.automationConstants;
 import frc.robot.commands.test.TestDrivetrain;
 import frc.robot.commands.test.TestHopper;
 import frc.robot.commands.test.TestIntake;
@@ -52,6 +57,7 @@ import frc.robot.subsystems.Launcher;
 import frc.robot.subsystems.LimeLightVision;
 import frc.robot.subsystems.Hopper;
 import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.commands.PathPlannerAuto;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -72,6 +78,8 @@ public class RobotContainer
         .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
     private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
     private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
+    private final SwerveRequest.SwerveDriveBrake m_brakeRequest = new SwerveRequest.SwerveDriveBrake();
+    private final SwerveRequest.FieldCentricFacingAngle faceAngle = new SwerveRequest.FieldCentricFacingAngle();
 
     private final Telemetry logger = new Telemetry(MaxSpeed);
 
@@ -89,6 +97,17 @@ public class RobotContainer
     // OI devices:
     private final CommandXboxController driverGamepad;
     private final CommandXboxController codriverGamepad;
+
+    // Points for Paths/Automation
+    Translation2d redHub = new Translation2d(11.9, 4);
+    Translation2d blueHub = new Translation2d(4.65, 4);
+
+    Translation2d topAllianceSideBump = new Translation2d(3.0, 5.6);
+    Translation2d bottomAllianceSideBump = new Translation2d(3.0, 2.5);
+    Translation2d topHubSideBump = new Translation2d(6.1, 5.6);
+    Translation2d bottomHubSideBump = new Translation2d(6.1, 2.5);
+    Translation2d topMiddleBump = new Translation2d(4.6, 5.6);
+    Translation2d bottomMiddleBump = new Translation2d(4.6, 2.5);
 
     public RobotContainer()
     {
@@ -165,7 +184,20 @@ public class RobotContainer
         // NamedCommands.registerCommand("runShoot", new RunLauncher(launcher));
 
         // TODO: replace command with command for running the launcher
-        NamedCommands.registerCommand("runShoot", Commands.runOnce(() -> System.out.println("booger2")));
+        NamedCommands.registerCommand("runIntake", intake.map(i -> i.intakeCommand()).orElse(Commands.none()));
+
+        NamedCommands.registerCommand("stopShoot", stopAutoShootForAuto());
+
+        NamedCommands.registerCommand("climb", autoClimb());
+
+        NamedCommands.registerCommand("depotShootClimb",
+            Commands.sequence(intake.map(i -> i.runOnce(i::stop)).orElse(Commands.none()), autoShootCommandForAuto()));
+
+        NamedCommands.registerCommand("humanShootClimb",
+            Commands.sequence(intake.map(i -> i.runOnce(i::stop)).orElse(Commands.none()), autoShootCommandForAuto()));
+
+        NamedCommands.registerCommand("neutralShootClimb",
+            Commands.sequence(autoCrossBumpCommand(), autoShootCommandForAuto()));
     }
 
     /**
@@ -188,6 +220,8 @@ public class RobotContainer
 
     private void configureBindings(CommandSwerveDrivetrain drivetrain)
     {
+        faceAngle.HeadingController.setPID(5.0, 0.0, 0.0);
+
         // Note that X is defined as forward according to WPILib convention,
         // and Y is defined as to the left according to WPILib convention.
         drivetrain.setDefaultCommand(
@@ -221,11 +255,42 @@ public class RobotContainer
         // Reset the field-centric heading on left bumper press.
         driverGamepad.leftBumper().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
 
-        PathPlannerAuto auto = new PathPlannerAuto("testAuto");
-        Pose2d startingPose = auto.getStartingPose();
-        driverGamepad.povLeft().onTrue(this.pathfindToPose(startingPose, 0.0, false).andThen(auto));
+        /*
+         * PathPlannerAuto auto = new PathPlannerAuto("testAuto");
+         * Pose2d startingPose = auto.getStartingPose();
+         * driverGamepad.povLeft().onTrue(this.pathfindToPose(startingPose, 0.0, false).andThen(auto));
+         */
+
+        PathPlannerAuto neutralShootClimbPath = new PathPlannerAuto("neutralShootClimb");
+        Pose2d startingPoseNSCP = neutralShootClimbPath.getStartingPose();
+
+        PathPlannerAuto humanShootClimb = new PathPlannerAuto("humanShootClimb");
+        Pose2d startingPoseHSC = humanShootClimb.getStartingPose();
+
+        PathPlannerAuto depotShootClimb = new PathPlannerAuto("depotShootClimb");
+        Pose2d startingPoseDSC = depotShootClimb.getStartingPose();
 
         drivetrain.registerTelemetry(logger::telemeterize);
+
+        // THESE BINDS ARE JUST TESTING ONCE AGAIN THESE WILL CHANGE FOR THE FINAL CONTROL SCHEME
+        driverGamepad
+            .povUp().whileTrue(this.autoShootCommand());
+
+        driverGamepad.povRight().whileTrue(this.autoFerry());
+
+        driverGamepad.povLeft().whileTrue(this.autoCrossBumpCommand());
+
+        driverGamepad.povDown().whileTrue(this.autoClimb());
+
+        driverGamepad.leftStick().whileTrue(this.autoDeclimbCommand());
+
+        driverGamepad.rightTrigger()
+            .whileTrue(this.pathfindToPose(startingPoseNSCP, 0.0, false).andThen(neutralShootClimbPath));
+
+        driverGamepad.leftTrigger()
+            .whileTrue(this.pathfindToPose(startingPoseDSC, 0.0, false).andThen(depotShootClimb));
+
+        driverGamepad.rightStick().whileTrue(this.pathfindToPose(startingPoseHSC, 0.0, false).andThen(humanShootClimb));
     }
 
     // TODO: the following bindings are designed for testing and need to changed for the final control scheme.
@@ -368,16 +433,16 @@ public class RobotContainer
         return pathfindingCommand;
     }
 
-    public void pathFindToMultiPose(List<Pose2d> points)
+    public void pathFindToMultiPose(List<Pose2d> points, boolean blueAlliance)
     {
 
         // var cmd = pathfindToPose(points.get(0), 10.0);
         var pointsIterator = points.iterator();
-        Command cmd = pathfindToPose(pointsIterator.next(), 5.0, false);
+        Command cmd = pathfindToPose(pointsIterator.next(), 5.0, blueAlliance);
         Command lastCommand = cmd;
         while (pointsIterator.hasNext())
         {
-            lastCommand = lastCommand.andThen(pathfindToPose(pointsIterator.next(), 10.0, false));
+            lastCommand = lastCommand.andThen(pathfindToPose(pointsIterator.next(), 10.0, blueAlliance));
         }
 
         CommandScheduler.getInstance().schedule(lastCommand);
@@ -430,6 +495,197 @@ public class RobotContainer
         return group;
     }
 
+    public Command autoShootCommand()
+    {
+        return Commands.sequence(
+
+            Commands.runOnce(() -> goToShootPoint(
+                SmartDashboard.getNumber(DashboardConstants.SHOOTING_POINT_RADIUS_KEY,
+                    automationConstants.shootPointRadius))),
+
+            Commands.parallel(
+                drivetrain.map(dt -> dt.applyRequest(() -> m_brakeRequest))
+                    .orElse(Commands.none()),
+                intake.map(i -> i.intakeThenStopCommand())
+                    .orElse(Commands.none()),
+                launcher.map(l -> l.feedThenStopCommand())
+                    .orElse(Commands.none()),
+                hopper.map(h -> h.feedThenStopCommand())
+                    .orElse(Commands.none())));
+    }
+
+    public Command autoShootCommandForAuto()
+    {
+        return Commands.sequence(
+
+            Commands.runOnce(() -> goToShootPoint(
+                SmartDashboard.getNumber(DashboardConstants.SHOOTING_POINT_RADIUS_KEY,
+                    automationConstants.shootPointRadius))),
+            launcher.map(l -> l.feedCommand())
+                .orElse(Commands.none()),
+            Commands.parallel(
+                drivetrain.map(dt -> dt.applyRequest(() -> m_brakeRequest))
+                    .orElse(Commands.none()),
+                intake.map(i -> i.intakeCommand())
+                    .orElse(Commands.none()),
+
+                launcher.map(l -> l.spinUpShootersCommand())
+                    .orElse(Commands.none()),
+                hopper.map(h -> h.feedCommand())
+                    .orElse(Commands.none())));
+    }
+
+    public Command stopAutoShootForAuto()
+    {
+        return Commands.parallel(
+            intake.map(i -> i.runOnce(i::stop)).orElse(Commands.none()),
+            launcher.map(l -> l.runOnce(l::stopAll)).orElse(Commands.none()),
+            hopper.map(h -> h.runOnce(h::stop)).orElse(Commands.none()));
+    }
+
+    public Command autoFerry()
+    {
+        Rotation2d angle = Rotation2d.fromDegrees(0);
+        if (isBlueAlliance())
+        {
+            angle = Rotation2d.fromDegrees(0);
+        }
+        else
+        {
+            angle = Rotation2d.fromDegrees(180);
+        }
+
+        return Commands.sequence(
+            facePose2D(angle),
+            Commands.parallel(
+                intake.map(i -> i.intakeThenStopCommand())
+                    .orElse(Commands.none()),
+                launcher.map(l -> l.feedThenStopCommand())
+                    .orElse(Commands.none()),
+                hopper.map(h -> h.feedThenStopCommand())
+                    .orElse(Commands.none())));
+    }
+
+    public Command autoCrossBumpCommand()
+    {
+        return Commands.defer(() ->
+        {
+            boolean isBlue = isBlueAlliance();
+            double bumpX = isBlue ? 4.6 : 11.8;
+            boolean onTopHalf = isBlue
+                ? drivetrain.get().getPosition().getY() > 4.0
+                : drivetrain.get().getPosition().getY() < 4.0;
+
+            boolean onLeftSide = drivetrain.get().getPosition().getX() < bumpX;
+            boolean goingToHub = (isBlue == onLeftSide);
+
+            Translation2d middleBump = onTopHalf ? topMiddleBump : bottomMiddleBump;
+
+            if (goingToHub)
+            {
+                Translation2d hubSide = onTopHalf ? topHubSideBump : bottomHubSideBump;
+                return pathfindToPose(new Pose2d(middleBump, new Rotation2d(Math.PI / 4)), 5.0, isBlue)
+                    .andThen(pathfindToPose(new Pose2d(hubSide, new Rotation2d(0)), 0.0, isBlue));
+            }
+            else
+            {
+                Translation2d allianceSide = onTopHalf ? topAllianceSideBump : bottomAllianceSideBump;
+                return pathfindToPose(new Pose2d(middleBump, new Rotation2d(3 * Math.PI / 4)), 5.0, isBlue)
+                    .andThen(pathfindToPose(new Pose2d(allianceSide, new Rotation2d(Math.PI)), 0.0, isBlue));
+            }
+        }, drivetrain.map(dt -> Set.of((Subsystem) dt)).orElse(Set.of()));
+    }
+
+    public Command autoClimb()
+    {
+        return Commands.sequence(
+            pathfindToPose(new Pose2d(2.0, 3.75, Rotation2d.fromDegrees(180)), 0.0, isBlueAlliance()),
+            climber.map(c -> c.releaseRatchetCommand()).orElse(Commands.none()),
+            climber.map(c -> c.extendCommand()).orElse(Commands.none()),
+            new WaitCommand(1),
+            drivetrain
+                .map(dt -> dt
+                    .applyRequest(() -> drive.withVelocityX(-0.5 * MaxSpeed).withVelocityY(0).withRotationalRate(0)))
+                .orElse(Commands.none()).withTimeout(0.5),
+            climber.map(c -> c.climbCommand()).orElse(Commands.none()),
+            climber.map(c -> c.engageRatchetCommand()).orElse(Commands.none()));
+    }
+
+    public Command autoDeclimbCommand()
+    {
+        return Commands.sequence(
+            climber.map(c -> c.releaseRatchetCommand()).orElse(Commands.none()),
+            climber.map(c -> c.extendCommand()).orElse(Commands.none()),
+            drivetrain.map(
+                dt -> dt.applyRequest(() -> drive.withVelocityX(0.5 * MaxSpeed).withVelocityY(0).withRotationalRate(0)))
+                .orElse(Commands.none()).withTimeout(0.5),
+            climber.map(c -> c.stowCommand()).orElse(Commands.none()),
+            climber.map(c -> c.engageRatchetCommand()).orElse(Commands.none()));
+    }
+
+    public boolean isBlueAlliance()
+    {
+        Optional<Alliance> botAlliance = DriverStation.getAlliance();
+        return botAlliance.isPresent() && botAlliance.get() == Alliance.Blue;
+    }
+
+    public Command facePose2D(Rotation2d angle)
+    {
+        return drivetrain.map(dt -> dt.applyRequest(() -> faceAngle
+            .withVelocityX(-driverGamepad.getLeftY() * MaxSpeed)
+            .withVelocityY(-driverGamepad.getLeftX() * MaxSpeed)
+            .withTargetDirection(angle)))
+            .orElse(Commands.none());
+    }
+
+    public Pose2d shootingCircle(double theta, double radius, boolean yesBlue)
+    {
+        double x = (radius * Math.cos(theta)) + blueHub.getX();
+        double y = (radius * Math.sin(theta)) + blueHub.getY();
+        Pose2d circlePos = new Pose2d(x, y, new Rotation2d(0));
+        return circlePos;
+    }
+
+    public void goToShootPoint(double Radius)
+    {
+        Translation2d RobotPose = drivetrain.get().getPosition().getTranslation();
+        boolean isBlue = isBlueAlliance();
+        double lowerLim = (2 * Math.PI) / 3;
+        double upperLim = (4 * Math.PI) / 3;
+        double minRad = lowerLim;
+        double minDistance = Double.MAX_VALUE;
+
+        Translation2d searchPose = RobotPose;
+        if (!isBlue)
+        {
+            searchPose = new Translation2d(16.54 - RobotPose.getX(), 8.21 - RobotPose.getY());
+        }
+
+        for (double i = lowerLim; i < upperLim; i += 0.01)
+        {
+            double dist = searchPose.getDistance(shootingCircle(i, Radius, isBlue).getTranslation());
+            if (dist < minDistance)
+            {
+                minDistance = dist;
+                minRad = i;
+            }
+        }
+
+        Pose2d circlePos = shootingCircle(minRad, Radius, isBlue);
+
+        Rotation2d facingRotation = Rotation2d.fromRadians(minRad + Math.PI);
+
+        if (minDistance < 0.5)
+        {
+            facePose2D(facingRotation).withTimeout(0.5).schedule();
+        }
+        else
+        {
+            var cmd = pathfindToPose(new Pose2d(circlePos.getTranslation(), facingRotation), 0.0, isBlue);
+            CommandScheduler.getInstance().schedule(cmd);
+        }
+    }
+
     private void configureDashboard()
     {
         // Climber:
@@ -461,5 +717,8 @@ public class RobotContainer
             Constants.LimeLightConstants.LIMELIGHT_THROTTLE_DISABLED);
         SmartDashboard.putNumber(DashboardConstants.LIMELIGHT_THROTTLE_ENABLED_KEY,
             Constants.LimeLightConstants.LIMELIGHT_THROTTLE_ENABLED);
+
+        // Automation:
+        SmartDashboard.putNumber(DashboardConstants.SHOOTING_POINT_RADIUS_KEY, automationConstants.shootPointRadius);
     }
 }
