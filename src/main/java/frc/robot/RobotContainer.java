@@ -34,6 +34,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
+import frc.robot.Constants.AutomationConstants;
 import frc.robot.Constants.ClimberConstants;
 import frc.robot.Constants.DashboardConstants;
 import frc.robot.Constants.HopperConstants;
@@ -45,7 +46,6 @@ import frc.robot.commands.MoveIntakePivotWithGamepad;
 import frc.robot.commands.ScoreFuel;
 import frc.robot.commands.test.TestClimber;
 import frc.robot.Constants.PathPlannerConstants;
-import frc.robot.Constants.automationConstants;
 import frc.robot.commands.test.TestDrivetrain;
 import frc.robot.commands.test.TestHopper;
 import frc.robot.commands.test.TestIntake;
@@ -514,7 +514,7 @@ public class RobotContainer
 
             Commands.runOnce(() -> goToShootPoint(
                 SmartDashboard.getNumber(DashboardConstants.SHOOTING_POINT_RADIUS_KEY,
-                    automationConstants.shootPointRadius))),
+                    AutomationConstants.SHOOT_POINT_RADIUS_METERS))),
 
             Commands.parallel(
                 drivetrain.map(dt -> dt.applyRequest(() -> m_brakeRequest))
@@ -533,7 +533,7 @@ public class RobotContainer
 
             Commands.runOnce(() -> goToShootPoint(
                 SmartDashboard.getNumber(DashboardConstants.SHOOTING_POINT_RADIUS_KEY,
-                    automationConstants.shootPointRadius))),
+                    AutomationConstants.SHOOT_POINT_RADIUS_METERS))),
             launcher.map(l -> l.feedCommand())
                 .orElse(Commands.none()),
             Commands.parallel(
@@ -729,6 +729,7 @@ public class RobotContainer
             Constants.LimeLightConstants.LIMELIGHT_THROTTLE_ENABLED);
 
         // Automation:
-        SmartDashboard.putNumber(DashboardConstants.SHOOTING_POINT_RADIUS_KEY, automationConstants.shootPointRadius);
+        SmartDashboard.putNumber(DashboardConstants.SHOOTING_POINT_RADIUS_KEY,
+            AutomationConstants.SHOOT_POINT_RADIUS_METERS);
     }
 }
