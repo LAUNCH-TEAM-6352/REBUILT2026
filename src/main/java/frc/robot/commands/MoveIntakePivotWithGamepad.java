@@ -37,7 +37,7 @@ public class MoveIntakePivotWithGamepad extends Command
     @Override
     public void execute()
     {
-        var speed = -gamepad.getRightY() * IntakeConstants.PIVOT_MAX_MAN_SPEED;
+        var speed = gamepad.getRightY() * IntakeConstants.PIVOT_MAX_MAN_VOLTS;
         var position = intake.getPivotPosition().in(Rotations);
         if ((speed < 0 && position <= IntakeConstants.MIN_POSITION) ||
             (speed > 0 && position >= IntakeConstants.MAX_POSITION))
@@ -49,7 +49,7 @@ public class MoveIntakePivotWithGamepad extends Command
         {
             gamepad.setRumble(RumbleType.kBothRumble, 0);
         }
-        intake.setPivotMotorSpeed(speed);
+        intake.setPivotMotorVolts(speed);
     }
 
     // Called once the command ends or is interrupted.
