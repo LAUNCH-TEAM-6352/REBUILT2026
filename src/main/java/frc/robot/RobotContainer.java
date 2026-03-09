@@ -184,30 +184,33 @@ public class RobotContainer
         // NamedCommands.registerCommand("runShoot", new RunLauncher(launcher));
 
         // TODO: replace command with command for running the launcher
-        /* 
-        NamedCommands.registerCommand("runIntake", intake.map(i -> i.intakeCommand()).orElse(Commands.none()));
-
-        NamedCommands.registerCommand("stopShoot", stopAutoShootForAuto());
-
-        NamedCommands.registerCommand("climb", autoClimb());
-
-        NamedCommands.registerCommand("depotShootClimb",
-            Commands.sequence(intake.map(i -> i.runOnce(i::stop)).orElse(Commands.none()), autoShootCommandForAuto()));
-
-        NamedCommands.registerCommand("humanShootClimb",
-            Commands.sequence(intake.map(i -> i.runOnce(i::stop)).orElse(Commands.none()), autoShootCommandForAuto()));
-
-        NamedCommands.registerCommand("neutralShootClimb",
-            Commands.sequence(autoCrossBumpCommand(), autoShootCommandForAuto()));
-            */
-        if(launcher.isPresent()){
-        NamedCommands.registerCommand("runShoot", launcher.get().spinUpShootersCommand());            
+        /*
+         * NamedCommands.registerCommand("runIntake", intake.map(i -> i.intakeCommand()).orElse(Commands.none()));
+         *
+         * NamedCommands.registerCommand("stopShoot", stopAutoShootForAuto());
+         *
+         * NamedCommands.registerCommand("climb", autoClimb());
+         *
+         * NamedCommands.registerCommand("depotShootClimb",
+         * Commands.sequence(intake.map(i -> i.runOnce(i::stop)).orElse(Commands.none()), autoShootCommandForAuto()));
+         *
+         * NamedCommands.registerCommand("humanShootClimb",
+         * Commands.sequence(intake.map(i -> i.runOnce(i::stop)).orElse(Commands.none()), autoShootCommandForAuto()));
+         *
+         * NamedCommands.registerCommand("neutralShootClimb",
+         * Commands.sequence(autoCrossBumpCommand(), autoShootCommandForAuto()));
+         */
+        if (launcher.isPresent())
+        {
+            NamedCommands.registerCommand("runShoot", launcher.get().spinUpShootersCommand());
         }
-        if(intake.isPresent()){
-        NamedCommands.registerCommand("runIntake", intake.get().intakeCommand());
+        if (intake.isPresent())
+        {
+            NamedCommands.registerCommand("runIntake", intake.get().intakeCommand());
         }
-        if(climber.isPresent()){
-        NamedCommands.registerCommand("runClimber", climber.get().climbCommand());
+        if (climber.isPresent())
+        {
+            NamedCommands.registerCommand("runClimber", climber.get().climbCommand());
         }
     }
 
@@ -271,16 +274,16 @@ public class RobotContainer
          * Pose2d startingPose = auto.getStartingPose();
          * driverGamepad.povLeft().onTrue(this.pathfindToPose(startingPose, 0.0, false).andThen(auto));
          */
-        /* 
-        PathPlannerAuto neutralShootClimbPath = new PathPlannerAuto("neutralShootClimb");
-        Pose2d startingPoseNSCP = neutralShootClimbPath.getStartingPose();
-
-        PathPlannerAuto humanShootClimb = new PathPlannerAuto("humanShootClimb");
-        Pose2d startingPoseHSC = humanShootClimb.getStartingPose();
-
-        PathPlannerAuto depotShootClimb = new PathPlannerAuto("depotShootClimb");
-        Pose2d startingPoseDSC = depotShootClimb.getStartingPose();
-        */
+        /*
+         * PathPlannerAuto neutralShootClimbPath = new PathPlannerAuto("neutralShootClimb");
+         * Pose2d startingPoseNSCP = neutralShootClimbPath.getStartingPose();
+         *
+         * PathPlannerAuto humanShootClimb = new PathPlannerAuto("humanShootClimb");
+         * Pose2d startingPoseHSC = humanShootClimb.getStartingPose();
+         *
+         * PathPlannerAuto depotShootClimb = new PathPlannerAuto("depotShootClimb");
+         * Pose2d startingPoseDSC = depotShootClimb.getStartingPose();
+         */
         PathPlannerAuto neutralShootClimbLeft = new PathPlannerAuto("neutralShootClimbLeft");
         Pose2d startingPoseNSCPL = neutralShootClimbLeft.getStartingPose();
 
@@ -295,10 +298,10 @@ public class RobotContainer
 
         PathPlannerAuto depotShootClimbRight = new PathPlannerAuto("depotShootClimbRight");
         Pose2d startingPoseDSCR = depotShootClimbRight.getStartingPose();
-        
+
         PathPlannerAuto depotShootClimbLeft = new PathPlannerAuto("depotShootClimbLeft");
-        Pose2d startingPoseDSCL = depotShootClimbLeft.getStartingPose();   
-        
+        Pose2d startingPoseDSCL = depotShootClimbLeft.getStartingPose();
+
         drivetrain.registerTelemetry(logger::telemeterize);
 
         // THESE BINDS ARE JUST TESTING ONCE AGAIN THESE WILL CHANGE FOR THE FINAL CONTROL SCHEME
