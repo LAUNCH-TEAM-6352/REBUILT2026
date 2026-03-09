@@ -178,6 +178,13 @@ public final class Constants
         public static final double MAX_ANGULAR_ACCELERATION_RPS = Units.degreesToRadians(720);
     }
 
+    public static final class automationConstants
+    {
+
+        public static final double shootPointRadius = 2.2;
+
+    }
+
     public static final class DashboardConstants
     {
         public static final String CLIMBER_CLIMB_KEY = "Climb Position";
@@ -198,6 +205,8 @@ public final class Constants
 
         public static final String LIMELIGHT_THROTTLE_DISABLED_KEY = "LL Throttle Off";
         public static final String LIMELIGHT_THROTTLE_ENABLED_KEY = "LL Throttle On";
+
+        public static final String SHOOTING_POINT_RADIUS_KEY = "Shooting Radius";
     }
 
     public static final class LimeLightConstants
