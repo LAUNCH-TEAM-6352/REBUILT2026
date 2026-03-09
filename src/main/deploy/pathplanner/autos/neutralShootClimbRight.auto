@@ -5,6 +5,12 @@
     "data": {
       "commands": [
         {
+          "type": "path",
+          "data": {
+            "pathName": "goneutral"
+          }
+        },
+        {
           "type": "deadline",
           "data": {
             "commands": [
