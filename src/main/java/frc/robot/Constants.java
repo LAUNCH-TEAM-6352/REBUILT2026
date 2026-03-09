@@ -151,7 +151,7 @@ public final class Constants
     public static final class automationConstants
     {
 
-        public static final double shootPointRadius = 2.2;
+        public static final double shootPointRadius = 2.133854;
 
     }
 
