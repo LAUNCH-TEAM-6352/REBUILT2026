@@ -300,13 +300,14 @@ public class RobotContainer
 
         driverGamepad.leftStick().whileTrue(this.autoDeclimbCommand());
 
-        driverGamepad.rightTrigger()
-            .whileTrue(this.pathfindToPose(startingPoseNSCP, 0.0, false).andThen(neutralShootClimbPath));
+        // driverGamepad.rightTrigger()
+        // .whileTrue(this.pathfindToPose(startingPoseNSCP, 0.0, false).andThen(neutralShootClimbPath));
 
-        driverGamepad.leftTrigger()
-            .whileTrue(this.pathfindToPose(startingPoseDSC, 0.0, false).andThen(depotShootClimb));
+        // driverGamepad.leftTrigger()
+        // .whileTrue(this.pathfindToPose(startingPoseDSC, 0.0, false).andThen(depotShootClimb));
 
-        driverGamepad.rightStick().whileTrue(this.pathfindToPose(startingPoseHSC, 0.0, false).andThen(humanShootClimb));
+        // driverGamepad.rightStick().whileTrue(this.pathfindToPose(startingPoseHSC, 0.0,
+        // false).andThen(humanShootClimb));
     }
 
     // TODO: the following bindings are designed for testing and need to changed for the final control scheme.
