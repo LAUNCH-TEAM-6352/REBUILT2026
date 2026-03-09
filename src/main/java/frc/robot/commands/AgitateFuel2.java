@@ -21,7 +21,8 @@ public class AgitateFuel2 extends Command
     private double agitateAngle = 10; // angle to swing the intake
     private double startPosition = 0; // position of the intake at the time the agitation starts
     private long lastSwitchTime = 0; // used to track how long the agitator is moving in a direction
-    private int movementDuration = 500;
+    private int movementDuration = 5000;
+    private boolean movementCommandIssued = false;
 
     private enum State
     {
@@ -44,7 +45,7 @@ public class AgitateFuel2 extends Command
         // grab the current position of the intake, we're going to agitate around
         // that position
         startPosition = intake.getPivotPosition().baseUnitMagnitude();
-
+        System.out.println("Agitate2::initialize, startPosition: " + startPosition);
         // make sure the range we vibrate the intake is in the range of
         // the intakes movement
         if (startPosition - agitateAngle < IntakeConstants.MIN_POSITION)
@@ -56,9 +57,12 @@ public class AgitateFuel2 extends Command
             startPosition -= agitateAngle;
         }
 
+        System.out.println("Agitate2::initialize, startPosition adjusted: " + startPosition);
+
         // grab the current time and set the initial state
         lastSwitchTime = System.currentTimeMillis();
         state = State.MOVING_DOWN;
+        movementCommandIssued = false;
     }
 
     // Called every time the scheduler runs while the command is scheduled.
@@ -75,25 +79,27 @@ public class AgitateFuel2 extends Command
         long currentTime = System.currentTimeMillis();
         if (currentTime - lastSwitchTime > movementDuration && !intake.isPivotStalled())
         {
-            if (state == State.MOVING_UP)
-            {
-                // TODO: we can additional code check to see if the motor is
-                // being positioned already and avoid calling this method
-                intake.pivotToPositionInDegrees(startPosition - agitateAngle);
-            }
-            else if (state == State.MOVING_DOWN)
-            {
-                // TODO: we can additional code check to see if the motor is
-                // being positioned already and avoid calling this method
-                intake.pivotToPositionInDegrees(startPosition + agitateAngle);
-            }
-        }
-        else
-        {
             // toggle the state every time the time expires and reset the time to
             // the current time
             state = state == State.MOVING_DOWN ? State.MOVING_UP : State.MOVING_DOWN;
             lastSwitchTime = currentTime;
+            // toggle command issued so the other branch can issue the movement command.
+            movementCommandIssued = false;
+        }
+        else
+        {
+            if (movementCommandIssued == false)
+            {
+                if (state == State.MOVING_UP)
+                {
+                    intake.pivotToPositionInDegrees(startPosition - agitateAngle);
+                }
+                else if (state == State.MOVING_DOWN)
+                {
+                    intake.pivotToPositionInDegrees(startPosition + agitateAngle);
+                }
+                movementCommandIssued = true;
+            }
         }
     }
 
