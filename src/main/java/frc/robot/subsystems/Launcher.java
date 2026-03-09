@@ -8,10 +8,8 @@ import static edu.wpi.first.units.Units.RPM;
 
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.MotorAlignmentValue;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -25,8 +23,6 @@ public class Launcher extends SubsystemBase
         LauncherConstants.INDEXER_MOTOR_BUS);
     private final TalonFX leftShooterMotor = new TalonFX(LauncherConstants.LEFT_SHOOTER_MOTOR_CHANNEL,
         LauncherConstants.LEFT_SHOOTER_MOTOR_BUS);
-    private final TalonFX rightShooterMotor = new TalonFX(LauncherConstants.RIGHT_SHOOTER_MOTOR_CHANNEL,
-        LauncherConstants.RIGHT_SHOOTER_MOTOR_BUS);
 
     private final VelocityVoltage velocityVoltage = new VelocityVoltage(0).withSlot(0);
 
@@ -38,7 +34,15 @@ public class Launcher extends SubsystemBase
     {
         var configs = new TalonFXConfiguration();
         configs.MotorOutput.Inverted = LauncherConstants.INDEXER_MOTOR_INVERTED_VALUE;
+        configs.CurrentLimits.StatorCurrentLimitEnable = true;
+        configs.CurrentLimits.StatorCurrentLimit = 230;
+        configs.Slot0.kS = LauncherConstants.INDEXER_KS;
+        configs.Slot0.kV = LauncherConstants.INDEXER_KV;
+        configs.Slot0.kP = LauncherConstants.INDEXER_KP;
+        configs.Slot0.kI = LauncherConstants.INDEXER_KI;
+        configs.Slot0.kD = LauncherConstants.INDEXER_KD;
         indexerMotor.getConfigurator().apply(configs);
+        indexerMotor.getConfigurator().apply(configs.Slot0);
         indexerMotor.clearStickyFaults();
 
         configs.MotorOutput.Inverted = LauncherConstants.LEFT_SHOOTER_MOTOR_INVERTED_VALUE;
@@ -51,18 +55,12 @@ public class Launcher extends SubsystemBase
         leftShooterMotor.getConfigurator().apply(configs);
         leftShooterMotor.getConfigurator().apply(slot0Configs);
         leftShooterMotor.clearStickyFaults();
-
-        configs.MotorOutput.Inverted = LauncherConstants.RIGHT_SHOOTER_MOTOR_INVERTED_VALUE;
-        rightShooterMotor.getConfigurator().apply(new TalonFXConfiguration());
-        rightShooterMotor.getConfigurator().apply(configs);
-        rightShooterMotor
-            .setControl(new Follower(leftShooterMotor.getDeviceID(), MotorAlignmentValue.Opposed));
-        rightShooterMotor.clearStickyFaults();
     }
 
-    private void setIndexerSpeed(double speed)
+    private void setIndexerVelocity(double velocity)
     {
-        indexerMotor.set(speed);
+        indexerMotor.setControl(velocityVoltage.withVelocity(velocity / 60));
+
     }
 
     // Intended for use with a press-and-hold binding
@@ -79,20 +77,8 @@ public class Launcher extends SubsystemBase
 
     public void feed()
     {
-        setIndexerSpeed(
-            SmartDashboard.getNumber(DashboardConstants.LAUNCHER_FEED_KEY, LauncherConstants.FEED_SPEED));
-    }
-
-    // Intended for use with a press-and-hold binding
-    public Command clearThenStopCommand()
-    {
-        return startEnd(this::clear, this::stopIndexer);
-    }
-
-    public void clear()
-    {
-        setIndexerSpeed(
-            SmartDashboard.getNumber(DashboardConstants.LAUNCHER_CLEAR_KEY, LauncherConstants.CLEAR_SPEED));
+        setIndexerVelocity(
+            SmartDashboard.getNumber(DashboardConstants.LAUNCHER_FEED_KEY, LauncherConstants.FEED_VELOCITY_RPM));
     }
 
     // Set shooter velocity in RPM
@@ -128,7 +114,7 @@ public class Launcher extends SubsystemBase
 
     public Command stopIndexerCommand()
     {
-        return runOnce(this::stopShooters);
+        return runOnce(this::stopIndexer);
     }
 
     public Command stopShootersCommand()
@@ -144,6 +130,12 @@ public class Launcher extends SubsystemBase
     public void stopShooters()
     {
         leftShooterMotor.stopMotor();
+    }
+
+    public boolean isAtTargetVelocity()
+    {
+        return true;
+        // TODO: determine if shooter is at target velocity within some tolerance?
     }
 
     // Stops all 3 motors in launcher
@@ -162,6 +154,10 @@ public class Launcher extends SubsystemBase
     public void periodic()
     {
         atTargetVelocity = Math.abs(
-            leftShooterMotor.getVelocity().getValue().in(RPM) - targetVelocity) < LauncherConstants.SHOOTER_TOLERANCE;
+            leftShooterMotor.getVelocity().getValue().in(RPM)
+                - targetVelocity) < LauncherConstants.SHOOTER_TOLERANCE_RPM;
+
+        SmartDashboard.putNumber("ShooterV", leftShooterMotor.getVelocity().getValue().in(RPM));
+        SmartDashboard.putNumber("IndexerV", indexerMotor.getVelocity().getValue().in(RPM));
     }
 }

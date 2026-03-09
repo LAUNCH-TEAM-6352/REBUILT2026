@@ -34,6 +34,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
+import frc.robot.Constants.AutomationConstants;
 import frc.robot.Constants.ClimberConstants;
 import frc.robot.Constants.DashboardConstants;
 import frc.robot.Constants.HopperConstants;
@@ -42,9 +43,9 @@ import frc.robot.Constants.LauncherConstants;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.MoveClimberWithGamepad;
 import frc.robot.commands.MoveIntakePivotWithGamepad;
+import frc.robot.commands.ScoreFuel;
 import frc.robot.commands.test.TestClimber;
 import frc.robot.Constants.PathPlannerConstants;
-import frc.robot.Constants.automationConstants;
 import frc.robot.commands.test.TestDrivetrain;
 import frc.robot.commands.test.TestHopper;
 import frc.robot.commands.test.TestIntake;
@@ -216,6 +217,21 @@ public class RobotContainer
         intake.ifPresent(this::configureBindings);
         hopper.ifPresent(this::configureBindings);
         drivetrain.ifPresent(this::configureBindings);
+        if (intake.isPresent() && hopper.isPresent() && launcher.isPresent())
+        {
+            configureBindings(intake.get(), hopper.get(), launcher.get());
+        }
+    }
+
+    private void configureBindings(Intake intake, Hopper hopper, Launcher launcher)
+    {
+        driverGamepad.x().whileTrue(
+            new ScoreFuel(launcher, hopper, intake).finallyDo(() ->
+            {
+                launcher.stopShooters();
+                launcher.stopIndexer();
+                hopper.stop();
+            }));
     }
 
     private void configureBindings(CommandSwerveDrivetrain drivetrain)
@@ -316,7 +332,6 @@ public class RobotContainer
     private void configureBindings(Launcher launcher)
     {
         codriverGamepad.a().whileTrue(launcher.feedThenStopCommand());
-        codriverGamepad.leftTrigger().whileTrue(launcher.clearThenStopCommand());
         codriverGamepad.b().onTrue(launcher.spinUpShootersCommand());
         codriverGamepad.rightBumper().onTrue(launcher.stopShootersCommand());
         codriverGamepad.rightTrigger().onTrue(launcher.idleShootersCommand());
@@ -325,7 +340,6 @@ public class RobotContainer
     private void configureBindings(Intake intake)
     {
         codriverGamepad.y().whileTrue(intake.intakeThenStopCommand());
-        codriverGamepad.leftStick().whileTrue(intake.ejectThenStopCommand());
         codriverGamepad.x().onTrue(intake.deployCommand());
         codriverGamepad.start().onTrue(intake.partialDeployCommand());
         codriverGamepad.back().onTrue(intake.stowCommand());
@@ -336,7 +350,6 @@ public class RobotContainer
     private void configureBindings(Hopper hopper)
     {
         driverGamepad.a().whileTrue(hopper.feedThenStopCommand());
-        codriverGamepad.leftBumper().whileTrue(hopper.clearThenStopCommand());
     }
 
     public Command getAutonomousCommand()
@@ -501,7 +514,7 @@ public class RobotContainer
 
             Commands.runOnce(() -> goToShootPoint(
                 SmartDashboard.getNumber(DashboardConstants.SHOOTING_POINT_RADIUS_KEY,
-                    automationConstants.shootPointRadius))),
+                    AutomationConstants.SHOOT_POINT_RADIUS_METERS))),
 
             Commands.parallel(
                 drivetrain.map(dt -> dt.applyRequest(() -> m_brakeRequest))
@@ -520,7 +533,7 @@ public class RobotContainer
 
             Commands.runOnce(() -> goToShootPoint(
                 SmartDashboard.getNumber(DashboardConstants.SHOOTING_POINT_RADIUS_KEY,
-                    automationConstants.shootPointRadius))),
+                    AutomationConstants.SHOOT_POINT_RADIUS_METERS))),
             launcher.map(l -> l.feedCommand())
                 .orElse(Commands.none()),
             Commands.parallel(
@@ -695,22 +708,19 @@ public class RobotContainer
 
         // Hopper:
         SmartDashboard.putNumber(DashboardConstants.CONVEYOR_FEED_KEY, HopperConstants.FEED_SPEED);
-        SmartDashboard.putNumber(DashboardConstants.CONVEYOR_CLEAR_KEY, HopperConstants.CLEAR_SPEED);
 
         // Intake:
-        SmartDashboard.putNumber(DashboardConstants.INTAKE_SPEED_KEY, IntakeConstants.INTAKE_SPEED);
-        SmartDashboard.putNumber(DashboardConstants.EJECT_SPEED_KEY, IntakeConstants.EJECT_SPEED);
+        SmartDashboard.putNumber(DashboardConstants.INTAKE_VELOCITY_KEY, IntakeConstants.INTAKE_VELOCITY_RPM);
         SmartDashboard.putNumber(DashboardConstants.DEPLOYED_KEY, IntakeConstants.DEPLOYED_POSITION.magnitude());
         SmartDashboard.putNumber(DashboardConstants.PARTIALLY_DEPLOYED_KEY,
             IntakeConstants.PARTIALLY_DEPLOYED_POSITION.magnitude());
         SmartDashboard.putNumber(DashboardConstants.STOWED_KEY, IntakeConstants.STOWED_POSITION.magnitude());
-        SmartDashboard.putNumber(DashboardConstants.PIVOT_TOLERANCE_KEY, IntakeConstants.PIVOT_TOLERANCE);
+        SmartDashboard.putNumber(DashboardConstants.PIVOT_TOLERANCE_KEY, IntakeConstants.PIVOT_TOLERANCE_DEG);
 
         // Launcher:
         SmartDashboard.putNumber(DashboardConstants.LAUNCHER_SHOOTING_KEY, LauncherConstants.SHOOTING_VELOCITY_RPM);
         SmartDashboard.putNumber(DashboardConstants.LAUNCHER_IDLE_KEY, LauncherConstants.IDLE_VELOCITY_RPM);
-        SmartDashboard.putNumber(DashboardConstants.LAUNCHER_FEED_KEY, LauncherConstants.FEED_SPEED);
-        SmartDashboard.putNumber(DashboardConstants.LAUNCHER_CLEAR_KEY, LauncherConstants.CLEAR_SPEED);
+        SmartDashboard.putNumber(DashboardConstants.LAUNCHER_FEED_KEY, LauncherConstants.FEED_VELOCITY_RPM);
 
         // Limelight:
         SmartDashboard.putNumber(DashboardConstants.LIMELIGHT_THROTTLE_DISABLED_KEY,
@@ -719,6 +729,7 @@ public class RobotContainer
             Constants.LimeLightConstants.LIMELIGHT_THROTTLE_ENABLED);
 
         // Automation:
-        SmartDashboard.putNumber(DashboardConstants.SHOOTING_POINT_RADIUS_KEY, automationConstants.shootPointRadius);
+        SmartDashboard.putNumber(DashboardConstants.SHOOTING_POINT_RADIUS_KEY,
+            AutomationConstants.SHOOT_POINT_RADIUS_METERS);
     }
 }

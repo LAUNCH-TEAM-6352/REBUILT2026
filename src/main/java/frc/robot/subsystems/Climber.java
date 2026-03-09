@@ -26,6 +26,9 @@ public class Climber extends SubsystemBase
     private final DutyCycleOut dutyCycleControl = new DutyCycleOut(0);
     private final PositionDutyCycle positionControl = new PositionDutyCycle(0);
 
+    private boolean isClimbing = false;
+    private boolean atClimbPosition = false;
+
     /** Creates a new Climber. */
     public Climber()
     {
@@ -79,17 +82,22 @@ public class Climber extends SubsystemBase
 
     public void climb()
     {
+        engageRatchet();
+        isClimbing = true;
         setPosition(SmartDashboard.getNumber(DashboardConstants.CLIMBER_CLIMB_KEY, ClimberConstants.CLIMBED_POSITION));
     }
 
     public void extend()
     {
+        releaseRatchet();
+        edu.wpi.first.wpilibj.Timer.delay(0.5);
         setPosition(
             SmartDashboard.getNumber(DashboardConstants.CLIMBER_EXTEND_KEY, ClimberConstants.EXTENDED_POSITION));
     }
 
     public void stow()
     {
+        engageRatchet();
         setPosition(SmartDashboard.getNumber(DashboardConstants.CLIMBER_STOW_KEY, ClimberConstants.STOWED_POSITION));
     }
 
@@ -118,9 +126,38 @@ public class Climber extends SubsystemBase
         return winchMotor.getPosition().getValueAsDouble();
     }
 
+    public boolean atPosition(double targetPosition, double tolerance)
+    {
+        return Math.abs(getPosition() - targetPosition) <= ClimberConstants.CLIMBER_TOLERANCE;
+    }
+
+    public boolean atClimbPosition()
+    {
+        return atClimbPosition;
+    }
+
+    public void stop()
+    {
+        winchMotor.stopMotor();
+    }
+
     @Override
     public void periodic()
     {
+        var position = getPosition();
+
+        if (isClimbing)
+        {
+            if (Math.abs(position - ClimberConstants.CLIMBED_POSITION) <= ClimberConstants.CLIMBER_TOLERANCE)
+            {
+                atClimbPosition = true;
+                isClimbing = false;
+                stop();
+            }
+        }
+
         SmartDashboard.putNumber("Climber Pos", winchMotor.getPosition().getValueAsDouble());
+        SmartDashboard.putBoolean("Climber at Climb Pos", atClimbPosition());
+
     }
 }
