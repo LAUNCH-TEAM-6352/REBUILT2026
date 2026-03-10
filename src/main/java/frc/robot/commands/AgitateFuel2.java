@@ -4,6 +4,7 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.subsystems.Intake;
@@ -44,7 +45,7 @@ public class AgitateFuel2 extends Command
     {
         // grab the current position of the intake, we're going to agitate around
         // that position
-        startPosition = intake.getPivotPosition().baseUnitMagnitude();
+        startPosition = intake.getPivotPosition().in(Units.Degrees);
         System.out.println("Agitate2::initialize, startPosition: " + startPosition);
         // make sure the range we vibrate the intake is in the range of
         // the intakes movement
