@@ -346,9 +346,9 @@ public class RobotContainer
             .whileTrue(this.pathfindToPose(startingPoseHSCL, 0.0, false).andThen(humanShootClimbLeft));
 
         driverGamepad.x()
-            .whileTrue(this.pathfindToPose(startingPoseTest, 0.0, false).andThen(testAutoShoot));
+            .whileTrue(this.pathfindToPose(startingPoseTest, 0.0, true).andThen(testAutoShoot));
     }
-
+    //TODO: make pathfindtopose take the alliance given from driver station rather than forced in code
     // TODO: the following bindings are designed for testing and need to changed for the final control scheme.
     // SCORE FUEL: x-> deploy y-> intake, b-> spinUp shooters, a-> convey, right joystick press-> feed (fuel shoots)
     // CLIMB: pov up-> extend, pov down-> climb, pov left-> stow, pov right-> move with left stick up/down,
@@ -385,7 +385,7 @@ public class RobotContainer
         codriverGamepad.back().onTrue(intake.stowCommand());
         new Trigger(() -> codriverGamepad.getRightX() < -0.8)
             .onTrue(new MoveIntakePivotWithGamepad(intake, codriverGamepad));
-        driverGamepad.x().whileTrue(new AgitateFuel2(intake));
+        // driverGamepad.x().whileTrue(new AgitateFuel2(intake));
     }
 
     private void configureBindings(Hopper hopper)
