@@ -182,13 +182,6 @@ public final class Constants
         public static final double MAX_ANGULAR_ACCELERATION_RPS = Units.degreesToRadians(720);
     }
 
-    
-    
-
-        
-
-    
-
     public static final class DashboardConstants
     {
         public static final String CLIMBER_CLIMB_KEY = "Climb Position";
