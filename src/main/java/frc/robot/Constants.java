@@ -36,6 +36,7 @@ public final class Constants
         public static final double AGITATE_DOWN_TIME_SECS = 0.5;
         public static final double AGITATE_UP_TIME_SECS = 0.5;
         public static final double[] AGITATE_UP_POSITIONS_DEG = { 0, 10, 30, 50, 80, 110, 128 };
+        public static final double shootPointRadius = 2.133854;
 
         // Timeout in case of a jam where pivot cannot reach the target position. Prevents PID loop from endlessly
         // driving into jammed fuel.
@@ -179,13 +180,6 @@ public final class Constants
         public static final double MAX_ACCELERATION_MPS_SQ = 4.0;
         public static final double MAX_ANGULAR_VELOCITY_RPS = Units.degreesToRadians(540);
         public static final double MAX_ANGULAR_ACCELERATION_RPS = Units.degreesToRadians(720);
-    }
-
-    public static final class automationConstants
-    {
-
-        public static final double shootPointRadius = 2.133854;
-
     }
 
     public static final class DashboardConstants
