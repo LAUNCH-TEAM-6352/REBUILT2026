@@ -41,6 +41,7 @@ import frc.robot.Constants.HopperConstants;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.LauncherConstants;
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.commands.AgitateFuel2;
 import frc.robot.commands.MoveClimberWithGamepad;
 import frc.robot.commands.MoveIntakePivotWithGamepad;
 import frc.robot.commands.ScoreFuel;
@@ -225,13 +226,13 @@ public class RobotContainer
 
     private void configureBindings(Intake intake, Hopper hopper, Launcher launcher)
     {
-        driverGamepad.x().whileTrue(
-            new ScoreFuel(launcher, hopper, intake).finallyDo(() ->
-            {
-                launcher.stopShooters();
-                launcher.stopIndexer();
-                hopper.stop();
-            }));
+        // driverGamepad.x().whileTrue(
+        //     new ScoreFuel(launcher, hopper, intake).finallyDo(() ->
+        //     {
+        //         launcher.stopShooters();
+        //         launcher.stopIndexer();
+        //         hopper.stop();
+        //     }));
     }
 
     private void configureBindings(CommandSwerveDrivetrain drivetrain)
@@ -346,6 +347,7 @@ public class RobotContainer
         codriverGamepad.back().onTrue(intake.stowCommand());
         new Trigger(() -> codriverGamepad.getRightX() < -0.8)
             .onTrue(new MoveIntakePivotWithGamepad(intake, codriverGamepad));
+        driverGamepad.x().whileTrue(new AgitateFuel2(intake));
     }
 
     private void configureBindings(Hopper hopper)

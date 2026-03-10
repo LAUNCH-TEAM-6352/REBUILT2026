@@ -102,9 +102,9 @@ public final class Constants
         public static final double AGITATE_VELOCITY_RPM = 500;
         public static final double INTAKE_KS = 0.1; // Add 0.1 V output to overcome static friction
         public static final double INTAKE_KV = 0.12; // A velocity target of 1 rps results in 0.12 V output
-        public static final double INTAKE_KP = 0.11; // An error of 1 rps results in 0.11 V output
+        public static final double INTAKE_KP = 4.0; // An error of 1 rps results in 0.11 V output
         public static final double INTAKE_KI = 0.0; // no output for integrated error
-        public static final double INTAKE_KD = 0.0; // no output for error derivative
+        public static final double INTAKE_KD = 0.1; // no output for error derivative
 
         public static final double PIVOT_KP = 14;
         public static final double PIVOT_KI = 0.0;
@@ -179,11 +179,6 @@ public final class Constants
         public static final double MAX_ACCELERATION_MPS_SQ = 4.0;
         public static final double MAX_ANGULAR_VELOCITY_RPS = Units.degreesToRadians(540);
         public static final double MAX_ANGULAR_ACCELERATION_RPS = Units.degreesToRadians(720);
-    }
-
-    public static final class automationConstants
-    {
-
     }
 
     public static final class DashboardConstants
