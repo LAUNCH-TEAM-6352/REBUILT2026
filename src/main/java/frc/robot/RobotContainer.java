@@ -33,6 +33,7 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.Constants.AutomationConstants;
 import frc.robot.Constants.ClimberConstants;
 import frc.robot.Constants.DashboardConstants;
@@ -276,12 +277,12 @@ public class RobotContainer
 
         // Run SysId routines when holding back/start and X/Y.
         // Note that each routine should be run exactly once in a single log.
-        /*
-         * driverGamepad.back().and(driverGamepad.y()).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
-         * driverGamepad.back().and(driverGamepad.x()).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
-         * driverGamepad.start().and(driverGamepad.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
-         * driverGamepad.start().and(driverGamepad.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
-         */
+        /* 
+        driverGamepad.back().and(driverGamepad.y()).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
+        driverGamepad.back().and(driverGamepad.x()).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
+        driverGamepad.start().and(driverGamepad.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
+        driverGamepad.start().and(driverGamepad.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
+        */
         // Reset the field-centric heading on left bumper press.
         driverGamepad.leftBumper().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
 
@@ -321,6 +322,9 @@ public class RobotContainer
         PathPlannerAuto testAutoShoot = new PathPlannerAuto("testAutoShoot");
         Pose2d startingPoseTest = testAutoShoot.getStartingPose();
 
+        PathPlannerAuto testClimb = new PathPlannerAuto("testClimb");
+        Pose2d startingPoseClimb = testClimb.getStartingPose();
+
         drivetrain.registerTelemetry(logger::telemeterize);
 
         // THESE BINDS ARE JUST TESTING ONCE AGAIN THESE WILL CHANGE FOR THE FINAL CONTROL SCHEME
@@ -346,6 +350,9 @@ public class RobotContainer
 
         driverGamepad.x()
             .whileTrue(this.pathfindToPose(startingPoseTest, 0.0, false).andThen(testAutoShoot));
+
+        driverGamepad.back()
+            .whileTrue(this.pathfindToPose(startingPoseClimb, 0.0, true).andThen(testClimb));
     }
 
     // TODO: the following bindings are designed for testing and need to changed for the final control scheme.
