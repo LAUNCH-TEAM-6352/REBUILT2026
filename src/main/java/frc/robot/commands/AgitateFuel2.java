@@ -19,10 +19,10 @@ public class AgitateFuel2 extends Command
 {
     // Create constants for agitate angle and movement duration.
     private final Intake intake;
-    private double agitateAngle = 5; // angle to swing the intake
+    private double agitateAngle = 20; // angle to swing the intake
     private double startPosition = 0; // position of the intake at the time the agitation starts
     private long lastSwitchTime = 0; // used to track how long the agitator is moving in a direction
-    private int movementDuration = 500;
+    private int movementDuration = 2200;
     private boolean movementCommandIssued = false;
 
     private enum State

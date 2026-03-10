@@ -72,8 +72,8 @@ public class Intake extends SubsystemBase
         pivotConfigs.Slot0.GravityType = IntakeConstants.PIVOT_GRAVITY_TYPE;
         pivotConfigs.Slot0.GravityArmPositionOffset = IntakeConstants.PIVOT_GRAVITY_ARM_POSITION_OFFSET;
 
-        pivotConfigs.MotorOutput.PeakForwardDutyCycle = IntakeConstants.PIVOT_MAX_FWD_SPEED;
-        pivotConfigs.MotorOutput.PeakReverseDutyCycle = IntakeConstants.PIVOT_MAX_REV_SPEED;
+        // pivotConfigs.MotorOutput.PeakForwardDutyCycle = IntakeConstants.PIVOT_MAX_FWD_SPEED;
+        // pivotConfigs.MotorOutput.PeakReverseDutyCycle = IntakeConstants.PIVOT_MAX_REV_SPEED;
         pivotConfigs.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
         pivotConfigs.SoftwareLimitSwitch.ForwardSoftLimitThreshold = IntakeConstants.MAX_POSITION;

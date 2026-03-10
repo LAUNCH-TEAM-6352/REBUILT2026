@@ -62,7 +62,7 @@ public final class Constants
         // These extended and climbed positions are WAGs based upon limited testing on 2026-02-21:
         public static final double STOWED_POSITION = 0;
         public static final double EXTENDED_POSITION = 58;
-        public static final double CLIMBED_POSITION = 36;
+        public static final double CLIMBED_POSITION = 34;
 
         public static final double CLIMBER_TOLERANCE = 0.5;
 
@@ -104,7 +104,7 @@ public final class Constants
         public static final double INTAKE_KV = 0.12; // A velocity target of 1 rps results in 0.12 V output
         public static final double INTAKE_KP = 4.0; // An error of 1 rps results in 0.11 V output
         public static final double INTAKE_KI = 0.0; // no output for integrated error
-        public static final double INTAKE_KD = 0.1; // no output for error derivative
+        public static final double INTAKE_KD = 0.4; // no output for error derivative
 
         public static final double PIVOT_KP = 14;
         public static final double PIVOT_KI = 0.0;
@@ -117,7 +117,7 @@ public final class Constants
         public static final double PIVOT_STALL_VOLTAGE_THRESHOLD = 2.0;
         public static final double PIVOT_STALL_VELOCITY_THRESHOLD_RPM = 5.0;
 
-        public static final double PIVOT_MAX_FWD_SPEED = .6;
+        public static final double PIVOT_MAX_FWD_SPEED = 1.2;
         public static final double PIVOT_MAX_REV_SPEED = -1;
 
         public static final double PIVOT_MAX_MAN_SPEED = 0.25;
