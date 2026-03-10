@@ -184,6 +184,8 @@ public final class Constants
     public static final class automationConstants
     {
 
+        public static final double shootPointRadius = 2.133854;
+
     }
 
     public static final class DashboardConstants
