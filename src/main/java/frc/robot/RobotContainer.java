@@ -104,10 +104,10 @@ public class RobotContainer
     Translation2d redHub = new Translation2d(11.9, 4);
     Translation2d blueHub = new Translation2d(4.65, 4);
 
-    Translation2d topAllianceSideBump = new Translation2d(3.0, 5.6);
-    Translation2d bottomAllianceSideBump = new Translation2d(3.0, 2.5);
-    Translation2d topHubSideBump = new Translation2d(6.1, 5.6);
-    Translation2d bottomHubSideBump = new Translation2d(6.1, 2.5);
+    Translation2d topAllianceSideBump = new Translation2d(2.8, 5.6);
+    Translation2d bottomAllianceSideBump = new Translation2d(2.8, 2.5);
+    Translation2d topHubSideBump = new Translation2d(6.3, 5.6);
+    Translation2d bottomHubSideBump = new Translation2d(6.3, 2.5);
     Translation2d topMiddleBump = new Translation2d(4.6, 5.6);
     Translation2d bottomMiddleBump = new Translation2d(4.6, 2.5);
 
@@ -339,31 +339,33 @@ public class RobotContainer
         drivetrain.registerTelemetry(logger::telemeterize);
 
         // THESE BINDS ARE JUST TESTING ONCE AGAIN THESE WILL CHANGE FOR THE FINAL CONTROL SCHEME
-        driverGamepad
-            .povUp().whileTrue(this.autoShootCommand());
+       
+            var goShoot = this.autoShootCommand();
+        driverGamepad.a().whileTrue(goShoot);
+        driverGamepad.a().onFalse(drivetrain.runOnce(() ->goShoot.cancel()));
+       // driverGamepad.povRight().whileTrue(this.autoFerry());
+        var bump = this.autoCrossBumpCommand();
+        driverGamepad.y().whileTrue(bump);
+        driverGamepad.y().onFalse(drivetrain.runOnce(() ->bump.cancel()));
+        //driverGamepad.povDown().whileTrue(this.autoClimb());
 
-        driverGamepad.povRight().whileTrue(this.autoFerry());
+        //driverGamepad.leftStick().whileTrue(this.autoDeclimbCommand());
 
-        driverGamepad.povLeft().whileTrue(this.autoCrossBumpCommand());
+        //driverGamepad.rightTrigger()
+           // .whileTrue(this.pathfindToPose(startingPoseNSCPL, 0.0).andThen(neutralShootClimbLeft));
 
-        driverGamepad.povDown().whileTrue(this.autoClimb());
+        //driverGamepad.leftTrigger()
+            //.whileTrue(this.pathfindToPose(startingPoseDSCR, 0.0).andThen(depotShootClimbRight));
 
-        driverGamepad.leftStick().whileTrue(this.autoDeclimbCommand());
+        //driverGamepad.rightStick()
+           // .whileTrue(this.pathfindToPose(startingPoseHSCL, 0.0).andThen(humanShootClimbLeft));
 
-        driverGamepad.rightTrigger()
-            .whileTrue(this.pathfindToPose(startingPoseNSCPL, 0.0).andThen(neutralShootClimbLeft));
-
-        driverGamepad.leftTrigger()
-            .whileTrue(this.pathfindToPose(startingPoseDSCR, 0.0).andThen(depotShootClimbRight));
-
-        driverGamepad.rightStick()
-            .whileTrue(this.pathfindToPose(startingPoseHSCL, 0.0).andThen(humanShootClimbLeft));
-
+        var testy =this.pathfindToPose(startingPoseTest, 0.0).andThen(testAutoShoot);
         driverGamepad.x()
-            .whileTrue(this.pathfindToPose(startingPoseTest, 0.0).andThen(testAutoShoot));
-
-        driverGamepad.back()
-            .whileTrue(this.pathfindToPose(startingPoseClimb, 0.0).andThen(testAutoClimb));
+            .whileTrue(testy);
+        driverGamepad.x().onFalse(drivetrain.runOnce(() ->testy.cancel()));
+        //driverGamepad.back()
+            //.whileTrue(this.pathfindToPose(startingPoseClimb, 0.0).andThen(testAutoClimb));
     }
 
     // TODO: the following bindings are designed for testing and need to changed for the final control scheme.
@@ -395,7 +397,7 @@ public class RobotContainer
         codriverGamepad.a().onTrue(intake.stopCommand());
         codriverGamepad.start().onTrue(intake.partialDeployCommand());
         codriverGamepad.back().onTrue(intake.stowCommand());
-        new Trigger(() -> codriverGamepad.getRightX() < -0.8)
+        new Trigger(() -> codriverGamepad.getLeftX() < -0.8)
             .onTrue(Commands.sequence(intake.intakeCommand(), new MoveIntakePivotWithGamepad(intake, codriverGamepad)));
     }
 
@@ -406,21 +408,9 @@ public class RobotContainer
 
     public Command getAutonomousCommand()
     {
-        var drivetrain = this.drivetrain
-            .orElseThrow(() -> new IllegalStateException("Drivetrain subsystem is required for autonomous"));
-        // Simple drive forward auton
-        final var idle = new SwerveRequest.Idle();
-        return Commands.sequence(
-            // Reset our field centric heading to match the robot
-            // facing away from our alliance station wall (0 deg).
-            drivetrain.runOnce(() -> drivetrain.seedFieldCentric(Rotation2d.kZero)),
-            // Then slowly drive forward (away from us) for 5 seconds.
-            drivetrain.applyRequest(() -> drive.withVelocityX(0.5)
-                .withVelocityY(0)
-                .withRotationalRate(0))
-                .withTimeout(5.0),
-            // Finally idle for the rest of auton
-            drivetrain.applyRequest(() -> idle));
+        PathPlannerAuto testAutoShoot = new PathPlannerAuto("testAutoShoot");
+        Pose2d startingPoseTest = testAutoShoot.getStartingPose();
+        return this.pathfindToPose(startingPoseTest, 0.0).andThen(testAutoShoot);
     }
 
     // Load the path we want to pathfind to and follow
@@ -651,14 +641,20 @@ public class RobotContainer
             if (goingToHub)
             {
                 Translation2d hubSide = onTopHalf ? topHubSideBump : bottomHubSideBump;
-                return pathfindToPose(new Pose2d(middleBump, new Rotation2d(Math.PI / 4)), 5.0)
-                    .andThen(pathfindToPose(new Pose2d(hubSide, new Rotation2d(0)), 0.0));
+                Translation2d startingSide = onTopHalf ? topAllianceSideBump : bottomAllianceSideBump;
+                return 
+                    pathfindToPose(new Pose2d(startingSide, new Rotation2d(5*Math.PI / 4)), 5.0)
+                    .andThen(pathfindToPose(new Pose2d(middleBump, new Rotation2d(5*Math.PI / 4)), 5.0))
+                    .andThen(pathfindToPose(new Pose2d(hubSide, new Rotation2d(5*Math.PI / 4)), 0.0));
             }
             else
             {
                 Translation2d allianceSide = onTopHalf ? topAllianceSideBump : bottomAllianceSideBump;
-                return pathfindToPose(new Pose2d(middleBump, new Rotation2d(3 * Math.PI / 4)), 5.0)
-                    .andThen(pathfindToPose(new Pose2d(allianceSide, new Rotation2d(Math.PI)), 0.0));
+                Translation2d startingSide = onTopHalf ? topHubSideBump : bottomHubSideBump;
+                return 
+                    pathfindToPose(new Pose2d(startingSide, new Rotation2d(7 * Math.PI / 4)), 5.0)
+                    .andThen(pathfindToPose(new Pose2d(middleBump, new Rotation2d(7 * Math.PI / 4)), 5.0))
+                    .andThen(pathfindToPose(new Pose2d(allianceSide, new Rotation2d(7 * Math.PI/4)), 0.0));
             }
         }, drivetrain.map(dt -> Set.of((Subsystem) dt)).orElse(Set.of()));
     }
