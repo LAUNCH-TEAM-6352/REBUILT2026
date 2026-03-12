@@ -12,20 +12,26 @@ import frc.robot.subsystems.Hopper;
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
 // information, see:
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
-public class ScoreFuel extends SequentialCommandGroup {
+public class ScoreFuel extends SequentialCommandGroup
+{
     /** Creates a new ScoreFuel. */
-    public ScoreFuel(Launcher launcher, Hopper hopper) {
+    public ScoreFuel(Launcher launcher, Hopper hopper)
+    {
         addRequirements(launcher, hopper);
 
         addCommands(
-                new FunctionalCommand(() -> launcher.spinUpShooters(), () -> {
-                }, (b) -> {
-                }, () -> launcher.isShooterAtVelocity(), launcher),
+            new FunctionalCommand(() -> launcher.spinUpShooters(), () ->
+            {
+            }, (b) ->
+            {
+            }, () -> launcher.isShooterAtVelocity(), launcher),
 
-                new FunctionalCommand(() -> launcher.feed(), () -> {
-                }, (b) -> {
-                }, () -> launcher.isIndexerAtVelocity(), launcher),
+            new FunctionalCommand(() -> launcher.feed(), () ->
+            {
+            }, (b) ->
+            {
+            }, () -> launcher.isIndexerAtVelocity(), launcher),
 
-                launcher.feedCommand());
+            launcher.feedCommand());
     }
 }

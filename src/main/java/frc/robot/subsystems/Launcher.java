@@ -136,7 +136,6 @@ public class Launcher extends SubsystemBase
         leftShooterMotor.stopMotor();
     }
 
-
     // Stops all 3 motors in launcher
     public void stopAll()
     {
@@ -153,8 +152,6 @@ public class Launcher extends SubsystemBase
     {
         return isIntakeAtVelocity;
     }
-
-
 
     @Override
     public void periodic()
