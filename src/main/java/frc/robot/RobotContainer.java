@@ -16,6 +16,7 @@ import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.path.PathConstraints;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -40,7 +41,6 @@ import frc.robot.Constants.HopperConstants;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.LauncherConstants;
 import frc.robot.Constants.OperatorConstants;
-import frc.robot.commands.MoveClimberWithGamepad;
 import frc.robot.commands.MoveIntakePivotWithGamepad;
 import frc.robot.commands.ScoreFuel;
 import frc.robot.commands.test.TestClimber;
@@ -57,12 +57,14 @@ import frc.robot.subsystems.Launcher;
 import frc.robot.subsystems.LimeLightVision;
 import frc.robot.subsystems.Hopper;
 import com.pathplanner.lib.path.PathPlannerPath;
-import com.pathplanner.lib.commands.PathPlannerAuto;
 
 /**
- * This class is where the bulk of the robot should be declared. Since Command-based is a
- * "declarative" paradigm, very little robot logic should actually be handled in the {@link Robot}
- * periodic methods (other than the scheduler calls). Instead, the structure of the robot (including
+ * This class is where the bulk of the robot should be declared. Since
+ * Command-based is a
+ * "declarative" paradigm, very little robot logic should actually be handled in
+ * the {@link Robot}
+ * periodic methods (other than the scheduler calls). Instead, the structure of
+ * the robot (including
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 
@@ -74,7 +76,7 @@ public class RobotContainer
                                                                                       // max angular velocity
     /* Setting up bindings for necessary control of the swerve drive platform */
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
-        .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
+        .withDeadband(MaxSpeed * 0.01).withRotationalDeadband(MaxAngularRate * 0.01) // Add a 10% deadband
         .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
     private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
     private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
@@ -179,23 +181,27 @@ public class RobotContainer
 
     private void configurePathPlannerNamedCommands()
     {
-        // Register any commands that should be available in PathPlanner's command builder here.
+        // Register any commands that should be available in PathPlanner's command
+        // builder here.
         // For example:
         // NamedCommands.registerCommand("runShoot", new RunLauncher(launcher));
 
         // TODO: replace command with command for running the launcher
         /*
-         * NamedCommands.registerCommand("runIntake", intake.map(i -> i.intakeCommand()).orElse(Commands.none()));
+         * NamedCommands.registerCommand("runIntake", intake.map(i ->
+         * i.intakeCommand()).orElse(Commands.none()));
          *
          * NamedCommands.registerCommand("stopShoot", stopAutoShootForAuto());
          *
          * NamedCommands.registerCommand("climb", autoClimb());
          *
          * NamedCommands.registerCommand("depotShootClimb",
-         * Commands.sequence(intake.map(i -> i.runOnce(i::stop)).orElse(Commands.none()), autoShootCommandForAuto()));
+         * Commands.sequence(intake.map(i ->
+         * i.runOnce(i::stop)).orElse(Commands.none()), autoShootCommandForAuto()));
          *
          * NamedCommands.registerCommand("humanShootClimb",
-         * Commands.sequence(intake.map(i -> i.runOnce(i::stop)).orElse(Commands.none()), autoShootCommandForAuto()));
+         * Commands.sequence(intake.map(i ->
+         * i.runOnce(i::stop)).orElse(Commands.none()), autoShootCommandForAuto()));
          *
          * NamedCommands.registerCommand("neutralShootClimb",
          * Commands.sequence(autoCrossBumpCommand(), autoShootCommandForAuto()));
@@ -215,12 +221,17 @@ public class RobotContainer
     }
 
     /**
-     * Use this method to define your trigger->command mappings. Triggers can be created via the
-     * {@link Trigger#Trigger(java.util.function.BooleanSupplier)} constructor with an arbitrary
+     * Use this method to define your trigger->command mappings. Triggers can be
+     * created via the
+     * {@link Trigger#Trigger(java.util.function.BooleanSupplier)} constructor with
+     * an arbitrary
      * predicate, or via the named factories in {@link
-     * edu.wpi.first.wpilibj2.command.button.CommandGenericHID}'s subclasses for {@link
-     * CommandXboxController Xbox}/{@link edu.wpi.first.wpilibj2.command.button.CommandPS4Controller
-     * PS4} controllers or {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight
+     * edu.wpi.first.wpilibj2.command.button.CommandGenericHID}'s subclasses for
+     * {@link
+     * CommandXboxController
+     * Xbox}/{@link edu.wpi.first.wpilibj2.command.button.CommandPS4Controller
+     * PS4} controllers or
+     * {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight
      * joysticks}.
      */
     private void configureBindings()
@@ -238,13 +249,11 @@ public class RobotContainer
 
     private void configureBindings(Intake intake, Hopper hopper, Launcher launcher)
     {
-        driverGamepad.x().whileTrue(
-            new ScoreFuel(launcher, hopper, intake).finallyDo(() ->
-            {
-                launcher.stopShooters();
-                launcher.stopIndexer();
-                hopper.stop();
-            }));
+        codriverGamepad.b().onTrue(new ScoreFuel(launcher, hopper));
+        codriverGamepad.b().onFalse(Commands.sequence(
+            hopper.stopCommand(),
+            launcher.stopIndexerCommand(),
+            launcher.stopShootersCommand()));
     }
 
     private void configureBindings(CommandSwerveDrivetrain drivetrain)
@@ -257,9 +266,9 @@ public class RobotContainer
             // Drivetrain will execute this command periodically
             drivetrain.applyRequest(() -> drive
                 // Drive forward with negative Y (forward)
-                .withVelocityX(-driverGamepad.getLeftY() * MaxSpeed)
+                .withVelocityX(-Math.pow(driverGamepad.getLeftY(), 3) * MaxSpeed)
                 // Drive left with negative X (left)
-                .withVelocityY(-driverGamepad.getLeftX() * MaxSpeed)
+                .withVelocityY(-Math.pow(driverGamepad.getLeftX(), 3) * MaxSpeed)
                 // Drive counterclockwise with negative X (left)
                 .withRotationalRate(-driverGamepad.getRightX() * MaxAngularRate)));
 
@@ -272,7 +281,8 @@ public class RobotContainer
         driverGamepad.a().whileTrue(drivetrain.applyRequest(() -> brake));
         driverGamepad.b().whileTrue(drivetrain
             .applyRequest(
-                () -> point.withModuleDirection(new Rotation2d(-driverGamepad.getLeftY(), -driverGamepad.getLeftX()))));
+                () -> point.withModuleDirection(
+                    new Rotation2d(-driverGamepad.getLeftY(), -driverGamepad.getLeftX()))));
 
         // Run SysId routines when holding back/start and X/Y.
         // Note that each routine should be run exactly once in a single log.
@@ -288,10 +298,12 @@ public class RobotContainer
         /*
          * PathPlannerAuto auto = new PathPlannerAuto("testAuto");
          * Pose2d startingPose = auto.getStartingPose();
-         * driverGamepad.povLeft().onTrue(this.pathfindToPose(startingPose, 0.0, false).andThen(auto));
+         * driverGamepad.povLeft().onTrue(this.pathfindToPose(startingPose, 0.0,
+         * false).andThen(auto));
          */
         /*
-         * PathPlannerAuto neutralShootClimbPath = new PathPlannerAuto("neutralShootClimb");
+         * PathPlannerAuto neutralShootClimbPath = new
+         * PathPlannerAuto("neutralShootClimb");
          * Pose2d startingPoseNSCP = neutralShootClimbPath.getStartingPose();
          *
          * PathPlannerAuto humanShootClimb = new PathPlannerAuto("humanShootClimb");
@@ -369,32 +381,27 @@ public class RobotContainer
         codriverGamepad.povLeft().onTrue(climber.stowCommand());
         codriverGamepad.povUp().onTrue(climber.extendCommand());
         codriverGamepad.povDown().onTrue(climber.climbCommand());
-        codriverGamepad.povRight().onTrue(new MoveClimberWithGamepad(climber, codriverGamepad));
-        new Trigger(() -> codriverGamepad.getLeftX() < -0.8).onTrue(climber.releaseRatchetCommand());
-        new Trigger(() -> codriverGamepad.getLeftX() > 0.8).onTrue(climber.engageRatchetCommand());
     }
 
     private void configureBindings(Launcher launcher)
     {
-        codriverGamepad.a().whileTrue(launcher.feedThenStopCommand());
-        codriverGamepad.b().onTrue(launcher.spinUpShootersCommand());
-        codriverGamepad.rightBumper().onTrue(launcher.stopShootersCommand());
-        codriverGamepad.rightTrigger().onTrue(launcher.idleShootersCommand());
+        // Empty for now unless we deem directly running the launcher necessary
     }
 
     private void configureBindings(Intake intake)
     {
         codriverGamepad.y().whileTrue(intake.intakeThenStopCommand());
         codriverGamepad.x().onTrue(intake.deployCommand());
+        codriverGamepad.a().onTrue(intake.stopCommand());
         codriverGamepad.start().onTrue(intake.partialDeployCommand());
         codriverGamepad.back().onTrue(intake.stowCommand());
         new Trigger(() -> codriverGamepad.getRightX() < -0.8)
-            .onTrue(new MoveIntakePivotWithGamepad(intake, codriverGamepad));
+            .onTrue(Commands.sequence(intake.intakeCommand(), new MoveIntakePivotWithGamepad(intake, codriverGamepad)));
     }
 
     private void configureBindings(Hopper hopper)
     {
-        driverGamepad.a().whileTrue(hopper.feedThenStopCommand());
+        // Empty for now unless we deem directly running the hopper necessary
     }
 
     public Command getAutonomousCommand()
@@ -421,7 +428,8 @@ public class RobotContainer
     {
         PathPlannerPath path = PathPlannerPath.fromPathFile(pathName); // checked exception
 
-        // Create the constraints to use while pathfinding. The constraints defined in the path will only be used for
+        // Create the constraints to use while pathfinding. The constraints defined in
+        // the path will only be used for
         // the path.
         PathConstraints constraints = new PathConstraints(
             PathPlannerConstants.MAX_VELOCITY_MPS, PathPlannerConstants.MAX_ACCELERATION_MPS_SQ,
@@ -664,7 +672,8 @@ public class RobotContainer
             new WaitCommand(1),
             drivetrain
                 .map(dt -> dt
-                    .applyRequest(() -> drive.withVelocityX(-0.5 * MaxSpeed).withVelocityY(0).withRotationalRate(0)))
+                    .applyRequest(() -> drive.withVelocityX(-0.5 * MaxSpeed).withVelocityY(0)
+                        .withRotationalRate(0)))
                 .orElse(Commands.none()).withTimeout(0.5),
             climber.map(c -> c.climbCommand()).orElse(Commands.none()),
             climber.map(c -> c.engageRatchetCommand()).orElse(Commands.none()));
@@ -676,7 +685,8 @@ public class RobotContainer
             climber.map(c -> c.releaseRatchetCommand()).orElse(Commands.none()),
             climber.map(c -> c.extendCommand()).orElse(Commands.none()),
             drivetrain.map(
-                dt -> dt.applyRequest(() -> drive.withVelocityX(0.5 * MaxSpeed).withVelocityY(0).withRotationalRate(0)))
+                dt -> dt.applyRequest(
+                    () -> drive.withVelocityX(0.5 * MaxSpeed).withVelocityY(0).withRotationalRate(0)))
                 .orElse(Commands.none()).withTimeout(0.5),
             climber.map(c -> c.stowCommand()).orElse(Commands.none()),
             climber.map(c -> c.engageRatchetCommand()).orElse(Commands.none()));

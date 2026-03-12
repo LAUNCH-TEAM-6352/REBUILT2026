@@ -26,8 +26,11 @@ public class Launcher extends SubsystemBase
 
     private final VelocityVoltage velocityVoltage = new VelocityVoltage(0).withSlot(0);
 
-    private double targetVelocity = 0;
-    private boolean atTargetVelocity = false;
+    private double shooterTargetVelocity = 0;
+    private boolean isShooterAtVelocity = false;
+
+    private double indexerTargetVelocity = 0;
+    private boolean isIndexerAtVelocity = false;
 
     /** Creates a new Launcher. */
     public Launcher()
@@ -59,8 +62,9 @@ public class Launcher extends SubsystemBase
 
     private void setIndexerVelocity(double velocity)
     {
+        indexerTargetVelocity = velocity;
         indexerMotor.setControl(velocityVoltage.withVelocity(velocity / 60));
-
+        isIndexerAtVelocity = false;
     }
 
     // Intended for use with a press-and-hold binding
@@ -84,9 +88,9 @@ public class Launcher extends SubsystemBase
     // Set shooter velocity in RPM
     private void setShooterVelocity(double velocity)
     {
-        targetVelocity = velocity;
+        shooterTargetVelocity = velocity;
         leftShooterMotor.setControl(velocityVoltage.withVelocity(velocity / 60));
-        atTargetVelocity = false;
+        isShooterAtVelocity = false;
     }
 
     public Command spinUpShootersCommand()
@@ -132,12 +136,6 @@ public class Launcher extends SubsystemBase
         leftShooterMotor.stopMotor();
     }
 
-    public boolean isAtTargetVelocity()
-    {
-        return true;
-        // TODO: determine if shooter is at target velocity within some tolerance?
-    }
-
     // Stops all 3 motors in launcher
     public void stopAll()
     {
@@ -145,17 +143,26 @@ public class Launcher extends SubsystemBase
         stopShooters();
     }
 
-    public boolean isAtShooterVelocity()
+    public boolean isShooterAtVelocity()
     {
-        return atTargetVelocity;
+        return isShooterAtVelocity;
+    }
+
+    public boolean isIndexerAtVelocity()
+    {
+        return isIndexerAtVelocity;
     }
 
     @Override
     public void periodic()
     {
-        atTargetVelocity = Math.abs(
+        isShooterAtVelocity = Math.abs(
             leftShooterMotor.getVelocity().getValue().in(RPM)
-                - targetVelocity) < LauncherConstants.SHOOTER_TOLERANCE_RPM;
+                - shooterTargetVelocity) < LauncherConstants.SHOOTER_TOLERANCE_RPM;
+
+        isIndexerAtVelocity = Math.abs(
+            indexerMotor.getVelocity().getValue().in(RPM)
+                - indexerTargetVelocity) < LauncherConstants.INDEXER_TOLERANCE_RPM;
 
         SmartDashboard.putNumber("ShooterV", leftShooterMotor.getVelocity().getValue().in(RPM));
         SmartDashboard.putNumber("IndexerV", indexerMotor.getVelocity().getValue().in(RPM));
