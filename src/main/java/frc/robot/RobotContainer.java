@@ -16,6 +16,7 @@ import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.path.PathConstraints;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -215,7 +216,7 @@ public class RobotContainer
         }
         if (climber.isPresent())
         {
-            NamedCommands.registerCommand("runClimber", climber.get().climbCommand());
+            NamedCommands.registerCommand("runClimb", climber.get().climbCommand());
         }
     }
 
@@ -286,14 +287,10 @@ public class RobotContainer
         // Run SysId routines when holding back/start and X/Y.
         // Note that each routine should be run exactly once in a single log.
         /*
-         * driverGamepad.back().and(driverGamepad.y()).whileTrue(drivetrain.sysIdDynamic
-         * (Direction.kForward));
-         * driverGamepad.back().and(driverGamepad.x()).whileTrue(drivetrain.sysIdDynamic
-         * (Direction.kReverse));
-         * driverGamepad.start().and(driverGamepad.y()).whileTrue(drivetrain.
-         * sysIdQuasistatic(Direction.kForward));
-         * driverGamepad.start().and(driverGamepad.x()).whileTrue(drivetrain.
-         * sysIdQuasistatic(Direction.kReverse));
+         * driverGamepad.back().and(driverGamepad.y()).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
+         * driverGamepad.back().and(driverGamepad.x()).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
+         * driverGamepad.start().and(driverGamepad.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
+         * driverGamepad.start().and(driverGamepad.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
          */
         // Reset the field-centric heading on left bumper press.
         driverGamepad.leftBumper().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
@@ -315,63 +312,69 @@ public class RobotContainer
          * PathPlannerAuto depotShootClimb = new PathPlannerAuto("depotShootClimb");
          * Pose2d startingPoseDSC = depotShootClimb.getStartingPose();
          */
+        PathPlannerAuto neutralShootClimbLeft = new PathPlannerAuto("neutralShootClimbLeft");
+        Pose2d startingPoseNSCPL = neutralShootClimbLeft.getStartingPose();
 
-        /*
-         * PathPlannerAuto neutralShootClimbLeft = new PathPlannerAuto("neutralShootClimbLeft");
-         * Pose2d startingPoseNSCPL = neutralShootClimbLeft.getStartingPose();
-         *
-         * PathPlannerAuto neutralShootClimbRight = new PathPlannerAuto("neutralShootClimbRight");
-         * Pose2d startingPoseNSCPR = neutralShootClimbRight.getStartingPose();
-         *
-         * PathPlannerAuto humanShootClimbLeft = new PathPlannerAuto("humanShootClimbLeft");
-         * Pose2d startingPoseHSCL = humanShootClimbLeft.getStartingPose();
-         *
-         * PathPlannerAuto humanShootClimbRight = new PathPlannerAuto("humanShootClimbRight");
-         * Pose2d startingPoseHSCR = humanShootClimbRight.getStartingPose();
-         *
-         * PathPlannerAuto depotShootClimbRight = new PathPlannerAuto("depotShootClimbRight");
-         * Pose2d startingPoseDSCR = depotShootClimbRight.getStartingPose();
-         *
-         * PathPlannerAuto depotShootClimbLeft = new PathPlannerAuto("depotShootClimbLeft");
-         * Pose2d startingPoseDSCL = depotShootClimbLeft.getStartingPose();
-         *
-         * PathPlannerAuto testAutoShoot = new PathPlannerAuto("testAutoShoot");
-         * Pose2d startingPoseTest = testAutoShoot.getStartingPose();
-         *
-         * PathPlannerAuto testClimb = new PathPlannerAuto("testClimb");
-         * Pose2d startingPoseClimb = testClimb.getStartingPose();
-         *
-         * drivetrain.registerTelemetry(logger::telemeterize);
-         *
-         * // THESE BINDS ARE JUST TESTING ONCE AGAIN THESE WILL CHANGE FOR THE FINAL
-         * // CONTROL SCHEME
-         * driverGamepad
-         * .povUp().whileTrue(this.autoShootCommand());
-         *
-         * driverGamepad.povRight().whileTrue(this.autoFerry());
-         *
-         * driverGamepad.povLeft().whileTrue(this.autoCrossBumpCommand());
-         *
-         * driverGamepad.povDown().whileTrue(this.autoClimb());
-         *
-         * driverGamepad.leftStick().whileTrue(this.autoDeclimbCommand());
-         *
-         * driverGamepad.rightTrigger()
-         * .whileTrue(this.pathfindToPose(startingPoseNSCPL, 0.0, false).andThen(neutralShootClimbLeft));
-         *
-         * driverGamepad.leftTrigger()
-         * .whileTrue(this.pathfindToPose(startingPoseDSCR, 0.0, false).andThen(depotShootClimbRight));
-         *
-         * driverGamepad.rightStick()
-         * .whileTrue(this.pathfindToPose(startingPoseHSCL, 0.0, false).andThen(humanShootClimbLeft));
-         *
-         * driverGamepad.x()
-         * .whileTrue(this.pathfindToPose(startingPoseTest, 0.0, false).andThen(testAutoShoot));
-         *
-         * driverGamepad.back()
-         * .whileTrue(this.pathfindToPose(startingPoseClimb, 0.0, true).andThen(testClimb));
-         */
+        // PathPlannerAuto neutralShootClimbRight = new PathPlannerAuto("neutralShootClimbRight");
+        // Pose2d startingPoseNSCPR = neutralShootClimbRight.getStartingPose();
+
+        PathPlannerAuto humanShootClimbLeft = new PathPlannerAuto("humanShootClimbLeft");
+        Pose2d startingPoseHSCL = humanShootClimbLeft.getStartingPose();
+
+        PathPlannerAuto humanShootClimbRight = new PathPlannerAuto("humanShootClimbRight");
+        Pose2d startingPoseHSCR = humanShootClimbRight.getStartingPose();
+
+        PathPlannerAuto depotShootClimbRight = new PathPlannerAuto("depotShootClimbRight");
+        Pose2d startingPoseDSCR = depotShootClimbRight.getStartingPose();
+
+        PathPlannerAuto depotShootClimbLeft = new PathPlannerAuto("depotShootClimbLeft");
+        Pose2d startingPoseDSCL = depotShootClimbLeft.getStartingPose();
+
+        PathPlannerAuto testAutoShoot = new PathPlannerAuto("testAutoShoot");
+        Pose2d startingPoseTest = testAutoShoot.getStartingPose();
+
+        PathPlannerAuto testAutoClimb = new PathPlannerAuto("testAutoClimb");
+        Pose2d startingPoseClimb = testAutoClimb.getStartingPose();
+
+        drivetrain.registerTelemetry(logger::telemeterize);
+
+        // THESE BINDS ARE JUST TESTING ONCE AGAIN THESE WILL CHANGE FOR THE FINAL CONTROL SCHEME
+        driverGamepad
+            .povUp().whileTrue(this.autoShootCommand());
+
+        driverGamepad.povRight().whileTrue(this.autoFerry());
+
+        driverGamepad.povLeft().whileTrue(this.autoCrossBumpCommand());
+
+        driverGamepad.povDown().whileTrue(this.autoClimb());
+
+        driverGamepad.leftStick().whileTrue(this.autoDeclimbCommand());
+
+        driverGamepad.rightTrigger()
+            .whileTrue(this.pathfindToPose(startingPoseNSCPL, 0.0).andThen(neutralShootClimbLeft));
+
+        driverGamepad.leftTrigger()
+            .whileTrue(this.pathfindToPose(startingPoseDSCR, 0.0).andThen(depotShootClimbRight));
+
+        driverGamepad.rightStick()
+            .whileTrue(this.pathfindToPose(startingPoseHSCL, 0.0).andThen(humanShootClimbLeft));
+
+        driverGamepad.x()
+            .whileTrue(this.pathfindToPose(startingPoseTest, 0.0).andThen(testAutoShoot));
+
+        driverGamepad.back()
+            .whileTrue(this.pathfindToPose(startingPoseClimb, 0.0).andThen(testAutoClimb));
     }
+
+    // TODO: the following bindings are designed for testing and need to changed for the final control scheme.
+    // SCORE FUEL: x-> deploy y-> intake, b-> spinUp shooters, a-> convey, right joystick press-> feed (fuel shoots)
+    // CLIMB: pov up-> extend, pov down-> climb, pov left-> stow, pov right-> move with left stick up/down,
+    // left stick left-> release ratchet, left stick right-> engage ratchet
+    // DUMP FUEL: left trigger-> clear launcher, left bumper-> clear hopper, left stick-> eject from intake
+    // COLLAPSE HOPPER: start-> partial deploy, back-> stow
+    // IDLE OR STOP SHOOTER: right bumper-> stop shooter, right trigger-> idle shooter
+    // MANUAL CONTROL OF INTAKE PIVIOT: right stick left->enable manual control, right stick forward/back-> move intake
+    // pivot in/out
 
     private void configureBindings(Climber climber)
     {
@@ -466,9 +469,10 @@ public class RobotContainer
         CommandScheduler.getInstance().schedule(lastCommand);
     }
 
-    public Command pathfindToPose(Pose2d point, Double endVelocity, boolean blueAlliance)
+    public Command pathfindToPose(Pose2d point, Double endVelocity)
     {
         // Creates a command to pathfind to the given pose
+        boolean blueAlliance = isBlueAlliance();
 
         // Create the constraints to use while pathfinding
         PathConstraints constraints = new PathConstraints(
@@ -496,16 +500,16 @@ public class RobotContainer
         return pathfindingCommand;
     }
 
-    public void pathFindToMultiPose(List<Pose2d> points, boolean blueAlliance)
+    public void pathFindToMultiPose(List<Pose2d> points)
     {
 
         // var cmd = pathfindToPose(points.get(0), 10.0);
         var pointsIterator = points.iterator();
-        Command cmd = pathfindToPose(pointsIterator.next(), 5.0, blueAlliance);
+        Command cmd = pathfindToPose(pointsIterator.next(), 5.0);
         Command lastCommand = cmd;
         while (pointsIterator.hasNext())
         {
-            lastCommand = lastCommand.andThen(pathfindToPose(pointsIterator.next(), 10.0, blueAlliance));
+            lastCommand = lastCommand.andThen(pathfindToPose(pointsIterator.next(), 10.0));
         }
 
         CommandScheduler.getInstance().schedule(lastCommand);
@@ -647,14 +651,14 @@ public class RobotContainer
             if (goingToHub)
             {
                 Translation2d hubSide = onTopHalf ? topHubSideBump : bottomHubSideBump;
-                return pathfindToPose(new Pose2d(middleBump, new Rotation2d(Math.PI / 4)), 5.0, isBlue)
-                    .andThen(pathfindToPose(new Pose2d(hubSide, new Rotation2d(0)), 0.0, isBlue));
+                return pathfindToPose(new Pose2d(middleBump, new Rotation2d(Math.PI / 4)), 5.0)
+                    .andThen(pathfindToPose(new Pose2d(hubSide, new Rotation2d(0)), 0.0));
             }
             else
             {
                 Translation2d allianceSide = onTopHalf ? topAllianceSideBump : bottomAllianceSideBump;
-                return pathfindToPose(new Pose2d(middleBump, new Rotation2d(3 * Math.PI / 4)), 5.0, isBlue)
-                    .andThen(pathfindToPose(new Pose2d(allianceSide, new Rotation2d(Math.PI)), 0.0, isBlue));
+                return pathfindToPose(new Pose2d(middleBump, new Rotation2d(3 * Math.PI / 4)), 5.0)
+                    .andThen(pathfindToPose(new Pose2d(allianceSide, new Rotation2d(Math.PI)), 0.0));
             }
         }, drivetrain.map(dt -> Set.of((Subsystem) dt)).orElse(Set.of()));
     }
@@ -662,7 +666,7 @@ public class RobotContainer
     public Command autoClimb()
     {
         return Commands.sequence(
-            pathfindToPose(new Pose2d(2.0, 3.75, Rotation2d.fromDegrees(180)), 0.0, isBlueAlliance()),
+            pathfindToPose(new Pose2d(2.0, 3.75, Rotation2d.fromDegrees(180)), 0.0),
             climber.map(c -> c.releaseRatchetCommand()).orElse(Commands.none()),
             climber.map(c -> c.extendCommand()).orElse(Commands.none()),
             new WaitCommand(1),
@@ -746,7 +750,7 @@ public class RobotContainer
         }
         else
         {
-            var cmd = pathfindToPose(new Pose2d(circlePos.getTranslation(), facingRotation), 0.0, isBlue);
+            var cmd = pathfindToPose(new Pose2d(circlePos.getTranslation(), facingRotation), 0.0);
             CommandScheduler.getInstance().schedule(cmd);
         }
     }
