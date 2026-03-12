@@ -6,34 +6,26 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.subsystems.Launcher;
 import frc.robot.subsystems.Hopper;
-import frc.robot.subsystems.Intake;
-import frc.robot.Constants.AutomationConstants;
 
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
 // information, see:
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
-public class ScoreFuel extends SequentialCommandGroup
-{
+public class ScoreFuel extends SequentialCommandGroup {
     /** Creates a new ScoreFuel. */
-    public ScoreFuel(Launcher launcher, Hopper hopper, Intake intake)
-    {
-        addRequirements(launcher, hopper, intake);
+    public ScoreFuel(Launcher launcher, Hopper hopper) {
+        addRequirements(launcher, hopper);
 
         addCommands(
-            new FunctionalCommand(() -> launcher.spinUpShooters(), () ->
-            {
-            }, (b) ->
-            {
-            }, () -> launcher.isAtTargetVelocity(), launcher),
-            launcher.feedCommand(),
-            hopper.feedCommand(),
-            new WaitCommand(AutomationConstants.AGITATE_START_DELAY_SECS),
-            new AgitateFuel(intake),
-            launcher.stopShootersCommand(),
-            launcher.stopIndexerCommand(),
-            hopper.stopCommand());
+                new FunctionalCommand(() -> launcher.spinUpShooters(), () -> {
+                }, (b) -> {
+                }, () -> launcher.isShooterAtVelocity(), launcher),
+
+                new FunctionalCommand(() -> launcher.feed(), () -> {
+                }, (b) -> {
+                }, () -> launcher.isIndexerAtVelocity(), launcher),
+
+                launcher.feedCommand());
     }
 }
