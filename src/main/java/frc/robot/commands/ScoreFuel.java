@@ -31,7 +31,6 @@ public class ScoreFuel extends SequentialCommandGroup
             }, (b) ->
             {
             }, () -> launcher.isIndexerAtVelocity(), launcher),
-
-            launcher.feedCommand());
+            hopper.feedCommand());
     }
 }

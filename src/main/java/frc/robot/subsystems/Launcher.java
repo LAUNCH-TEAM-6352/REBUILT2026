@@ -29,8 +29,8 @@ public class Launcher extends SubsystemBase
     private double shooterTargetVelocity = 0;
     private boolean isShooterAtVelocity = false;
 
-    private double intakeTargetVelocity = 0;
-    private boolean isIntakeAtVelocity = false;
+    private double indexerTargetVelocity = 0;
+    private boolean isIndexerAtVelocity = false;
 
     /** Creates a new Launcher. */
     public Launcher()
@@ -62,9 +62,9 @@ public class Launcher extends SubsystemBase
 
     private void setIndexerVelocity(double velocity)
     {
-        intakeTargetVelocity = velocity;
+        indexerTargetVelocity = velocity;
         indexerMotor.setControl(velocityVoltage.withVelocity(velocity / 60));
-        isIntakeAtVelocity = false;
+        isIndexerAtVelocity = false;
     }
 
     // Intended for use with a press-and-hold binding
@@ -150,7 +150,7 @@ public class Launcher extends SubsystemBase
 
     public boolean isIndexerAtVelocity()
     {
-        return isIntakeAtVelocity;
+        return isIndexerAtVelocity;
     }
 
     @Override
@@ -160,9 +160,9 @@ public class Launcher extends SubsystemBase
             leftShooterMotor.getVelocity().getValue().in(RPM)
                 - shooterTargetVelocity) < LauncherConstants.SHOOTER_TOLERANCE_RPM;
 
-        isIntakeAtVelocity = Math.abs(
+        isIndexerAtVelocity = Math.abs(
             indexerMotor.getVelocity().getValue().in(RPM)
-                - intakeTargetVelocity) < LauncherConstants.INDEXER_TOLERANCE_RPM;
+                - indexerTargetVelocity) < LauncherConstants.INDEXER_TOLERANCE_RPM;
 
         SmartDashboard.putNumber("ShooterV", leftShooterMotor.getVelocity().getValue().in(RPM));
         SmartDashboard.putNumber("IndexerV", indexerMotor.getVelocity().getValue().in(RPM));
