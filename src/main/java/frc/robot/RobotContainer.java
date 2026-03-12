@@ -56,7 +56,6 @@ import frc.robot.subsystems.Launcher;
 import frc.robot.subsystems.LimeLightVision;
 import frc.robot.subsystems.Hopper;
 import com.pathplanner.lib.path.PathPlannerPath;
-import com.pathplanner.lib.commands.PathPlannerAuto;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -320,55 +319,55 @@ public class RobotContainer
         /*
          * PathPlannerAuto neutralShootClimbLeft = new PathPlannerAuto("neutralShootClimbLeft");
          * Pose2d startingPoseNSCPL = neutralShootClimbLeft.getStartingPose();
-         * 
+         *
          * PathPlannerAuto neutralShootClimbRight = new PathPlannerAuto("neutralShootClimbRight");
          * Pose2d startingPoseNSCPR = neutralShootClimbRight.getStartingPose();
-         * 
+         *
          * PathPlannerAuto humanShootClimbLeft = new PathPlannerAuto("humanShootClimbLeft");
          * Pose2d startingPoseHSCL = humanShootClimbLeft.getStartingPose();
-         * 
+         *
          * PathPlannerAuto humanShootClimbRight = new PathPlannerAuto("humanShootClimbRight");
          * Pose2d startingPoseHSCR = humanShootClimbRight.getStartingPose();
-         * 
+         *
          * PathPlannerAuto depotShootClimbRight = new PathPlannerAuto("depotShootClimbRight");
          * Pose2d startingPoseDSCR = depotShootClimbRight.getStartingPose();
-         * 
+         *
          * PathPlannerAuto depotShootClimbLeft = new PathPlannerAuto("depotShootClimbLeft");
          * Pose2d startingPoseDSCL = depotShootClimbLeft.getStartingPose();
-         * 
+         *
          * PathPlannerAuto testAutoShoot = new PathPlannerAuto("testAutoShoot");
          * Pose2d startingPoseTest = testAutoShoot.getStartingPose();
-         * 
+         *
          * PathPlannerAuto testClimb = new PathPlannerAuto("testClimb");
          * Pose2d startingPoseClimb = testClimb.getStartingPose();
-         * 
+         *
          * drivetrain.registerTelemetry(logger::telemeterize);
-         * 
+         *
          * // THESE BINDS ARE JUST TESTING ONCE AGAIN THESE WILL CHANGE FOR THE FINAL
          * // CONTROL SCHEME
          * driverGamepad
          * .povUp().whileTrue(this.autoShootCommand());
-         * 
+         *
          * driverGamepad.povRight().whileTrue(this.autoFerry());
-         * 
+         *
          * driverGamepad.povLeft().whileTrue(this.autoCrossBumpCommand());
-         * 
+         *
          * driverGamepad.povDown().whileTrue(this.autoClimb());
-         * 
+         *
          * driverGamepad.leftStick().whileTrue(this.autoDeclimbCommand());
-         * 
+         *
          * driverGamepad.rightTrigger()
          * .whileTrue(this.pathfindToPose(startingPoseNSCPL, 0.0, false).andThen(neutralShootClimbLeft));
-         * 
+         *
          * driverGamepad.leftTrigger()
          * .whileTrue(this.pathfindToPose(startingPoseDSCR, 0.0, false).andThen(depotShootClimbRight));
-         * 
+         *
          * driverGamepad.rightStick()
          * .whileTrue(this.pathfindToPose(startingPoseHSCL, 0.0, false).andThen(humanShootClimbLeft));
-         * 
+         *
          * driverGamepad.x()
          * .whileTrue(this.pathfindToPose(startingPoseTest, 0.0, false).andThen(testAutoShoot));
-         * 
+         *
          * driverGamepad.back()
          * .whileTrue(this.pathfindToPose(startingPoseClimb, 0.0, true).andThen(testClimb));
          */
