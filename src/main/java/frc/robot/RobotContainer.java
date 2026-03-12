@@ -33,7 +33,6 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.Constants.AutomationConstants;
 import frc.robot.Constants.ClimberConstants;
 import frc.robot.Constants.DashboardConstants;
@@ -211,7 +210,7 @@ public class RobotContainer
         }
         if (climber.isPresent())
         {
-            NamedCommands.registerCommand("runClimber", climber.get().climbCommand());
+            NamedCommands.registerCommand("runClimb", climber.get().climbCommand());
         }
     }
 
@@ -277,12 +276,12 @@ public class RobotContainer
 
         // Run SysId routines when holding back/start and X/Y.
         // Note that each routine should be run exactly once in a single log.
-        /* 
-        driverGamepad.back().and(driverGamepad.y()).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
-        driverGamepad.back().and(driverGamepad.x()).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
-        driverGamepad.start().and(driverGamepad.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
-        driverGamepad.start().and(driverGamepad.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
-        */
+        /*
+         * driverGamepad.back().and(driverGamepad.y()).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
+         * driverGamepad.back().and(driverGamepad.x()).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
+         * driverGamepad.start().and(driverGamepad.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
+         * driverGamepad.start().and(driverGamepad.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
+         */
         // Reset the field-centric heading on left bumper press.
         driverGamepad.leftBumper().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
 
@@ -304,8 +303,8 @@ public class RobotContainer
         PathPlannerAuto neutralShootClimbLeft = new PathPlannerAuto("neutralShootClimbLeft");
         Pose2d startingPoseNSCPL = neutralShootClimbLeft.getStartingPose();
 
-        PathPlannerAuto neutralShootClimbRight = new PathPlannerAuto("neutralShootClimbRight");
-        Pose2d startingPoseNSCPR = neutralShootClimbRight.getStartingPose();
+        // PathPlannerAuto neutralShootClimbRight = new PathPlannerAuto("neutralShootClimbRight");
+        // Pose2d startingPoseNSCPR = neutralShootClimbRight.getStartingPose();
 
         PathPlannerAuto humanShootClimbLeft = new PathPlannerAuto("humanShootClimbLeft");
         Pose2d startingPoseHSCL = humanShootClimbLeft.getStartingPose();
@@ -322,8 +321,8 @@ public class RobotContainer
         PathPlannerAuto testAutoShoot = new PathPlannerAuto("testAutoShoot");
         Pose2d startingPoseTest = testAutoShoot.getStartingPose();
 
-        PathPlannerAuto testClimb = new PathPlannerAuto("testClimb");
-        Pose2d startingPoseClimb = testClimb.getStartingPose();
+        PathPlannerAuto testAutoClimb = new PathPlannerAuto("testAutoClimb");
+        Pose2d startingPoseClimb = testAutoClimb.getStartingPose();
 
         drivetrain.registerTelemetry(logger::telemeterize);
 
@@ -340,19 +339,19 @@ public class RobotContainer
         driverGamepad.leftStick().whileTrue(this.autoDeclimbCommand());
 
         driverGamepad.rightTrigger()
-            .whileTrue(this.pathfindToPose(startingPoseNSCPL, 0.0, false).andThen(neutralShootClimbLeft));
+            .whileTrue(this.pathfindToPose(startingPoseNSCPL, 0.0).andThen(neutralShootClimbLeft));
 
         driverGamepad.leftTrigger()
-            .whileTrue(this.pathfindToPose(startingPoseDSCR, 0.0, false).andThen(depotShootClimbRight));
+            .whileTrue(this.pathfindToPose(startingPoseDSCR, 0.0).andThen(depotShootClimbRight));
 
         driverGamepad.rightStick()
-            .whileTrue(this.pathfindToPose(startingPoseHSCL, 0.0, false).andThen(humanShootClimbLeft));
+            .whileTrue(this.pathfindToPose(startingPoseHSCL, 0.0).andThen(humanShootClimbLeft));
 
         driverGamepad.x()
-            .whileTrue(this.pathfindToPose(startingPoseTest, 0.0, false).andThen(testAutoShoot));
+            .whileTrue(this.pathfindToPose(startingPoseTest, 0.0).andThen(testAutoShoot));
 
         driverGamepad.back()
-            .whileTrue(this.pathfindToPose(startingPoseClimb, 0.0, true).andThen(testClimb));
+            .whileTrue(this.pathfindToPose(startingPoseClimb, 0.0).andThen(testAutoClimb));
     }
 
     // TODO: the following bindings are designed for testing and need to changed for the final control scheme.
@@ -462,9 +461,10 @@ public class RobotContainer
         CommandScheduler.getInstance().schedule(lastCommand);
     }
 
-    public Command pathfindToPose(Pose2d point, Double endVelocity, boolean blueAlliance)
+    public Command pathfindToPose(Pose2d point, Double endVelocity)
     {
         // Creates a command to pathfind to the given pose
+        boolean blueAlliance = isBlueAlliance();
 
         // Create the constraints to use while pathfinding
         PathConstraints constraints = new PathConstraints(
@@ -492,16 +492,16 @@ public class RobotContainer
         return pathfindingCommand;
     }
 
-    public void pathFindToMultiPose(List<Pose2d> points, boolean blueAlliance)
+    public void pathFindToMultiPose(List<Pose2d> points)
     {
 
         // var cmd = pathfindToPose(points.get(0), 10.0);
         var pointsIterator = points.iterator();
-        Command cmd = pathfindToPose(pointsIterator.next(), 5.0, blueAlliance);
+        Command cmd = pathfindToPose(pointsIterator.next(), 5.0);
         Command lastCommand = cmd;
         while (pointsIterator.hasNext())
         {
-            lastCommand = lastCommand.andThen(pathfindToPose(pointsIterator.next(), 10.0, blueAlliance));
+            lastCommand = lastCommand.andThen(pathfindToPose(pointsIterator.next(), 10.0));
         }
 
         CommandScheduler.getInstance().schedule(lastCommand);
@@ -643,14 +643,14 @@ public class RobotContainer
             if (goingToHub)
             {
                 Translation2d hubSide = onTopHalf ? topHubSideBump : bottomHubSideBump;
-                return pathfindToPose(new Pose2d(middleBump, new Rotation2d(Math.PI / 4)), 5.0, isBlue)
-                    .andThen(pathfindToPose(new Pose2d(hubSide, new Rotation2d(0)), 0.0, isBlue));
+                return pathfindToPose(new Pose2d(middleBump, new Rotation2d(Math.PI / 4)), 5.0)
+                    .andThen(pathfindToPose(new Pose2d(hubSide, new Rotation2d(0)), 0.0));
             }
             else
             {
                 Translation2d allianceSide = onTopHalf ? topAllianceSideBump : bottomAllianceSideBump;
-                return pathfindToPose(new Pose2d(middleBump, new Rotation2d(3 * Math.PI / 4)), 5.0, isBlue)
-                    .andThen(pathfindToPose(new Pose2d(allianceSide, new Rotation2d(Math.PI)), 0.0, isBlue));
+                return pathfindToPose(new Pose2d(middleBump, new Rotation2d(3 * Math.PI / 4)), 5.0)
+                    .andThen(pathfindToPose(new Pose2d(allianceSide, new Rotation2d(Math.PI)), 0.0));
             }
         }, drivetrain.map(dt -> Set.of((Subsystem) dt)).orElse(Set.of()));
     }
@@ -658,7 +658,7 @@ public class RobotContainer
     public Command autoClimb()
     {
         return Commands.sequence(
-            pathfindToPose(new Pose2d(2.0, 3.75, Rotation2d.fromDegrees(180)), 0.0, isBlueAlliance()),
+            pathfindToPose(new Pose2d(2.0, 3.75, Rotation2d.fromDegrees(180)), 0.0),
             climber.map(c -> c.releaseRatchetCommand()).orElse(Commands.none()),
             climber.map(c -> c.extendCommand()).orElse(Commands.none()),
             new WaitCommand(1),
@@ -740,7 +740,7 @@ public class RobotContainer
         }
         else
         {
-            var cmd = pathfindToPose(new Pose2d(circlePos.getTranslation(), facingRotation), 0.0, isBlue);
+            var cmd = pathfindToPose(new Pose2d(circlePos.getTranslation(), facingRotation), 0.0);
             CommandScheduler.getInstance().schedule(cmd);
         }
     }
