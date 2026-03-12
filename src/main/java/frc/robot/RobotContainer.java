@@ -249,13 +249,11 @@ public class RobotContainer
 
     private void configureBindings(Intake intake, Hopper hopper, Launcher launcher)
     {
-        codriverGamepad.b().whileTrue(
-            new ScoreFuel(launcher, hopper).finallyDo(() ->
-            {
-                launcher.stopShooters();
-                launcher.stopIndexer();
-                hopper.stop();
-            }));
+        codriverGamepad.b().onTrue(new ScoreFuel(launcher, hopper));
+        codriverGamepad.b().onFalse(Commands.sequence(
+            hopper.stopCommand(),
+            launcher.stopIndexerCommand(),
+            launcher.stopShootersCommand()));
     }
 
     private void configureBindings(CommandSwerveDrivetrain drivetrain)
@@ -318,59 +316,62 @@ public class RobotContainer
          * PathPlannerAuto depotShootClimb = new PathPlannerAuto("depotShootClimb");
          * Pose2d startingPoseDSC = depotShootClimb.getStartingPose();
          */
-        PathPlannerAuto neutralShootClimbLeft = new PathPlannerAuto("neutralShootClimbLeft");
-        Pose2d startingPoseNSCPL = neutralShootClimbLeft.getStartingPose();
 
-        PathPlannerAuto neutralShootClimbRight = new PathPlannerAuto("neutralShootClimbRight");
-        Pose2d startingPoseNSCPR = neutralShootClimbRight.getStartingPose();
-
-        PathPlannerAuto humanShootClimbLeft = new PathPlannerAuto("humanShootClimbLeft");
-        Pose2d startingPoseHSCL = humanShootClimbLeft.getStartingPose();
-
-        PathPlannerAuto humanShootClimbRight = new PathPlannerAuto("humanShootClimbRight");
-        Pose2d startingPoseHSCR = humanShootClimbRight.getStartingPose();
-
-        PathPlannerAuto depotShootClimbRight = new PathPlannerAuto("depotShootClimbRight");
-        Pose2d startingPoseDSCR = depotShootClimbRight.getStartingPose();
-
-        PathPlannerAuto depotShootClimbLeft = new PathPlannerAuto("depotShootClimbLeft");
-        Pose2d startingPoseDSCL = depotShootClimbLeft.getStartingPose();
-
-        PathPlannerAuto testAutoShoot = new PathPlannerAuto("testAutoShoot");
-        Pose2d startingPoseTest = testAutoShoot.getStartingPose();
-
-        PathPlannerAuto testClimb = new PathPlannerAuto("testClimb");
-        Pose2d startingPoseClimb = testClimb.getStartingPose();
-
-        drivetrain.registerTelemetry(logger::telemeterize);
-
-        // THESE BINDS ARE JUST TESTING ONCE AGAIN THESE WILL CHANGE FOR THE FINAL
-        // CONTROL SCHEME
-        driverGamepad
-            .povUp().whileTrue(this.autoShootCommand());
-
-        driverGamepad.povRight().whileTrue(this.autoFerry());
-
-        driverGamepad.povLeft().whileTrue(this.autoCrossBumpCommand());
-
-        driverGamepad.povDown().whileTrue(this.autoClimb());
-
-        driverGamepad.leftStick().whileTrue(this.autoDeclimbCommand());
-
-        driverGamepad.rightTrigger()
-            .whileTrue(this.pathfindToPose(startingPoseNSCPL, 0.0, false).andThen(neutralShootClimbLeft));
-
-        driverGamepad.leftTrigger()
-            .whileTrue(this.pathfindToPose(startingPoseDSCR, 0.0, false).andThen(depotShootClimbRight));
-
-        driverGamepad.rightStick()
-            .whileTrue(this.pathfindToPose(startingPoseHSCL, 0.0, false).andThen(humanShootClimbLeft));
-
-        driverGamepad.x()
-            .whileTrue(this.pathfindToPose(startingPoseTest, 0.0, false).andThen(testAutoShoot));
-
-        driverGamepad.back()
-            .whileTrue(this.pathfindToPose(startingPoseClimb, 0.0, true).andThen(testClimb));
+        /*
+         * PathPlannerAuto neutralShootClimbLeft = new PathPlannerAuto("neutralShootClimbLeft");
+         * Pose2d startingPoseNSCPL = neutralShootClimbLeft.getStartingPose();
+         * 
+         * PathPlannerAuto neutralShootClimbRight = new PathPlannerAuto("neutralShootClimbRight");
+         * Pose2d startingPoseNSCPR = neutralShootClimbRight.getStartingPose();
+         * 
+         * PathPlannerAuto humanShootClimbLeft = new PathPlannerAuto("humanShootClimbLeft");
+         * Pose2d startingPoseHSCL = humanShootClimbLeft.getStartingPose();
+         * 
+         * PathPlannerAuto humanShootClimbRight = new PathPlannerAuto("humanShootClimbRight");
+         * Pose2d startingPoseHSCR = humanShootClimbRight.getStartingPose();
+         * 
+         * PathPlannerAuto depotShootClimbRight = new PathPlannerAuto("depotShootClimbRight");
+         * Pose2d startingPoseDSCR = depotShootClimbRight.getStartingPose();
+         * 
+         * PathPlannerAuto depotShootClimbLeft = new PathPlannerAuto("depotShootClimbLeft");
+         * Pose2d startingPoseDSCL = depotShootClimbLeft.getStartingPose();
+         * 
+         * PathPlannerAuto testAutoShoot = new PathPlannerAuto("testAutoShoot");
+         * Pose2d startingPoseTest = testAutoShoot.getStartingPose();
+         * 
+         * PathPlannerAuto testClimb = new PathPlannerAuto("testClimb");
+         * Pose2d startingPoseClimb = testClimb.getStartingPose();
+         * 
+         * drivetrain.registerTelemetry(logger::telemeterize);
+         * 
+         * // THESE BINDS ARE JUST TESTING ONCE AGAIN THESE WILL CHANGE FOR THE FINAL
+         * // CONTROL SCHEME
+         * driverGamepad
+         * .povUp().whileTrue(this.autoShootCommand());
+         * 
+         * driverGamepad.povRight().whileTrue(this.autoFerry());
+         * 
+         * driverGamepad.povLeft().whileTrue(this.autoCrossBumpCommand());
+         * 
+         * driverGamepad.povDown().whileTrue(this.autoClimb());
+         * 
+         * driverGamepad.leftStick().whileTrue(this.autoDeclimbCommand());
+         * 
+         * driverGamepad.rightTrigger()
+         * .whileTrue(this.pathfindToPose(startingPoseNSCPL, 0.0, false).andThen(neutralShootClimbLeft));
+         * 
+         * driverGamepad.leftTrigger()
+         * .whileTrue(this.pathfindToPose(startingPoseDSCR, 0.0, false).andThen(depotShootClimbRight));
+         * 
+         * driverGamepad.rightStick()
+         * .whileTrue(this.pathfindToPose(startingPoseHSCL, 0.0, false).andThen(humanShootClimbLeft));
+         * 
+         * driverGamepad.x()
+         * .whileTrue(this.pathfindToPose(startingPoseTest, 0.0, false).andThen(testAutoShoot));
+         * 
+         * driverGamepad.back()
+         * .whileTrue(this.pathfindToPose(startingPoseClimb, 0.0, true).andThen(testClimb));
+         */
     }
 
     private void configureBindings(Climber climber)
@@ -389,11 +390,11 @@ public class RobotContainer
     {
         codriverGamepad.y().whileTrue(intake.intakeThenStopCommand());
         codriverGamepad.x().onTrue(intake.deployCommand());
+        codriverGamepad.a().onTrue(intake.stopCommand());
         codriverGamepad.start().onTrue(intake.partialDeployCommand());
         codriverGamepad.back().onTrue(intake.stowCommand());
         new Trigger(() -> codriverGamepad.getRightX() < -0.8)
-            .onTrue(Commands.parallel(new MoveIntakePivotWithGamepad(intake, codriverGamepad),
-                intake.intakeCommand()));
+            .onTrue(Commands.sequence(intake.intakeCommand(), new MoveIntakePivotWithGamepad(intake, codriverGamepad)));
     }
 
     private void configureBindings(Hopper hopper)

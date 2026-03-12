@@ -49,14 +49,13 @@ public final class Constants
     {
         public static final CANBus WINCH_MOTOR_BUS = Constants.CANIVORE_BUS;
         public static final int WINCH_MOTOR_CHANNEL = 48;
-        public static final double WINCH_MOTOR_SPEED = 0.6;
         public static final InvertedValue WINCH_MOTOR_INVERTED_VALUE = InvertedValue.Clockwise_Positive;
 
-        public static final double WINCH_KP = 0.4;
+        public static final double WINCH_KP = 0.6;
         public static final double WINCH_KI = 0;
         public static final double WINCH_KD = 0;
 
-        public static final double WINCH_MAX_FWD_SPEED = 0.1;
+        public static final double WINCH_MAX_FWD_SPEED = 0.6;
         public static final double WINCH_MAX_REV_SPEED = -0.4;
         public static final double WINCH_MAX_MAN_SPEED = 0.4;
 

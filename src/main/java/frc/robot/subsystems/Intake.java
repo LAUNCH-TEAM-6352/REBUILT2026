@@ -169,6 +169,11 @@ public class Intake extends SubsystemBase
             SmartDashboard.getNumber(DashboardConstants.INTAKE_VELOCITY_KEY, IntakeConstants.INTAKE_VELOCITY_RPM));
     }
 
+    public Command stopCommand()
+    {
+        return runOnce(this::stop);
+    }
+
     // Stop the intake motor
     public void stop()
     {
