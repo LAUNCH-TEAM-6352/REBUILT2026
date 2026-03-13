@@ -499,6 +499,11 @@ public class RobotContainer
     public Command getAutonomousCommand()
     {
         var auto = autoChooser.getSelected();
+        if (auto == null)
+        {
+            return null;
+        }
+
         var startingPose = ((PathPlannerAuto) auto).getStartingPose();
         return pathfindToPose(startingPose, 0.0).andThen(new ProxyCommand(auto));
     }
