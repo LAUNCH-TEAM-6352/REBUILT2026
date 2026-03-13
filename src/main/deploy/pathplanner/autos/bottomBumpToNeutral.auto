@@ -7,13 +7,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "testBumpTop"
+            "pathName": "testBumpBottom"
           }
         }
       ]
     }
   },
-  "resetOdom": true,
+  "resetOdom": false,
   "folder": null,
   "choreoAuto": false
 }
