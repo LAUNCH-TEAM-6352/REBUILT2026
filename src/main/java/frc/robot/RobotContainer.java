@@ -165,7 +165,7 @@ public class RobotContainer
         drivetrain = (gameData.contains("-dt-") || gameData.isBlank() || gameData.length() == 1)
             ? Optional.of(TunerConstants.createDrivetrain())
             : Optional.empty();
-
+        
         if (drivetrain.isPresent())
         {
             drivetrain.get().setupPathPlanner();
@@ -336,36 +336,64 @@ public class RobotContainer
         PathPlannerAuto testAutoClimb = new PathPlannerAuto("testAutoClimb");
         Pose2d startingPoseClimb = testAutoClimb.getStartingPose();
 
+        PathPlannerAuto testTopBump = new PathPlannerAuto("autoTopBump");
+        Pose2d topBumpStart = testTopBump.getStartingPose();
+
+        PathPlannerAuto testBottomBump = new PathPlannerAuto("autoBottomBump");
+        Pose2d bottomBumpStart = testBottomBump.getStartingPose();
+
         drivetrain.registerTelemetry(logger::telemeterize);
 
         // THESE BINDS ARE JUST TESTING ONCE AGAIN THESE WILL CHANGE FOR THE FINAL CONTROL SCHEME
-       
-            var goShoot = this.autoShootCommand();
+
+        var goShoot = this.autoShootCommand();
         driverGamepad.a().whileTrue(goShoot);
-        driverGamepad.a().onFalse(drivetrain.runOnce(() ->goShoot.cancel()));
-       // driverGamepad.povRight().whileTrue(this.autoFerry());
-        var bump = this.autoCrossBumpCommand();
-        driverGamepad.y().whileTrue(bump);
-        driverGamepad.y().onFalse(drivetrain.runOnce(() ->bump.cancel()));
-        //driverGamepad.povDown().whileTrue(this.autoClimb());
+        driverGamepad.a().onFalse(drivetrain.runOnce(() -> goShoot.cancel()));
+        // driverGamepad.povRight().whileTrue(this.autoFerry());
 
-        //driverGamepad.leftStick().whileTrue(this.autoDeclimbCommand());
+        var closestBump = this.autoCrossBumpCommand();
+        driverGamepad.y().whileTrue(closestBump);
+        driverGamepad.y().onFalse(drivetrain.runOnce(() -> closestBump.cancel()));
 
-        //driverGamepad.rightTrigger()
-           // .whileTrue(this.pathfindToPose(startingPoseNSCPL, 0.0).andThen(neutralShootClimbLeft));
+        var bottomBumpFromAllianceSide = this.pathfindToPath("testBumpBottom");
+        driverGamepad.povDown()
+            .whileTrue(bottomBumpFromAllianceSide);
+        driverGamepad.povDown().onFalse(drivetrain.runOnce(() -> bottomBumpFromAllianceSide.cancel()));
 
-        //driverGamepad.leftTrigger()
-            //.whileTrue(this.pathfindToPose(startingPoseDSCR, 0.0).andThen(depotShootClimbRight));
+        var topBumpFromAllianceSide = this.pathfindToPath("testBumpTop");
+        driverGamepad.povUp()
+            .whileTrue(topBumpFromAllianceSide);
+        driverGamepad.povUp().onFalse(drivetrain.runOnce(() -> topBumpFromAllianceSide.cancel()));
 
-        //driverGamepad.rightStick()
-           // .whileTrue(this.pathfindToPose(startingPoseHSCL, 0.0).andThen(humanShootClimbLeft));
+        var topBumpFromNeutralSide = this.pathfindToPath("testBumpTopFromNeutral");
+        driverGamepad.povRight()
+            .whileTrue(topBumpFromNeutralSide);
+        driverGamepad.povRight().onFalse(drivetrain.runOnce(() -> topBumpFromNeutralSide.cancel()));
 
-        var testy =this.pathfindToPose(startingPoseTest, 0.0).andThen(testAutoShoot);
+        var bottomBumpFromNeutralSide = this.pathfindToPath("testBumpBottomFromNeutral");
+        driverGamepad.povLeft()
+            .whileTrue(bottomBumpFromNeutralSide);
+        driverGamepad.povLeft().onFalse(drivetrain.runOnce(() -> bottomBumpFromNeutralSide.cancel()));
+
+        // driverGamepad.povDown().whileTrue(this.autoClimb());
+
+        // driverGamepad.leftStick().whileTrue(this.autoDeclimbCommand());
+
+        // driverGamepad.rightTrigger()
+        // .whileTrue(this.pathfindToPose(startingPoseNSCPL, 0.0).andThen(neutralShootClimbLeft));
+
+        // driverGamepad.leftTrigger()
+        // .whileTrue(this.pathfindToPose(startingPoseDSCR, 0.0).andThen(depotShootClimbRight));
+
+        // driverGamepad.rightStick()
+        // .whileTrue(this.pathfindToPose(startingPoseHSCL, 0.0).andThen(humanShootClimbLeft));
+
+        var testy = this.pathfindToPose(startingPoseTest, 5.0).andThen(testAutoShoot);
         driverGamepad.x()
             .whileTrue(testy);
-        driverGamepad.x().onFalse(drivetrain.runOnce(() ->testy.cancel()));
-        //driverGamepad.back()
-            //.whileTrue(this.pathfindToPose(startingPoseClimb, 0.0).andThen(testAutoClimb));
+        driverGamepad.x().onFalse(drivetrain.runOnce(() -> testy.cancel()));
+        // driverGamepad.back()
+        // .whileTrue(this.pathfindToPose(startingPoseClimb, 0.0).andThen(testAutoClimb));
     }
 
     // TODO: the following bindings are designed for testing and need to changed for the final control scheme.
@@ -410,7 +438,7 @@ public class RobotContainer
     {
         PathPlannerAuto testAutoShoot = new PathPlannerAuto("testAutoShoot");
         Pose2d startingPoseTest = testAutoShoot.getStartingPose();
-        return this.pathfindToPose(startingPoseTest, 0.0).andThen(testAutoShoot);
+        return this.pathfindToPose(startingPoseTest, 5.0).andThen(testAutoShoot);
     }
 
     // Load the path we want to pathfind to and follow
@@ -457,6 +485,26 @@ public class RobotContainer
         }
 
         CommandScheduler.getInstance().schedule(lastCommand);
+    }
+
+    public Command pathfindToPath(String pathName)
+    {
+        PathPlannerPath path = null; // checked exception
+
+        // 1. Load the path
+        try
+        {
+            path = PathPlannerPath.fromPathFile(pathName); // checked exception
+        }
+        catch (Exception e)
+        {
+            System.out.println("Failed to load path: " + pathName);
+        }
+        // 2. Create constraints (Max Speed, Max Accel, etc.)
+        PathConstraints constraints = new PathConstraints(3.0, 3.0, Math.PI, Math.PI);
+
+        // 3. Return the command
+        return AutoBuilder.pathfindThenFollowPath(path, constraints);
     }
 
     public Command pathfindToPose(Pose2d point, Double endVelocity)
@@ -642,19 +690,17 @@ public class RobotContainer
             {
                 Translation2d hubSide = onTopHalf ? topHubSideBump : bottomHubSideBump;
                 Translation2d startingSide = onTopHalf ? topAllianceSideBump : bottomAllianceSideBump;
-                return 
-                    pathfindToPose(new Pose2d(startingSide, new Rotation2d(5*Math.PI / 4)), 5.0)
-                    .andThen(pathfindToPose(new Pose2d(middleBump, new Rotation2d(5*Math.PI / 4)), 5.0))
-                    .andThen(pathfindToPose(new Pose2d(hubSide, new Rotation2d(5*Math.PI / 4)), 0.0));
+                return pathfindToPose(new Pose2d(startingSide, new Rotation2d(5 * Math.PI / 4)), 5.0)
+                    .andThen(pathfindToPose(new Pose2d(middleBump, new Rotation2d(5 * Math.PI / 4)), 5.0))
+                    .andThen(pathfindToPose(new Pose2d(hubSide, new Rotation2d(5 * Math.PI / 4)), 0.0));
             }
             else
             {
                 Translation2d allianceSide = onTopHalf ? topAllianceSideBump : bottomAllianceSideBump;
                 Translation2d startingSide = onTopHalf ? topHubSideBump : bottomHubSideBump;
-                return 
-                    pathfindToPose(new Pose2d(startingSide, new Rotation2d(7 * Math.PI / 4)), 5.0)
+                return pathfindToPose(new Pose2d(startingSide, new Rotation2d(7 * Math.PI / 4)), 5.0)
                     .andThen(pathfindToPose(new Pose2d(middleBump, new Rotation2d(7 * Math.PI / 4)), 5.0))
-                    .andThen(pathfindToPose(new Pose2d(allianceSide, new Rotation2d(7 * Math.PI/4)), 0.0));
+                    .andThen(pathfindToPose(new Pose2d(allianceSide, new Rotation2d(7 * Math.PI / 4)), 0.0));
             }
         }, drivetrain.map(dt -> Set.of((Subsystem) dt)).orElse(Set.of()));
     }
