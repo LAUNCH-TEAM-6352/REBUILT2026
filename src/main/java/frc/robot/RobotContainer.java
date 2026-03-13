@@ -335,14 +335,10 @@ public class RobotContainer
 
         // THESE BINDS ARE JUST TESTING ONCE AGAIN THESE WILL CHANGE FOR THE FINAL CONTROL SCHEME
 
-        var goShoot = this.autoShootCommand();
-        driverGamepad.a().whileTrue(goShoot);
-        driverGamepad.a().onFalse(drivetrain.runOnce(() -> goShoot.cancel()));
+        driverGamepad.a().whileTrue(this.autoShootCommand());
         // driverGamepad.povRight().whileTrue(this.autoFerry());
 
-        var closestBump = this.autoCrossBumpCommand();
-        driverGamepad.y().whileTrue(closestBump);
-        driverGamepad.y().onFalse(drivetrain.runOnce(() -> closestBump.cancel()));
+        driverGamepad.y().whileTrue(this.autoCrossBumpCommand());
 
         // driverGamepad.povDown().whileTrue(this.autoClimb());
 
@@ -356,8 +352,10 @@ public class RobotContainer
 
         // driverGamepad.rightStick()
         // .whileTrue(this.pathfindToPose(startingPoseHSCL, 0.0).andThen(humanShootClimbLeft));
-        driverGamepad.povDown()
-            .whileTrue(getDepotShootClimbLeft());
+        //driverGamepad.povDown()
+            //.whileTrue(getDepotShootClimbLeft());
+
+        driverGamepad.x().onTrue(getTestAutoShoot());
 
         // driverGamepad.back()
         // .whileTrue(this.pathfindToPose(startingPoseClimb, 0.0).andThen(testAutoClimb));
