@@ -22,8 +22,11 @@ public class LimeLightVision
      */
     public void updatePoseEstimation(CommandSwerveDrivetrain swerveDrive)
     {
-        var currentPose = swerveDrive.getState().Pose;
+
+        var state = swerveDrive.getState();
+        var currentPose = state.Pose;
         var currentRotation = currentPose.getRotation();
+        double yawRate = Math.toDegrees(state.Speeds.omegaRadiansPerSecond);
 
         cameraNames.forEach(
             cameraName ->
@@ -31,7 +34,7 @@ public class LimeLightVision
                 LimelightHelpers.SetRobotOrientation(
                     cameraName,
                     currentRotation.getDegrees(),
-                    0,
+                    yawRate,
                     0,
                     0,
                     0,
