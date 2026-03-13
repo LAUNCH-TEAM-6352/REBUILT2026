@@ -352,8 +352,8 @@ public class RobotContainer
 
         // driverGamepad.rightStick()
         // .whileTrue(this.pathfindToPose(startingPoseHSCL, 0.0).andThen(humanShootClimbLeft));
-        //driverGamepad.povDown()
-            //.whileTrue(getDepotShootClimbLeft());
+        // driverGamepad.povDown()
+        // .whileTrue(getDepotShootClimbLeft());
 
         driverGamepad.x().onTrue(getTestAutoShoot());
 
