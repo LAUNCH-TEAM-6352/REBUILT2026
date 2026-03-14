@@ -46,6 +46,7 @@ import frc.robot.Constants.LauncherConstants;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.MoveIntakePivotWithGamepad;
 import frc.robot.commands.ScoreFuel;
+import frc.robot.commands.ScoreFuelCancelable;
 import frc.robot.commands.test.TestClimber;
 import frc.robot.Constants.PathPlannerConstants;
 import frc.robot.commands.test.TestDrivetrain;
@@ -203,8 +204,9 @@ public class RobotContainer
 
         NamedCommands.registerCommand("stopIntake", intake.stopCommand());
 
-        // NamedCommands.registerCommand("runClimb", climber.get().climbCommand());
+        NamedCommands.registerCommand("scoreFuelCancelable", new ScoreFuelCancelable(launcher, hopper));
 
+        // NamedCommands.registerCommand("runClimb", climber.get().climbCommand());
     }
 
     /**
