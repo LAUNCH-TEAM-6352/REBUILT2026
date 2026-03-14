@@ -92,7 +92,7 @@ public class RobotContainer
 
     // wrapper class to manage limelight cameras and get position estimates
     public final LimeLightVision limelightVision = new LimeLightVision(
-        List.of("limelight-front", "limelight-br", "limelight-bl", "limelight-climber"));
+        List.of("limelight-front", "limelight-climber"));
 
     // Subsystems:
     private final Optional<Climber> climber;
@@ -178,8 +178,10 @@ public class RobotContainer
         {
             drivetrain.get().setupPathPlanner();
         }
-
-        configurePathPlannerNamedCommands();
+        if (launcher.isPresent() && hopper.isPresent() && intake.isPresent())
+        {
+            configurePathPlannerNamedCommands(intake.get(), hopper.get(), launcher.get());
+        }
 
         configureBindings();
 
@@ -191,45 +193,18 @@ public class RobotContainer
 
     }
 
-    private void configurePathPlannerNamedCommands()
+    private void configurePathPlannerNamedCommands(Intake intake, Hopper hopper, Launcher launcher)
     {
-        // Register any commands that should be available in PathPlanner's command
-        // builder here.
-        // For example:
-        // NamedCommands.registerCommand("runShoot", new RunLauncher(launcher));
+        NamedCommands.registerCommand("runShoot", new ScoreFuel(launcher, hopper));
 
-        // TODO: replace command with command for running the launcher
-        /*
-         * NamedCommands.registerCommand("runIntake", intake.map(i ->
-         * i.intakeCommand()).orElse(Commands.none()));
-         *
-         * NamedCommands.registerCommand("stopShoot", stopAutoShootForAuto());
-         *
-         * NamedCommands.registerCommand("climb", autoClimb());
-         *
-         * NamedCommands.registerCommand("depotShootClimb",
-         * Commands.sequence(intake.map(i ->
-         * i.runOnce(i::stop)).orElse(Commands.none()), autoShootCommandForAuto()));
-         *
-         * NamedCommands.registerCommand("humanShootClimb",
-         * Commands.sequence(intake.map(i ->
-         * i.runOnce(i::stop)).orElse(Commands.none()), autoShootCommandForAuto()));
-         *
-         * NamedCommands.registerCommand("neutralShootClimb",
-         * Commands.sequence(autoCrossBumpCommand(), autoShootCommandForAuto()));
-         */
-        if (launcher.isPresent())
-        {
-            NamedCommands.registerCommand("runShoot", launcher.get().spinUpShootersCommand());
-        }
-        if (intake.isPresent())
-        {
-            NamedCommands.registerCommand("runIntake", intake.get().intakeCommand());
-        }
-        if (climber.isPresent())
-        {
-            NamedCommands.registerCommand("runClimb", climber.get().climbCommand());
-        }
+        NamedCommands.registerCommand("deployIntake", intake.deployCommand());
+
+        NamedCommands.registerCommand("runIntake", intake.intakeCommand());
+
+        NamedCommands.registerCommand("stopIntake", intake.stopCommand());
+
+        // NamedCommands.registerCommand("runClimb", climber.get().climbCommand());
+
     }
 
     /**
@@ -356,9 +331,18 @@ public class RobotContainer
         // .whileTrue(getDepotShootClimbLeft());
 
         driverGamepad.x().onTrue(getTestAutoShoot());
+       // driverGamepad.rightTrigger().whileTrue(getCirclePath());
 
         // driverGamepad.back()
         // .whileTrue(this.pathfindToPose(startingPoseClimb, 0.0).andThen(testAutoClimb));
+    }
+
+    private Command getCirclePath()
+    {
+        resetPosition(new Pose2d(3.665, 2.57, Rotation2d.kZero));
+        PathPlannerAuto circlePath = new PathPlannerAuto("circleAuto");
+        Pose2d startingPoseCA = circlePath.getStartingPose();
+        return pathfindToPose(startingPoseCA, 0.0).andThen(circlePath);
     }
 
     private Command getDepotShootClimbLeft()
@@ -471,7 +455,7 @@ public class RobotContainer
     {
         codriverGamepad.povLeft().onTrue(climber.stowCommand());
         codriverGamepad.povUp().onTrue(climber.extendCommand());
-        codriverGamepad.povDown().onTrue(climber.climbCommand());
+        codriverGamepad.povRight().onTrue(climber.climbCommand());
     }
 
     private void configureBindings(Launcher launcher)
@@ -482,6 +466,7 @@ public class RobotContainer
     private void configureBindings(Intake intake)
     {
         codriverGamepad.y().whileTrue(intake.intakeThenStopCommand());
+        codriverGamepad.povDown().whileTrue(intake.ejectThenStopCommand());
         codriverGamepad.x().onTrue(intake.deployCommand());
         codriverGamepad.a().onTrue(intake.stopCommand());
         codriverGamepad.start().onTrue(intake.partialDeployCommand());

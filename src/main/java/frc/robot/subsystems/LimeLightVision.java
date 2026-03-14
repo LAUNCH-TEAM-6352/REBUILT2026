@@ -69,7 +69,7 @@ public class LimeLightVision
                  * lastLog = System.currentTimeMillis();
                  * }
                  */
-                swerveDrive.addVisionMeasurement(mt2.pose, mt2.timestampSeconds);
+                // swerveDrive.addVisionMeasurement(mt2.pose, mt2.timestampSeconds);
             });
     }
 

@@ -99,6 +99,7 @@ public final class Constants
         public static final SensorDirectionValue ENCODER_DIRECTION_VALUE = SensorDirectionValue.CounterClockwise_Positive;
 
         public static final double INTAKE_VELOCITY_RPM = 1500;
+        public static final double EJECT_VELOCITY_RPM = 1500;
         public static final double AGITATE_VELOCITY_RPM = 500;
         public static final double INTAKE_KS = 0.1; // Add 0.1 V output to overcome static friction
         public static final double INTAKE_KV = 0.12; // A velocity target of 1 rps results in 0.12 V output
@@ -192,6 +193,7 @@ public final class Constants
         public static final String CONVEYOR_FEED_KEY = "HopperFeed";
 
         public static final String INTAKE_VELOCITY_KEY = "IntakeVelRPM";
+        public static final String EJECT_VELOCITY_KEY = "EjectVelRPM";
         public static final String PIVOT_TOLERANCE_KEY = "PivotTol";
         public static final String DEPLOYED_KEY = "DeployedPos";
         public static final String PARTIALLY_DEPLOYED_KEY = "PartialDeployedPos";

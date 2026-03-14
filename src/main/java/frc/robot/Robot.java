@@ -98,7 +98,7 @@ public class Robot extends TimedRobot
     public void autonomousInit()
     {
 
-        m_robotContainer.resetPosition(new Pose2d(3.665, 2.57, Rotation2d.kZero));
+        m_robotContainer.resetPosition(new Pose2d(3.613, 5.568, Rotation2d.kZero));
 
         m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 

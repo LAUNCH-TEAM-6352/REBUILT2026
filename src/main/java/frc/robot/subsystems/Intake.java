@@ -157,8 +157,18 @@ public class Intake extends SubsystemBase
         return startEnd(this::intake, this::stop);
     }
 
+    public Command ejectThenStopCommand()
+    {
+        return startEnd(this::intake, this::stop);
+    }
+
     // Intended for use in auto (Only starts the intake, does not stop automatically)
     public Command intakeCommand()
+    {
+        return runOnce(this::intake);
+    }
+
+    public Command ejectCommand()
     {
         return runOnce(this::intake);
     }
@@ -167,6 +177,12 @@ public class Intake extends SubsystemBase
     {
         setIntakeVelocity(
             SmartDashboard.getNumber(DashboardConstants.INTAKE_VELOCITY_KEY, IntakeConstants.INTAKE_VELOCITY_RPM));
+    }
+
+    public void eject()
+    {
+        setIntakeVelocity(
+            SmartDashboard.getNumber(DashboardConstants.EJECT_VELOCITY_KEY, IntakeConstants.EJECT_VELOCITY_RPM));
     }
 
     public Command stopCommand()
