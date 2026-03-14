@@ -61,15 +61,7 @@ public class LimeLightVision
                     return;
                 }
 
-                /*
-                 * if (System.currentTimeMillis() - lastLog > 500) {
-                 * var pose = mt2.pose;
-                 * System.out.println("Bx: " + pose.getX() + ", y: " + pose.getY()+"BX "+ pose.getRotation());
-                 *
-                 * lastLog = System.currentTimeMillis();
-                 * }
-                 */
-                // swerveDrive.addVisionMeasurement(mt2.pose, mt2.timestampSeconds);
+                swerveDrive.addVisionMeasurement(mt2.pose, mt2.timestampSeconds);
             });
     }
 

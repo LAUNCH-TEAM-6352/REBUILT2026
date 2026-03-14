@@ -331,7 +331,7 @@ public class RobotContainer
         // .whileTrue(getDepotShootClimbLeft());
 
         driverGamepad.x().onTrue(getTestAutoShoot());
-       // driverGamepad.rightTrigger().whileTrue(getCirclePath());
+        // driverGamepad.rightTrigger().whileTrue(getCirclePath());
 
         // driverGamepad.back()
         // .whileTrue(this.pathfindToPose(startingPoseClimb, 0.0).andThen(testAutoClimb));
