@@ -6,7 +6,6 @@ import java.util.List;
 public class LimeLightVision
 {
     private List<String> cameraNames = List.of("limelight-front");
-    long lastLog = 0;
 
     public LimeLightVision(List<String> cameraNames)
     {
@@ -47,12 +46,6 @@ public class LimeLightVision
 
                 if (mt2 == null)
                 {
-                    if (System.currentTimeMillis() - lastLog > 500)
-                    {
-                        System.out.println("here");
-
-                        lastLog = System.currentTimeMillis();
-                    }
                     return;
                 }
 
