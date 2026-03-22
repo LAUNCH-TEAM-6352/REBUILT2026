@@ -93,7 +93,8 @@ public class RobotContainer
 
     // wrapper class to manage limelight cameras and get position estimates
     public final LimeLightVision limelightVision = new LimeLightVision(
-        List.of("limelight-front", "limelight-climber"));
+       // List.of("limelight-front", "limelight-climber","limelight-br","limelight-bl"));
+        List.of("limelight-front", "limelight-climber","limelight-br"));
 
     // Subsystems:
     private final Optional<Climber> climber;
@@ -316,6 +317,7 @@ public class RobotContainer
         // driverGamepad.povRight().whileTrue(this.autoFerry());
 
         driverGamepad.y().whileTrue(this.autoCrossBumpCommand());
+        driverGamepad.rightTrigger().whileTrue(getLongPath());
 
         // driverGamepad.povDown().whileTrue(this.autoClimb());
 
@@ -333,15 +335,23 @@ public class RobotContainer
         // .whileTrue(getDepotShootClimbLeft());
 
         driverGamepad.x().onTrue(getTestAutoShoot());
-        // driverGamepad.rightTrigger().whileTrue(getCirclePath());
+       // driverGamepad.rightTrigger().whileTrue(getCirclePath());
 
         // driverGamepad.back()
         // .whileTrue(this.pathfindToPose(startingPoseClimb, 0.0).andThen(testAutoClimb));
     }
 
+        private Command getLongPath()
+    {
+        PathPlannerAuto longPath = new PathPlannerAuto("New Auto");
+        Pose2d startingPoseLP = longPath.getStartingPose();
+        System.out.println("Command is being ran");
+        return longPath; //pathfindToPose(startingPoseLP, 0.0).andThen(longPath);
+    }
+
     private Command getCirclePath()
     {
-        resetPosition(new Pose2d(3.665, 2.57, Rotation2d.kZero));
+        resetPosition(new Pose2d(4.587, 5.536, Rotation2d.kZero));
         PathPlannerAuto circlePath = new PathPlannerAuto("circleAuto");
         Pose2d startingPoseCA = circlePath.getStartingPose();
         return pathfindToPose(startingPoseCA, 0.0).andThen(circlePath);
@@ -434,15 +444,26 @@ public class RobotContainer
     // always pass blue coords
     public void resetPosition(Pose2d pose)
     {
+        drivetrain.get().resetPose(pose);
+
+        /* 
         if (isBlueAlliance())
         {
             drivetrain.get().resetPose(pose);
+            System.out.println("resetPose is Blue Alliance");
         }
         else
         {
             drivetrain.get().resetPose(FlippingUtil.flipFieldPose(pose));
+            System.out.println("resetPose is red Alliance");
+
         }
+            */
+            
+        return;
+    
     }
+        
     // TODO: the following bindings are designed for testing and need to changed for the final control scheme.
     // SCORE FUEL: x-> deploy y-> intake, b-> spinUp shooters, a-> convey, right joystick press-> feed (fuel shoots)
     // CLIMB: pov up-> extend, pov down-> climb, pov left-> stow, pov right-> move with left stick up/down,
@@ -543,31 +564,17 @@ public class RobotContainer
     public Command pathfindToPose(Pose2d point, Double endVelocity)
     {
         // Creates a command to pathfind to the given pose
-        boolean blueAlliance = isBlueAlliance();
-
         // Create the constraints to use while pathfinding
         PathConstraints constraints = new PathConstraints(
-            5.0, 4.0,
+            0.5, .25,
             Units.degreesToRadians(540), Units.degreesToRadians(-180));
         Command pathfindingCommand;
-        if (blueAlliance == false)
-        {
-            pathfindingCommand = AutoBuilder.pathfindToPoseFlipped(
-                point,
-                constraints,
-                endVelocity // Goal end velocity in meters/sec
-            );
-        }
-        else
-        {
-            // Since AutoBuilder is configured, we can use it to build pathfinding commands
-            // flipped will reflect accross from where pathplanner says the path will start
-            pathfindingCommand = AutoBuilder.pathfindToPose(
-                point,
-                constraints,
-                endVelocity // Goal end velocity in meters/sec
-            );
-        }
+        
+        pathfindingCommand = AutoBuilder.pathfindToPose(
+            point,
+            constraints,
+            endVelocity // Goal end velocity in meters/sec
+        );
         return pathfindingCommand;
     }
 

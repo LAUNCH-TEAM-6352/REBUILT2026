@@ -97,7 +97,11 @@ public class Robot extends TimedRobot
     @Override
     public void autonomousInit()
     {
-
+        //in front of blue hub
+        //m_robotContainer.resetPosition(new Pose2d(3.591, 4.025, Rotation2d.kZero));
+        //human player station side bump
+        //m_robotContainer.resetPosition(new Pose2d(3.630, 2.453, Rotation2d.kZero));
+        //depot side bump
         m_robotContainer.resetPosition(new Pose2d(3.613, 5.568, Rotation2d.kZero));
 
         m_autonomousCommand = m_robotContainer.getAutonomousCommand();
@@ -130,6 +134,8 @@ public class Robot extends TimedRobot
     @Override
     public void teleopInit()
     {
+        m_robotContainer.resetPosition(new Pose2d(12.975, 2.534, Rotation2d.k180deg));
+
         // This makes sure that the autonomous stops running when
         // teleop starts running. If you want the autonomous to
         // continue until interrupted by another command, remove
