@@ -93,8 +93,8 @@ public class RobotContainer
 
     // wrapper class to manage limelight cameras and get position estimates
     public final LimeLightVision limelightVision = new LimeLightVision(
-       // List.of("limelight-front", "limelight-climber","limelight-br","limelight-bl"));
-        List.of("limelight-front", "limelight-climber","limelight-br"));
+        // List.of("limelight-front", "limelight-climber","limelight-br","limelight-bl"));
+        List.of("limelight-front", "limelight-climber", "limelight-br"));
 
     // Subsystems:
     private final Optional<Climber> climber;
@@ -337,7 +337,7 @@ public class RobotContainer
         // .whileTrue(getDepotShootClimbLeft());
 
         driverGamepad.x().onTrue(getTestAutoShoot());
-       // driverGamepad.rightTrigger().whileTrue(getCirclePath());
+        // driverGamepad.rightTrigger().whileTrue(getCirclePath());
 
         // driverGamepad.back()
         // .whileTrue(this.pathfindToPose(startingPoseClimb, 0.0).andThen(testAutoClimb));
@@ -359,7 +359,7 @@ public class RobotContainer
         return this.pathFindToPoseFlipped(startingPoseLP, 0.0).andThen(longPath);
     }
 
-        private Command getLongPath()
+    private Command getLongPath()
     {
         PathPlannerAuto longPath = new PathPlannerAuto("New Auto");
         Pose2d startingPoseLP = longPath.getStartingPose();
@@ -479,9 +479,9 @@ public class RobotContainer
             
             
         return;
-    
+
     }
-        
+
     // TODO: the following bindings are designed for testing and need to changed for the final control scheme.
     // SCORE FUEL: x-> deploy y-> intake, b-> spinUp shooters, a-> convey, right joystick press-> feed (fuel shoots)
     // CLIMB: pov up-> extend, pov down-> climb, pov left-> stow, pov right-> move with left stick up/down,
@@ -587,7 +587,7 @@ public class RobotContainer
             0.5, .25,
             Units.degreesToRadians(540), Units.degreesToRadians(-180));
         Command pathfindingCommand;
-        
+
         pathfindingCommand = AutoBuilder.pathfindToPose(
             point,
             constraints,
