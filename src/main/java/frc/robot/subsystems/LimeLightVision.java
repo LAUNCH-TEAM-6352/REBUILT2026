@@ -59,7 +59,7 @@ public class LimeLightVision
                     return;
                 }
 
-                double stdDev = 0.5; // Start with your 0.5 base
+                double stdDev = 1.5; // Start with your 0.5 base
                 if (mt2.tagCount == 1)
                 {
                     stdDev = 1.0;

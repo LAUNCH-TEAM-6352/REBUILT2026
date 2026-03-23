@@ -196,7 +196,7 @@ public class TunerConstants
             DrivetrainConstants,
             0,
             VecBuilder.fill(0.1, 0.1, 0.01),
-            VecBuilder.fill(0.5, 0.5, 0.9),
+            VecBuilder.fill(1.5, 1.5, 1.5),
             FrontLeft, FrontRight, BackLeft, BackRight);
     }
 
