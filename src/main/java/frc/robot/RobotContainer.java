@@ -61,7 +61,6 @@ import frc.robot.subsystems.Launcher;
 import frc.robot.subsystems.LimeLightVision;
 import frc.robot.subsystems.Hopper;
 import com.pathplanner.lib.path.PathPlannerPath;
-import com.pathplanner.lib.util.FlippingUtil;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -93,8 +92,8 @@ public class RobotContainer
 
     // wrapper class to manage limelight cameras and get position estimates
     public final LimeLightVision limelightVision = new LimeLightVision(
-       // List.of("limelight-front", "limelight-climber","limelight-br","limelight-bl"));
-        List.of("limelight-front", "limelight-climber","limelight-br"));
+        // List.of("limelight-front", "limelight-climber","limelight-br","limelight-bl"));
+        List.of("limelight-front", "limelight-climber", "limelight-br"));
 
     // Subsystems:
     private final Optional<Climber> climber;
@@ -335,18 +334,18 @@ public class RobotContainer
         // .whileTrue(getDepotShootClimbLeft());
 
         driverGamepad.x().onTrue(getTestAutoShoot());
-       // driverGamepad.rightTrigger().whileTrue(getCirclePath());
+        // driverGamepad.rightTrigger().whileTrue(getCirclePath());
 
         // driverGamepad.back()
         // .whileTrue(this.pathfindToPose(startingPoseClimb, 0.0).andThen(testAutoClimb));
     }
 
-        private Command getLongPath()
+    private Command getLongPath()
     {
         PathPlannerAuto longPath = new PathPlannerAuto("New Auto");
         Pose2d startingPoseLP = longPath.getStartingPose();
         System.out.println("Command is being ran");
-        return longPath; //pathfindToPose(startingPoseLP, 0.0).andThen(longPath);
+        return longPath; // pathfindToPose(startingPoseLP, 0.0).andThen(longPath);
     }
 
     private Command getCirclePath()
@@ -446,24 +445,24 @@ public class RobotContainer
     {
         drivetrain.get().resetPose(pose);
 
-        /* 
-        if (isBlueAlliance())
-        {
-            drivetrain.get().resetPose(pose);
-            System.out.println("resetPose is Blue Alliance");
-        }
-        else
-        {
-            drivetrain.get().resetPose(FlippingUtil.flipFieldPose(pose));
-            System.out.println("resetPose is red Alliance");
+        /*
+         * if (isBlueAlliance())
+         * {
+         * drivetrain.get().resetPose(pose);
+         * System.out.println("resetPose is Blue Alliance");
+         * }
+         * else
+         * {
+         * drivetrain.get().resetPose(FlippingUtil.flipFieldPose(pose));
+         * System.out.println("resetPose is red Alliance");
+         *
+         * }
+         */
 
-        }
-            */
-            
         return;
-    
+
     }
-        
+
     // TODO: the following bindings are designed for testing and need to changed for the final control scheme.
     // SCORE FUEL: x-> deploy y-> intake, b-> spinUp shooters, a-> convey, right joystick press-> feed (fuel shoots)
     // CLIMB: pov up-> extend, pov down-> climb, pov left-> stow, pov right-> move with left stick up/down,
@@ -569,7 +568,7 @@ public class RobotContainer
             0.5, .25,
             Units.degreesToRadians(540), Units.degreesToRadians(-180));
         Command pathfindingCommand;
-        
+
         pathfindingCommand = AutoBuilder.pathfindToPose(
             point,
             constraints,
