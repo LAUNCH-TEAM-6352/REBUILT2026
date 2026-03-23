@@ -317,7 +317,9 @@ public class RobotContainer
         // driverGamepad.povRight().whileTrue(this.autoFerry());
 
         driverGamepad.y().whileTrue(this.autoCrossBumpCommand());
-        driverGamepad.rightTrigger().whileTrue(getLongPath());
+        //driverGamepad.rightTrigger().whileTrue(getLongPath());
+        driverGamepad.leftTrigger().whileTrue(getLongPathWithFlipping());
+
 
         // driverGamepad.povDown().whileTrue(this.autoClimb());
 
@@ -340,13 +342,29 @@ public class RobotContainer
         // driverGamepad.back()
         // .whileTrue(this.pathfindToPose(startingPoseClimb, 0.0).andThen(testAutoClimb));
     }
+    private Command pathFindToPoseFlipped(Pose2d point, double constraints){
+        PathConstraints constraints2 = new PathConstraints(
+            0.5, 0.25,
+            Units.degreesToRadians(540), Units.degreesToRadians(720));
+            Command pathFindingCommandFlipped;
+
+        pathFindingCommandFlipped = AutoBuilder.pathfindToPoseFlipped(
+            point,constraints2
+        );
+        return pathFindingCommandFlipped;
+    }
+    private Command getLongPathWithFlipping(){
+        PathPlannerAuto longPath = new PathPlannerAuto("New Auto");
+        Pose2d startingPoseLP = longPath.getStartingPose();
+        return this.pathFindToPoseFlipped(startingPoseLP, 0.0).andThen(longPath);
+    }
 
         private Command getLongPath()
     {
         PathPlannerAuto longPath = new PathPlannerAuto("New Auto");
         Pose2d startingPoseLP = longPath.getStartingPose();
         System.out.println("Command is being ran");
-        return longPath; //pathfindToPose(startingPoseLP, 0.0).andThen(longPath);
+        return this.pathfindToPose(startingPoseLP, 0.0).andThen(longPath);
     }
 
     private Command getCirclePath()
@@ -446,7 +464,7 @@ public class RobotContainer
     {
         drivetrain.get().resetPose(pose);
 
-        /* 
+         
         if (isBlueAlliance())
         {
             drivetrain.get().resetPose(pose);
@@ -458,7 +476,7 @@ public class RobotContainer
             System.out.println("resetPose is red Alliance");
 
         }
-            */
+            
             
         return;
     

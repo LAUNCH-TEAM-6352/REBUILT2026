@@ -134,8 +134,7 @@ public class Robot extends TimedRobot
     @Override
     public void teleopInit()
     {
-        m_robotContainer.resetPosition(new Pose2d(12.975, 2.534, Rotation2d.k180deg));
-
+        m_robotContainer.resetPosition(new Pose2d(3.548, 5.714, Rotation2d.kZero));
         // This makes sure that the autonomous stops running when
         // teleop starts running. If you want the autonomous to
         // continue until interrupted by another command, remove
