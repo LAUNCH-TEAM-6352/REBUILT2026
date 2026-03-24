@@ -281,29 +281,6 @@ public class RobotContainer
         // Reset the field-centric heading on left bumper press.
         driverGamepad.leftBumper().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
 
-        /*
-         * PathPlannerAuto auto = new PathPlannerAuto("testAuto");
-         * Pose2d startingPose = auto.getStartingPose();
-         * driverGamepad.povLeft().onTrue(this.pathfindToPose(startingPose, 0.0,
-         * false).andThen(auto));
-         */
-        /*
-         * PathPlannerAuto neutralShootClimbPath = new
-         * PathPlannerAuto("neutralShootClimb");
-         * Pose2d startingPoseNSCP = neutralShootClimbPath.getStartingPose();
-         *
-         * PathPlannerAuto humanShootClimb = new PathPlannerAuto("humanShootClimb");
-         * Pose2d startingPoseHSC = humanShootClimb.getStartingPose();
-         *
-         * PathPlannerAuto depotShootClimb = new PathPlannerAuto("depotShootClimb");
-         * Pose2d startingPoseDSC = depotShootClimb.getStartingPose();
-         */
-
-        PathPlannerAuto testTopBump = new PathPlannerAuto("autoTopBump");
-        Pose2d topBumpStart = testTopBump.getStartingPose();
-
-        PathPlannerAuto testBottomBump = new PathPlannerAuto("autoBottomBump");
-        Pose2d bottomBumpStart = testBottomBump.getStartingPose();
 
         drivetrain.registerTelemetry(logger::telemeterize);
 
@@ -320,22 +297,11 @@ public class RobotContainer
 
         // driverGamepad.leftStick().whileTrue(this.autoDeclimbCommand());
 
-        // driverGamepad.rightTrigger()
-        // .whileTrue(this.pathfindToPose(startingPoseNSCPL, 0.0).andThen(neutralShootClimbLeft));
-
-        // driverGamepad.leftTrigger()
-        // .whileTrue(this.pathfindToPose(startingPoseDSCR, 0.0).andThen(depotShootClimbRight));
-
-        // driverGamepad.rightStick()
-        // .whileTrue(this.pathfindToPose(startingPoseHSCL, 0.0).andThen(humanShootClimbLeft));
         // driverGamepad.povDown()
         // .whileTrue(getDepotShootClimbLeft());
 
         driverGamepad.x().onTrue(getTestAutoShoot());
-        // driverGamepad.rightTrigger().whileTrue(getCirclePath());
 
-        // driverGamepad.back()
-        // .whileTrue(this.pathfindToPose(startingPoseClimb, 0.0).andThen(testAutoClimb));
     }
 
     private Command pathFindToPoseFlipped(Pose2d point, double constraints)
@@ -355,14 +321,6 @@ public class RobotContainer
         PathPlannerAuto longPath = new PathPlannerAuto("New Auto");
         Pose2d startingPoseLP = longPath.getStartingPose();
         return this.pathFindToPoseFlipped(startingPoseLP, 0.0).andThen(longPath);
-    }
-
-    private Command getCirclePath()
-    {
-        resetPosition(new Pose2d(4.587, 5.536, Rotation2d.kZero));
-        PathPlannerAuto circlePath = new PathPlannerAuto("circleAuto");
-        Pose2d startingPoseCA = circlePath.getStartingPose();
-        return pathFindToPoseFlipped(startingPoseCA, 0.0).andThen(circlePath);
     }
 
     private Command getDepotShootClimbLeft()
