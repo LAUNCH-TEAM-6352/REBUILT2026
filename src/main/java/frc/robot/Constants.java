@@ -176,8 +176,8 @@ public final class Constants
 
     public static final class PathPlannerConstants
     {
-        public static final PIDConstants TRANSLATION_PID = new PIDConstants(0.7, 0, 0);
-        public static final PIDConstants ANGLE_PID = new PIDConstants(0.4, 0, 0.01);
+        public static final PIDConstants TRANSLATION_PID = new PIDConstants(5, 0, 0);
+        public static final PIDConstants ANGLE_PID = new PIDConstants(7, 0, 0.01);
         public static final double MAX_VELOCITY_MPS = 3.0;
         public static final double MAX_ACCELERATION_MPS_SQ = 4.0;
         public static final double MAX_ANGULAR_VELOCITY_RPS = Units.degreesToRadians(540);

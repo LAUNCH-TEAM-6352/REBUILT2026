@@ -73,6 +73,8 @@ import com.pathplanner.lib.util.FlippingUtil;
 public class RobotContainer
 {
     private final SendableChooser<Command> autoChooser;
+    private final SendableChooser<Pose2d> startPositions = new SendableChooser<Pose2d>();
+
     private double MaxSpeed = 1.0 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top
                                                                                         // speed
     private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second
@@ -301,6 +303,17 @@ public class RobotContainer
 
         driverGamepad.x().onTrue(getTestAutoShoot());
 
+    }
+
+    private void initializeStartPositionSendableChooser()
+    {
+        // TODO: assign actual values!!!!!!
+        startPositions.addOption(
+            "Right Ramp", new Pose2d(4.587, 5.536, Rotation2d.kZero));
+        startPositions.addOption("Left Ramp", new Pose2d(4.587, 5.536, Rotation2d.kZero));
+        startPositions.addOption("Center Hub", new Pose2d(4.587, 5.536, Rotation2d.kZero));
+
+        SmartDashboard.putData("Start Position", autoChooser);
     }
 
     private Command pathFindToPoseFlipped(Pose2d point, double constraints)
@@ -771,5 +784,7 @@ public class RobotContainer
         // Automation:
         SmartDashboard.putNumber(DashboardConstants.SHOOTING_POINT_RADIUS_KEY,
             AutomationConstants.SHOOT_POINT_RADIUS_METERS);
+
+        initializeStartPositionSendableChooser();
     }
 }
