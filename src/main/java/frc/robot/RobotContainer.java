@@ -76,6 +76,8 @@ import com.pathplanner.lib.util.FlippingUtil;
 public class RobotContainer
 {
     private final SendableChooser<Command> autoChooser;
+    private final SendableChooser<Pose2d> startPositions = new SendableChooser<Pose2d>();
+
     private double MaxSpeed = 1.0 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top
                                                                                         // speed
     private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second
@@ -94,7 +96,7 @@ public class RobotContainer
     // wrapper class to manage limelight cameras and get position estimates
     public final LimeLightVision limelightVision = new LimeLightVision(
         // List.of("limelight-front", "limelight-climber","limelight-br","limelight-bl"));
-        List.of("limelight-front", "limelight-climber","limelight-br"));
+        List.of("limelight-front", "limelight-climber", "limelight-br"));
 
     // Subsystems:
     private final Optional<Climber> climber;
@@ -317,9 +319,8 @@ public class RobotContainer
         // driverGamepad.povRight().whileTrue(this.autoFerry());
 
         driverGamepad.y().whileTrue(this.autoCrossBumpCommand());
-        //driverGamepad.rightTrigger().whileTrue(getLongPath());
+        // driverGamepad.rightTrigger().whileTrue(getLongPath());
         driverGamepad.leftTrigger().whileTrue(getLongPathWithFlipping());
-
 
         // driverGamepad.povDown().whileTrue(this.autoClimb());
 
@@ -342,18 +343,32 @@ public class RobotContainer
         // driverGamepad.back()
         // .whileTrue(this.pathfindToPose(startingPoseClimb, 0.0).andThen(testAutoClimb));
     }
-    private Command pathFindToPoseFlipped(Pose2d point, double constraints){
+
+    private void initializeStartPositionSendableChooser()
+    {
+        // TODO: assign actual values!!!!!!
+        startPositions.addOption(
+            "Right Ramp", new Pose2d(4.587, 5.536, Rotation2d.kZero));
+        startPositions.addOption("Left Ramp", new Pose2d(4.587, 5.536, Rotation2d.kZero));
+        startPositions.addOption("Center Hub", new Pose2d(4.587, 5.536, Rotation2d.kZero));
+
+        SmartDashboard.putData("Start Position", autoChooser);
+    }
+
+    private Command pathFindToPoseFlipped(Pose2d point, double constraints)
+    {
         PathConstraints constraints2 = new PathConstraints(
             0.5, 0.25,
             Units.degreesToRadians(540), Units.degreesToRadians(720));
-            Command pathFindingCommandFlipped;
+        Command pathFindingCommandFlipped;
 
         pathFindingCommandFlipped = AutoBuilder.pathfindToPoseFlipped(
-            point,constraints2
-        );
+            point, constraints2);
         return pathFindingCommandFlipped;
     }
-    private Command getLongPathWithFlipping(){
+
+    private Command getLongPathWithFlipping()
+    {
         PathPlannerAuto longPath = new PathPlannerAuto("New Auto");
         Pose2d startingPoseLP = longPath.getStartingPose();
         return this.pathFindToPoseFlipped(startingPoseLP, 0.0).andThen(longPath);
@@ -464,7 +479,6 @@ public class RobotContainer
     {
         drivetrain.get().resetPose(pose);
 
-         
         if (isBlueAlliance())
         {
             drivetrain.get().resetPose(pose);
@@ -476,8 +490,7 @@ public class RobotContainer
             System.out.println("resetPose is red Alliance");
 
         }
-            
-            
+
         return;
 
     }
@@ -887,5 +900,7 @@ public class RobotContainer
         // Automation:
         SmartDashboard.putNumber(DashboardConstants.SHOOTING_POINT_RADIUS_KEY,
             AutomationConstants.SHOOT_POINT_RADIUS_METERS);
+
+        initializeStartPositionSendableChooser();
     }
 }

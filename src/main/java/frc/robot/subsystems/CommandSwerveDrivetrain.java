@@ -12,7 +12,6 @@ import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 
@@ -29,6 +28,7 @@ import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.Constants.PathPlannerConstants;
 import frc.robot.generated.TunerConstants.TunerSwerveDrivetrain;
 
 /**
@@ -371,34 +371,6 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             e.printStackTrace();
         }
 
-        // AutoBuilder.configure(
-        // () -> getState().Pose, // Robot pose supplier
-        // (initialHolonomicPose) -> resetPose(initialHolonomicPose), // Method to reset odometry (will be called if
-        // // your auto has a starting pose)
-        // () -> getState().Speeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
-        // // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds
-        // (speeds, feedForwards) -> setControl(m_pathPlannerRequest
-        // .withVelocityX(speeds.vxMetersPerSecond)
-        // .withVelocityY(speeds.vyMetersPerSecond)
-        // .withRotationalRate(speeds.omegaRadiansPerSecond)),
-        // new PPHolonomicDriveController(
-        // // Translation PID constants
-        // PathPlannerConstants.TRANSLATION_PID,
-        // // Rotation PID constants
-        // PathPlannerConstants.ANGLE_PID),
-        // config,
-        // () ->
-        // {
-        // // Boolean supplier that controls when the path will be mirrored for the red
-        // // alliance
-        // // This will flip the path being followed to the red side of the field.
-        // // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
-        // var alliance = DriverStation.getAlliance();
-        // return alliance.isPresent() ? alliance.get() == DriverStation.Alliance.Red : false;
-        // },
-        // this // Reference to this subsystem to set requirements
-        // );
-
         try
         {
             AutoBuilder.configure(
@@ -412,9 +384,9 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                         .withWheelForceFeedforwardsY(feedforwards.robotRelativeForcesYNewtons())),
                 new PPHolonomicDriveController(
                     // PID constants for translation
-                    new PIDConstants(5, 0, 0),
+                    PathPlannerConstants.TRANSLATION_PID,
                     // PID constants for rotation
-                    new PIDConstants(7, 0, 0)),
+                    PathPlannerConstants.ANGLE_PID),
                 config,
                 // Assume the path needs to be flipped for Red vs Blue, this is normally the case
                 () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red,
