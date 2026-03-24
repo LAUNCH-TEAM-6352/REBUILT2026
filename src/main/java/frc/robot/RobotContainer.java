@@ -45,10 +45,8 @@ import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.LauncherConstants;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.MoveIntakePivotWithGamepad;
-import frc.robot.commands.ScoreFuel;
 import frc.robot.commands.ScoreFuelCancelable;
 import frc.robot.commands.test.TestClimber;
-import frc.robot.Constants.PathPlannerConstants;
 import frc.robot.commands.test.TestDrivetrain;
 import frc.robot.commands.test.TestHopper;
 import frc.robot.commands.test.TestIntake;
@@ -60,7 +58,6 @@ import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Launcher;
 import frc.robot.subsystems.LimeLightVision;
 import frc.robot.subsystems.Hopper;
-import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.FlippingUtil;
 
 /**
@@ -93,9 +90,11 @@ public class RobotContainer
 
     // wrapper class to manage limelight cameras and get position estimates
     public final LimeLightVision limelightVision = new LimeLightVision(
-        // List.of("limelight-front", "limelight-climber","limelight-br","limelight-bl"));
-        List.of("limelight-front", "limelight-climber","limelight-br"));
+        List.of("limelight-front", "limelight-climber", "limelight-br", "limelight-bl"));
+    // List.of("limelight-front", "limelight-climber","limelight-br"));
 
+    // Commands:
+    private final ScoreFuelCancelable scoreFuelCancelable;
     // Subsystems:
     private final Optional<Climber> climber;
     private final Optional<Launcher> launcher;
@@ -176,6 +175,8 @@ public class RobotContainer
             ? Optional.of(TunerConstants.createDrivetrain())
             : Optional.empty();
 
+        scoreFuelCancelable = new ScoreFuelCancelable(launcher.get(), hopper.get());
+
         if (drivetrain.isPresent())
         {
             drivetrain.get().setupPathPlanner();
@@ -197,15 +198,13 @@ public class RobotContainer
 
     private void configurePathPlannerNamedCommands(Intake intake, Hopper hopper, Launcher launcher)
     {
-        NamedCommands.registerCommand("runShoot", new ScoreFuel(launcher, hopper));
-
         NamedCommands.registerCommand("deployIntake", intake.deployCommand());
 
         NamedCommands.registerCommand("runIntake", intake.intakeCommand());
 
         NamedCommands.registerCommand("stopIntake", intake.stopCommand());
 
-        NamedCommands.registerCommand("scoreFuelCancelable", new ScoreFuelCancelable(launcher, hopper));
+        NamedCommands.registerCommand("scoreFuelCancelable", scoreFuelCancelable);
 
         // NamedCommands.registerCommand("runClimb", climber.get().climbCommand());
     }
@@ -239,11 +238,8 @@ public class RobotContainer
 
     private void configureBindings(Intake intake, Hopper hopper, Launcher launcher)
     {
-        codriverGamepad.b().onTrue(new ScoreFuel(launcher, hopper));
-        codriverGamepad.b().onFalse(Commands.sequence(
-            hopper.stopCommand(),
-            launcher.stopIndexerCommand(),
-            launcher.stopShootersCommand()));
+        codriverGamepad.b().whileTrue(scoreFuelCancelable);
+
     }
 
     private void configureBindings(CommandSwerveDrivetrain drivetrain)
@@ -317,9 +313,8 @@ public class RobotContainer
         // driverGamepad.povRight().whileTrue(this.autoFerry());
 
         driverGamepad.y().whileTrue(this.autoCrossBumpCommand());
-        //driverGamepad.rightTrigger().whileTrue(getLongPath());
+        // driverGamepad.rightTrigger().whileTrue(getLongPath());
         driverGamepad.leftTrigger().whileTrue(getLongPathWithFlipping());
-
 
         // driverGamepad.povDown().whileTrue(this.autoClimb());
 
@@ -342,29 +337,24 @@ public class RobotContainer
         // driverGamepad.back()
         // .whileTrue(this.pathfindToPose(startingPoseClimb, 0.0).andThen(testAutoClimb));
     }
-    private Command pathFindToPoseFlipped(Pose2d point, double constraints){
+
+    private Command pathFindToPoseFlipped(Pose2d point, double constraints)
+    {
         PathConstraints constraints2 = new PathConstraints(
             0.5, 0.25,
             Units.degreesToRadians(540), Units.degreesToRadians(720));
-            Command pathFindingCommandFlipped;
+        Command pathFindingCommandFlipped;
 
         pathFindingCommandFlipped = AutoBuilder.pathfindToPoseFlipped(
-            point,constraints2
-        );
+            point, constraints2);
         return pathFindingCommandFlipped;
     }
-    private Command getLongPathWithFlipping(){
-        PathPlannerAuto longPath = new PathPlannerAuto("New Auto");
-        Pose2d startingPoseLP = longPath.getStartingPose();
-        return this.pathFindToPoseFlipped(startingPoseLP, 0.0).andThen(longPath);
-    }
 
-    private Command getLongPath()
+    private Command getLongPathWithFlipping()
     {
         PathPlannerAuto longPath = new PathPlannerAuto("New Auto");
         Pose2d startingPoseLP = longPath.getStartingPose();
-        System.out.println("Command is being ran");
-        return this.pathfindToPose(startingPoseLP, 0.0).andThen(longPath);
+        return this.pathFindToPoseFlipped(startingPoseLP, 0.0).andThen(longPath);
     }
 
     private Command getCirclePath()
@@ -372,91 +362,91 @@ public class RobotContainer
         resetPosition(new Pose2d(4.587, 5.536, Rotation2d.kZero));
         PathPlannerAuto circlePath = new PathPlannerAuto("circleAuto");
         Pose2d startingPoseCA = circlePath.getStartingPose();
-        return pathfindToPose(startingPoseCA, 0.0).andThen(circlePath);
+        return pathFindToPoseFlipped(startingPoseCA, 0.0).andThen(circlePath);
     }
 
     private Command getDepotShootClimbLeft()
     {
         PathPlannerAuto depotShootClimbLeft = new PathPlannerAuto("depotShootClimbLeft");
         Pose2d startingPoseDSCL = depotShootClimbLeft.getStartingPose();
-        return pathfindToPose(startingPoseDSCL, 0.0).andThen(depotShootClimbLeft);
+        return pathFindToPoseFlipped(startingPoseDSCL, 0.0).andThen(depotShootClimbLeft);
     }
 
     private Command getDepotShootClimbRight()
     {
         PathPlannerAuto depotShootClimbRight = new PathPlannerAuto("depotShootClimbRight");
         Pose2d startingPoseDSCR = depotShootClimbRight.getStartingPose();
-        return pathfindToPose(startingPoseDSCR, 0.0).andThen(depotShootClimbRight);
+        return pathFindToPoseFlipped(startingPoseDSCR, 0.0).andThen(depotShootClimbRight);
     }
 
     private Command getNeutralShootClimbRight()
     {
         PathPlannerAuto neutralShootClimbRight = new PathPlannerAuto("neutralShootClimbRight");
         Pose2d startingPoseNSCR = neutralShootClimbRight.getStartingPose();
-        return pathfindToPose(startingPoseNSCR, 0.0).andThen(neutralShootClimbRight);
+        return pathFindToPoseFlipped(startingPoseNSCR, 0.0).andThen(neutralShootClimbRight);
     }
 
     private Command getNeutralShootClimbLeft()
     {
         PathPlannerAuto neutralShootClimbLeft = new PathPlannerAuto("neutralShootClimbLeft");
         Pose2d startingPoseNSCL = neutralShootClimbLeft.getStartingPose();
-        return pathfindToPose(startingPoseNSCL, 0.0).andThen(neutralShootClimbLeft);
+        return pathFindToPoseFlipped(startingPoseNSCL, 0.0).andThen(neutralShootClimbLeft);
     }
 
     private Command getHumanShootClimbLeft()
     {
         PathPlannerAuto humanShootClimbLeft = new PathPlannerAuto("humanShootClimbLeft");
         Pose2d startingPoseHSCL = humanShootClimbLeft.getStartingPose();
-        return pathfindToPose(startingPoseHSCL, 0.0).andThen(humanShootClimbLeft);
+        return pathFindToPoseFlipped(startingPoseHSCL, 0.0).andThen(humanShootClimbLeft);
     }
 
     private Command getHumanShootClimbRight()
     {
         PathPlannerAuto humanShootClimbRight = new PathPlannerAuto("humanShootClimbRight");
         Pose2d startingPoseHSCR = humanShootClimbRight.getStartingPose();
-        return pathfindToPose(startingPoseHSCR, 0.0).andThen(humanShootClimbRight);
+        return pathFindToPoseFlipped(startingPoseHSCR, 0.0).andThen(humanShootClimbRight);
     }
 
     private Command getTestAutoShoot()
     {
         PathPlannerAuto testAutoShoot = new PathPlannerAuto("testAutoShoot");
         Pose2d startingPoseTestAutoShoot = testAutoShoot.getStartingPose();
-        return pathfindToPose(startingPoseTestAutoShoot, 0.0).andThen(testAutoShoot);
+        return pathFindToPoseFlipped(startingPoseTestAutoShoot, 0.0).andThen(testAutoShoot);
     }
 
     private Command getTestAutoClimb()
     {
         PathPlannerAuto testAutoClimb = new PathPlannerAuto("testAutoClimb");
         Pose2d startingPoseTestAutoClimb = testAutoClimb.getStartingPose();
-        return pathfindToPose(startingPoseTestAutoClimb, 0.0).andThen(testAutoClimb);
+        return pathFindToPoseFlipped(startingPoseTestAutoClimb, 0.0).andThen(testAutoClimb);
     }
 
     private Command topBumpToAllianceZone()
     {
         PathPlannerAuto topBumpToAlliance = new PathPlannerAuto("topBumpToAlliance");
         Pose2d startingPosetopBumpToAlliance = topBumpToAlliance.getStartingPose();
-        return pathfindToPose(startingPosetopBumpToAlliance, 0.0).andThen(topBumpToAlliance);
+        return pathFindToPoseFlipped(startingPosetopBumpToAlliance, 0.0).andThen(topBumpToAlliance);
     }
 
     private Command topBumpToNeutralZone()
     {
         PathPlannerAuto topBumpToNeutral = new PathPlannerAuto("topBumpToNeutral");
         Pose2d startingPosetopBumpToNeutral = topBumpToNeutral.getStartingPose();
-        return pathfindToPose(startingPosetopBumpToNeutral, 0.0).andThen(topBumpToNeutral);
+        return pathFindToPoseFlipped(startingPosetopBumpToNeutral, 0.0).andThen(topBumpToNeutral);
     }
 
     private Command bottomBumpToNeutralZone()
     {
         PathPlannerAuto bottomBumpToNeutral = new PathPlannerAuto("bottomBumpToNeutral");
         Pose2d startingPosebottomBumpToNeutral = bottomBumpToNeutral.getStartingPose();
-        return pathfindToPose(startingPosebottomBumpToNeutral, 0.0).andThen(bottomBumpToNeutral);
+        return pathFindToPoseFlipped(startingPosebottomBumpToNeutral, 0.0).andThen(bottomBumpToNeutral);
     }
 
     private Command bottomBumpToAlliance()
     {
         PathPlannerAuto bottomBumpToAlliance = new PathPlannerAuto("bottomBumpToAlliance");
         Pose2d startingPosebottomBumpToAlliance = bottomBumpToAlliance.getStartingPose();
-        return pathfindToPose(startingPosebottomBumpToAlliance, 0.0).andThen(bottomBumpToAlliance);
+        return pathFindToPoseFlipped(startingPosebottomBumpToAlliance, 0.0).andThen(bottomBumpToAlliance);
     }
 
     // always pass blue coords
@@ -464,7 +454,6 @@ public class RobotContainer
     {
         drivetrain.get().resetPose(pose);
 
-         
         if (isBlueAlliance())
         {
             drivetrain.get().resetPose(pose);
@@ -476,8 +465,7 @@ public class RobotContainer
             System.out.println("resetPose is red Alliance");
 
         }
-            
-            
+
         return;
 
     }
@@ -533,52 +521,6 @@ public class RobotContainer
         return pathfindToPose(startingPose, 0.0).andThen(new ProxyCommand(auto));
     }
 
-    // Load the path we want to pathfind to and follow
-    public Command pathfindThenFollowPath(String pathName) throws Exception
-    {
-        PathPlannerPath path = PathPlannerPath.fromPathFile(pathName); // checked exception
-
-        // Create the constraints to use while pathfinding. The constraints defined in
-        // the path will only be used for
-        // the path.
-        PathConstraints constraints = new PathConstraints(
-            PathPlannerConstants.MAX_VELOCITY_MPS, PathPlannerConstants.MAX_ACCELERATION_MPS_SQ,
-            PathPlannerConstants.MAX_ANGULAR_VELOCITY_RPS, PathPlannerConstants.MAX_ANGULAR_ACCELERATION_RPS);
-
-        // Since AutoBuilder is configured, we can use it to build pathfinding commands
-        Command pathfindingCommand = AutoBuilder.pathfindThenFollowPath(
-            path,
-            constraints);
-        return pathfindingCommand;
-    }
-
-    public void pathFindToMultiPath(List<String> pathName) throws Exception
-    {
-        PathConstraints constraints = new PathConstraints(
-            PathPlannerConstants.MAX_VELOCITY_MPS, PathPlannerConstants.MAX_ACCELERATION_MPS_SQ,
-            PathPlannerConstants.MAX_ANGULAR_VELOCITY_RPS, PathPlannerConstants.MAX_ANGULAR_ACCELERATION_RPS);
-
-        // Since AutoBuilder is configured, we can use it to build pathfinding commands
-        var pathIterator = pathName.iterator();
-
-        PathPlannerPath path = PathPlannerPath.fromPathFile(pathIterator.next()); // checked exception
-        Command pathfindingCommand = AutoBuilder.pathfindThenFollowPath(
-            path,
-            constraints);
-        Command lastCommand = pathfindingCommand;
-
-        while (pathIterator.hasNext())
-        {
-            path = PathPlannerPath.fromPathFile(pathIterator.next());
-            pathfindingCommand = AutoBuilder.pathfindThenFollowPath(
-                path,
-                constraints);
-            lastCommand = lastCommand.andThen(pathfindingCommand);
-        }
-
-        CommandScheduler.getInstance().schedule(lastCommand);
-    }
-
     public Command pathfindToPose(Pose2d point, Double endVelocity)
     {
         // Creates a command to pathfind to the given pose
@@ -594,21 +536,6 @@ public class RobotContainer
             endVelocity // Goal end velocity in meters/sec
         );
         return pathfindingCommand;
-    }
-
-    public void pathFindToMultiPose(List<Pose2d> points)
-    {
-
-        // var cmd = pathfindToPose(points.get(0), 10.0);
-        var pointsIterator = points.iterator();
-        Command cmd = pathfindToPose(pointsIterator.next(), 5.0);
-        Command lastCommand = cmd;
-        while (pointsIterator.hasNext())
-        {
-            lastCommand = lastCommand.andThen(pathfindToPose(pointsIterator.next(), 10.0));
-        }
-
-        CommandScheduler.getInstance().schedule(lastCommand);
     }
 
     public void updateVisionEstimate()
