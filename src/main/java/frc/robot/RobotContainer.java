@@ -292,14 +292,7 @@ public class RobotContainer
 
         driverGamepad.y().whileTrue(this.autoCrossBumpCommand());
         // driverGamepad.rightTrigger().whileTrue(getLongPath());
-        driverGamepad.leftTrigger().whileTrue(getLongPathWithFlipping());
-
-        // driverGamepad.povDown().whileTrue(this.autoClimb());
-
-        // driverGamepad.leftStick().whileTrue(this.autoDeclimbCommand());
-
-        // driverGamepad.povDown()
-        // .whileTrue(getDepotShootClimbLeft());
+        driverGamepad.leftTrigger().whileTrue(getLongPath());
 
         driverGamepad.x().onTrue(getTestAutoShoot());
 
@@ -313,7 +306,7 @@ public class RobotContainer
         startPositions.addOption("Left Ramp", new Pose2d(4.587, 5.536, Rotation2d.kZero));
         startPositions.addOption("Center Hub", new Pose2d(4.587, 5.536, Rotation2d.kZero));
 
-        SmartDashboard.putData("Start Position", autoChooser);
+        SmartDashboard.putData("Start Position", startPositions);
     }
 
     private Command pathFindToPoseFlipped(Pose2d point, double constraints)
@@ -328,54 +321,13 @@ public class RobotContainer
         return pathFindingCommandFlipped;
     }
 
-    private Command getLongPathWithFlipping()
+    private Command getLongPath()
     {
         PathPlannerAuto longPath = new PathPlannerAuto("New Auto");
         Pose2d startingPoseLP = longPath.getStartingPose();
         return this.pathFindToPoseFlipped(startingPoseLP, 0.0).andThen(longPath);
     }
 
-    private Command getDepotShootClimbLeft()
-    {
-        PathPlannerAuto depotShootClimbLeft = new PathPlannerAuto("depotShootClimbLeft");
-        Pose2d startingPoseDSCL = depotShootClimbLeft.getStartingPose();
-        return pathFindToPoseFlipped(startingPoseDSCL, 0.0).andThen(depotShootClimbLeft);
-    }
-
-    private Command getDepotShootClimbRight()
-    {
-        PathPlannerAuto depotShootClimbRight = new PathPlannerAuto("depotShootClimbRight");
-        Pose2d startingPoseDSCR = depotShootClimbRight.getStartingPose();
-        return pathFindToPoseFlipped(startingPoseDSCR, 0.0).andThen(depotShootClimbRight);
-    }
-
-    private Command getNeutralShootClimbRight()
-    {
-        PathPlannerAuto neutralShootClimbRight = new PathPlannerAuto("neutralShootClimbRight");
-        Pose2d startingPoseNSCR = neutralShootClimbRight.getStartingPose();
-        return pathFindToPoseFlipped(startingPoseNSCR, 0.0).andThen(neutralShootClimbRight);
-    }
-
-    private Command getNeutralShootClimbLeft()
-    {
-        PathPlannerAuto neutralShootClimbLeft = new PathPlannerAuto("neutralShootClimbLeft");
-        Pose2d startingPoseNSCL = neutralShootClimbLeft.getStartingPose();
-        return pathFindToPoseFlipped(startingPoseNSCL, 0.0).andThen(neutralShootClimbLeft);
-    }
-
-    private Command getHumanShootClimbLeft()
-    {
-        PathPlannerAuto humanShootClimbLeft = new PathPlannerAuto("humanShootClimbLeft");
-        Pose2d startingPoseHSCL = humanShootClimbLeft.getStartingPose();
-        return pathFindToPoseFlipped(startingPoseHSCL, 0.0).andThen(humanShootClimbLeft);
-    }
-
-    private Command getHumanShootClimbRight()
-    {
-        PathPlannerAuto humanShootClimbRight = new PathPlannerAuto("humanShootClimbRight");
-        Pose2d startingPoseHSCR = humanShootClimbRight.getStartingPose();
-        return pathFindToPoseFlipped(startingPoseHSCR, 0.0).andThen(humanShootClimbRight);
-    }
 
     private Command getTestAutoShoot()
     {
@@ -384,12 +336,6 @@ public class RobotContainer
         return pathFindToPoseFlipped(startingPoseTestAutoShoot, 0.0).andThen(testAutoShoot);
     }
 
-    private Command getTestAutoClimb()
-    {
-        PathPlannerAuto testAutoClimb = new PathPlannerAuto("testAutoClimb");
-        Pose2d startingPoseTestAutoClimb = testAutoClimb.getStartingPose();
-        return pathFindToPoseFlipped(startingPoseTestAutoClimb, 0.0).andThen(testAutoClimb);
-    }
 
     private Command topBumpToAllianceZone()
     {
@@ -452,7 +398,7 @@ public class RobotContainer
 
     private void configureBindings(Climber climber)
     {
-        codriverGamepad.povLeft().onTrue(climber.stowCommand());
+        codriverGamepad.povLeft().whileTrue(climber.stowCommand());
         codriverGamepad.povUp().onTrue(climber.extendCommand());
         codriverGamepad.povRight().onTrue(climber.climbCommand());
     }
@@ -574,34 +520,6 @@ public class RobotContainer
                     .orElse(Commands.none())));
     }
 
-    public Command autoShootCommandForAuto()
-    {
-        return Commands.sequence(
-
-            Commands.runOnce(() -> goToShootPoint(
-                SmartDashboard.getNumber(DashboardConstants.SHOOTING_POINT_RADIUS_KEY,
-                    AutomationConstants.SHOOT_POINT_RADIUS_METERS))),
-            launcher.map(l -> l.feedCommand())
-                .orElse(Commands.none()),
-            Commands.parallel(
-                drivetrain.map(dt -> dt.applyRequest(() -> m_brakeRequest))
-                    .orElse(Commands.none()),
-                intake.map(i -> i.intakeCommand())
-                    .orElse(Commands.none()),
-
-                launcher.map(l -> l.spinUpShootersCommand())
-                    .orElse(Commands.none()),
-                hopper.map(h -> h.feedCommand())
-                    .orElse(Commands.none())));
-    }
-
-    public Command stopAutoShootForAuto()
-    {
-        return Commands.parallel(
-            intake.map(i -> i.runOnce(i::stop)).orElse(Commands.none()),
-            launcher.map(l -> l.runOnce(l::stopAll)).orElse(Commands.none()),
-            hopper.map(h -> h.runOnce(h::stop)).orElse(Commands.none()));
-    }
 
     public Command autoFerry()
     {
@@ -660,34 +578,6 @@ public class RobotContainer
         }, drivetrain.map(dt -> Set.of((Subsystem) dt)).orElse(Set.of()));
     }
 
-    public Command autoClimb()
-    {
-        return Commands.sequence(
-            pathfindToPose(new Pose2d(2.0, 3.75, Rotation2d.fromDegrees(180)), 0.0),
-            climber.map(c -> c.releaseRatchetCommand()).orElse(Commands.none()),
-            climber.map(c -> c.extendCommand()).orElse(Commands.none()),
-            new WaitCommand(1),
-            drivetrain
-                .map(dt -> dt
-                    .applyRequest(() -> drive.withVelocityX(-0.5 * MaxSpeed).withVelocityY(0)
-                        .withRotationalRate(0)))
-                .orElse(Commands.none()).withTimeout(0.5),
-            climber.map(c -> c.climbCommand()).orElse(Commands.none()),
-            climber.map(c -> c.engageRatchetCommand()).orElse(Commands.none()));
-    }
-
-    public Command autoDeclimbCommand()
-    {
-        return Commands.sequence(
-            climber.map(c -> c.releaseRatchetCommand()).orElse(Commands.none()),
-            climber.map(c -> c.extendCommand()).orElse(Commands.none()),
-            drivetrain.map(
-                dt -> dt.applyRequest(
-                    () -> drive.withVelocityX(0.5 * MaxSpeed).withVelocityY(0).withRotationalRate(0)))
-                .orElse(Commands.none()).withTimeout(0.5),
-            climber.map(c -> c.stowCommand()).orElse(Commands.none()),
-            climber.map(c -> c.engageRatchetCommand()).orElse(Commands.none()));
-    }
 
     public boolean isBlueAlliance()
     {
