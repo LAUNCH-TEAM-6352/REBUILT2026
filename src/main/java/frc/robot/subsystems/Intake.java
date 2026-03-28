@@ -41,6 +41,7 @@ public class Intake extends SubsystemBase
     private double targetTolerance;
     private boolean atTargetPosition = false;
     private boolean isPositioningStarted;
+    private boolean isPivotStalled;
 
     /** Creates a new Intake. */
     public Intake()
@@ -118,31 +119,16 @@ public class Intake extends SubsystemBase
         atTargetPosition = false;
     }
 
-    public Command stowCommand()
-    {
-        return runOnce(this::stow);
-    }
-
     public void stow()
     {
         pivotToPositionInDegrees(
             SmartDashboard.getNumber(DashboardConstants.STOWED_KEY, IntakeConstants.STOWED_POSITION.magnitude()));
     }
 
-    public Command deployCommand()
-    {
-        return runOnce(this::deploy);
-    }
-
     public void deploy()
     {
         pivotToPositionInDegrees(
             SmartDashboard.getNumber(DashboardConstants.DEPLOYED_KEY, IntakeConstants.DEPLOYED_POSITION.magnitude()));
-    }
-
-    public Command partialDeployCommand()
-    {
-        return runOnce(this::partialDeploy);
     }
 
     public void partialDeploy()
@@ -227,6 +213,10 @@ public class Intake extends SubsystemBase
             {
                 atTargetPosition = true;
                 isPositioningStarted = false;
+            }
+            else if (isPivotStalled())
+            {
+                pivotMotor.stopMotor();
             }
         }
 

@@ -43,8 +43,11 @@ import frc.robot.Constants.HopperConstants;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.LauncherConstants;
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.commands.DeployIntake;
 import frc.robot.commands.MoveIntakePivotWithGamepad;
+import frc.robot.commands.PartiallyDeployIntake;
 import frc.robot.commands.ScoreFuelCancelable;
+import frc.robot.commands.StowIntake;
 import frc.robot.commands.test.TestDrivetrain;
 import frc.robot.commands.test.TestHopper;
 import frc.robot.commands.test.TestIntake;
@@ -94,6 +97,10 @@ public class RobotContainer
 
     // Commands:
     private final ScoreFuelCancelable scoreFuelCancelable;
+    private final StowIntake stowIntake;
+    private final DeployIntake deployIntake;
+    private final PartiallyDeployIntake partiallyDeployIntake;
+
     // Subsystems:
     private final Optional<Launcher> launcher;
     private final Optional<Intake> intake;
@@ -171,6 +178,11 @@ public class RobotContainer
 
         scoreFuelCancelable = new ScoreFuelCancelable(launcher.get(), hopper.get());
 
+        stowIntake = new StowIntake(intake.get());
+        deployIntake = new DeployIntake(intake.get());
+        partiallyDeployIntake = new PartiallyDeployIntake(intake.get());
+
+
         if (drivetrain.isPresent())
         {
             drivetrain.get().setupPathPlanner();
@@ -179,6 +191,8 @@ public class RobotContainer
         {
             configurePathPlannerNamedCommands(intake.get(), hopper.get(), launcher.get());
         }
+
+
 
         configureBindings();
 
@@ -192,7 +206,9 @@ public class RobotContainer
 
     private void configurePathPlannerNamedCommands(Intake intake, Hopper hopper, Launcher launcher)
     {
-        NamedCommands.registerCommand("deployIntake", intake.deployCommand());
+        NamedCommands.registerCommand("deployIntake", deployIntake);
+
+        NamedCommands.registerCommand("stowIntake", stowIntake);
 
         NamedCommands.registerCommand("runIntake", intake.intakeCommand());
 
@@ -392,10 +408,10 @@ public class RobotContainer
     {
         codriverGamepad.y().whileTrue(intake.intakeThenStopCommand());
         codriverGamepad.povDown().whileTrue(intake.ejectThenStopCommand());
-        codriverGamepad.x().onTrue(intake.deployCommand());
+        codriverGamepad.x().onTrue(deployIntake);
         codriverGamepad.a().onTrue(intake.stopCommand());
-        codriverGamepad.start().onTrue(intake.partialDeployCommand());
-        codriverGamepad.back().onTrue(intake.stowCommand());
+        codriverGamepad.start().onTrue(partiallyDeployIntake);
+        codriverGamepad.back().onTrue(stowIntake);
         new Trigger(() -> codriverGamepad.getLeftX() < -0.8)
             .onTrue(Commands.sequence(intake.intakeCommand(), new MoveIntakePivotWithGamepad(intake, codriverGamepad)));
     }
