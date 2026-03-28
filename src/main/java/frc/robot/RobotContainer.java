@@ -277,7 +277,9 @@ public class RobotContainer
 
         // THESE BINDS ARE JUST TESTING ONCE AGAIN THESE WILL CHANGE FOR THE FINAL CONTROL SCHEME
 
-        driverGamepad.a().whileTrue(this.autoShootCommand());
+        driverGamepad.a().whileTrue(goToShootPointCommand(
+    SmartDashboard.getNumber(DashboardConstants.SHOOTING_POINT_RADIUS_KEY,
+        AutomationConstants.SHOOT_POINT_RADIUS_METERS)));
         // driverGamepad.povRight().whileTrue(this.autoFerry());
 
         driverGamepad.y().whileTrue(this.autoCrossBumpCommand());
@@ -476,81 +478,36 @@ public class RobotContainer
         return group;
     }
 
-    public Command autoShootCommand()
-    {
-        return Commands.sequence(
+    public Command autoCrossBumpCommand() {
+    return Commands.defer(() -> {
+        Translation2d robotPos = drivetrain.get().getPosition().getTranslation();
 
-            Commands.runOnce(() -> goToShootPoint(
-                SmartDashboard.getNumber(DashboardConstants.SHOOTING_POINT_RADIUS_KEY,
-                    AutomationConstants.SHOOT_POINT_RADIUS_METERS))),
-
-            Commands.parallel(
-                drivetrain.map(dt -> dt.applyRequest(() -> m_brakeRequest))
-                    .orElse(Commands.none()),
-                intake.map(i -> i.intakeThenStopCommand())
-                    .orElse(Commands.none()),
-                launcher.map(l -> l.feedThenStopCommand())
-                    .orElse(Commands.none()),
-                hopper.map(h -> h.feedThenStopCommand())
-                    .orElse(Commands.none())));
-    }
-
-    public Command autoFerry()
-    {
-        Rotation2d angle = Rotation2d.fromDegrees(0);
-        if (isBlueAlliance())
-        {
-            angle = Rotation2d.fromDegrees(0);
-        }
-        else
-        {
-            angle = Rotation2d.fromDegrees(180);
+        if (!isBlueAlliance()) {
+            robotPos = new Translation2d(16.54 - robotPos.getX(), 8.21 - robotPos.getY());
         }
 
-        return Commands.sequence(
-            facePose2D(angle),
-            Commands.parallel(
-                intake.map(i -> i.intakeThenStopCommand())
-                    .orElse(Commands.none()),
-                launcher.map(l -> l.feedThenStopCommand())
-                    .orElse(Commands.none()),
-                hopper.map(h -> h.feedThenStopCommand())
-                    .orElse(Commands.none())));
-    }
+        boolean onTopHalf = robotPos.getY() > 4.0;
+        boolean onAllianceSide = robotPos.getX() < 4.6;
 
-    public Command autoCrossBumpCommand()
-    {
-        return Commands.defer(() ->
-        {
-            boolean isBlue = isBlueAlliance();
-            double bumpX = isBlue ? 4.6 : 11.8;
-            boolean onTopHalf = isBlue
-                ? drivetrain.get().getPosition().getY() > 4.0
-                : drivetrain.get().getPosition().getY() < 4.0;
+        Translation2d middle = onTopHalf ? topMiddleBump : bottomMiddleBump;
+        Double angle = onTopHalf ? 3 * Math.PI / 2 : Math.PI / 2;
 
-            boolean onLeftSide = drivetrain.get().getPosition().getX() < bumpX;
-            boolean goingToHub = (isBlue == onLeftSide);
-
-            Translation2d middleBump = onTopHalf ? topMiddleBump : bottomMiddleBump;
-
-            if (goingToHub)
-            {
-                Translation2d hubSide = onTopHalf ? topHubSideBump : bottomHubSideBump;
-                Translation2d startingSide = onTopHalf ? topAllianceSideBump : bottomAllianceSideBump;
-                return pathfindToPose(new Pose2d(startingSide, new Rotation2d(5 * Math.PI / 4)), 5.0)
-                    .andThen(pathfindToPose(new Pose2d(middleBump, new Rotation2d(5 * Math.PI / 4)), 5.0))
-                    .andThen(pathfindToPose(new Pose2d(hubSide, new Rotation2d(5 * Math.PI / 4)), 0.0));
-            }
-            else
-            {
-                Translation2d allianceSide = onTopHalf ? topAllianceSideBump : bottomAllianceSideBump;
-                Translation2d startingSide = onTopHalf ? topHubSideBump : bottomHubSideBump;
-                return pathfindToPose(new Pose2d(startingSide, new Rotation2d(7 * Math.PI / 4)), 5.0)
-                    .andThen(pathfindToPose(new Pose2d(middleBump, new Rotation2d(7 * Math.PI / 4)), 5.0))
-                    .andThen(pathfindToPose(new Pose2d(allianceSide, new Rotation2d(7 * Math.PI / 4)), 0.0));
-            }
-        }, drivetrain.map(dt -> Set.of((Subsystem) dt)).orElse(Set.of()));
-    }
+        if (onAllianceSide) {
+            Translation2d start = onTopHalf ? topAllianceSideBump : bottomAllianceSideBump;
+            Translation2d end   = onTopHalf ? topHubSideBump      : bottomHubSideBump;
+            
+            return pathFindToPoseFlipped(new Pose2d(start,  new Rotation2d(angle)), 5.0)
+                .andThen(pathFindToPoseFlipped(new Pose2d(middle, new Rotation2d(angle)), 5.0))
+                .andThen(pathFindToPoseFlipped(new Pose2d(end,    new Rotation2d(angle)), 0.0));
+        } else {
+            Translation2d start = onTopHalf ? topHubSideBump      : bottomHubSideBump;
+            Translation2d end   = onTopHalf ? topAllianceSideBump : bottomAllianceSideBump;
+            return pathFindToPoseFlipped(new Pose2d(start,  new Rotation2d(angle)), 5.0)
+                .andThen(pathFindToPoseFlipped(new Pose2d(middle, new Rotation2d(angle)), 5.0))
+                .andThen(pathFindToPoseFlipped(new Pose2d(end,    new Rotation2d(angle)), 0.0));
+        }
+    }, drivetrain.map(dt -> Set.of((Subsystem) dt)).orElse(Set.of()));
+}
 
     public boolean isBlueAlliance()
     {
@@ -567,7 +524,7 @@ public class RobotContainer
             .orElse(Commands.none());
     }
 
-    public Pose2d shootingCircle(double theta, double radius, boolean yesBlue)
+    public Pose2d shootingCircle(double theta, double radius)
     {
         double x = (radius * Math.cos(theta)) + blueHub.getX();
         double y = (radius * Math.sin(theta)) + blueHub.getY();
@@ -575,44 +532,34 @@ public class RobotContainer
         return circlePos;
     }
 
-    public void goToShootPoint(double Radius)
-    {
-        Translation2d RobotPose = drivetrain.get().getPosition().getTranslation();
-        boolean isBlue = isBlueAlliance();
-        double lowerLim = (2 * Math.PI) / 3;
-        double upperLim = (4 * Math.PI) / 3;
+    public Command goToShootPointCommand(double radius) {
+    return Commands.defer(() -> {
+        Translation2d robotPos = drivetrain.get().getPosition().getTranslation();
+        if (!isBlueAlliance()) {
+            robotPos = new Translation2d(16.54 - robotPos.getX(), 8.21 - robotPos.getY());
+        }
+
+        double lowerLim = (3 * Math.PI) / 4;
+        double upperLim = (5 * Math.PI) / 4;
         double minRad = lowerLim;
         double minDistance = Double.MAX_VALUE;
 
-        Translation2d searchPose = RobotPose;
-        if (!isBlue)
-        {
-            searchPose = new Translation2d(16.54 - RobotPose.getX(), 8.21 - RobotPose.getY());
-        }
-
-        for (double i = lowerLim; i < upperLim; i += 0.01)
-        {
-            double dist = searchPose.getDistance(shootingCircle(i, Radius, isBlue).getTranslation());
-            if (dist < minDistance)
-            {
+        for (double i = lowerLim; i < upperLim; i += 0.01) {
+            double dist = robotPos.getDistance(shootingCircle(i, radius).getTranslation());
+            if (dist < minDistance) {
                 minDistance = dist;
                 minRad = i;
             }
         }
 
-        Pose2d circlePos = shootingCircle(minRad, Radius, isBlue);
-
+        Pose2d circlePos = shootingCircle(minRad, radius);
         Rotation2d facingRotation = Rotation2d.fromRadians(minRad + Math.PI);
 
-        if (minDistance < 0.5)
-        {
-            facePose2D(facingRotation).withTimeout(0.5).schedule();
-        }
-        else
-        {
-            var cmd = pathfindToPose(new Pose2d(circlePos.getTranslation(), facingRotation), 0.0);
-            CommandScheduler.getInstance().schedule(cmd);
-        }
+        return minDistance < 0.5
+            ? facePose2D(facingRotation)
+            : pathFindToPoseFlipped(new Pose2d(circlePos.getTranslation(), facingRotation), 0.0);
+
+        }, drivetrain.map(dt -> Set.of((Subsystem) dt)).orElse(Set.of()));
     }
 
     private void configureDashboard()
