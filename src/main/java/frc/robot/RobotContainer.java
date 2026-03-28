@@ -38,7 +38,6 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.AutomationConstants;
-import frc.robot.Constants.ClimberConstants;
 import frc.robot.Constants.DashboardConstants;
 import frc.robot.Constants.HopperConstants;
 import frc.robot.Constants.IntakeConstants;
@@ -46,13 +45,11 @@ import frc.robot.Constants.LauncherConstants;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.MoveIntakePivotWithGamepad;
 import frc.robot.commands.ScoreFuelCancelable;
-import frc.robot.commands.test.TestClimber;
 import frc.robot.commands.test.TestDrivetrain;
 import frc.robot.commands.test.TestHopper;
 import frc.robot.commands.test.TestIntake;
 import frc.robot.commands.test.TestLauncher;
 import frc.robot.generated.TunerConstants;
-import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Launcher;
@@ -98,7 +95,6 @@ public class RobotContainer
     // Commands:
     private final ScoreFuelCancelable scoreFuelCancelable;
     // Subsystems:
-    private final Optional<Climber> climber;
     private final Optional<Launcher> launcher;
     private final Optional<Intake> intake;
     private final Optional<Hopper> hopper;
@@ -133,7 +129,6 @@ public class RobotContainer
         // depending upon the substrings found in the message:
         // -dt- Drive train
         // -oi- OI devices
-        // -c- Climber
         // -l- Launcher
         // -i- Intake
         // -h- Hopper
@@ -160,9 +155,6 @@ public class RobotContainer
         }
 
         // Create subsystems:
-        climber = (gameData.contains("-c-") || gameData.isBlank() || gameData.length() == 1)
-            ? Optional.of(new Climber())
-            : Optional.empty();
         launcher = (gameData.contains("-l-") || gameData.isBlank() || gameData.length() == 1)
             ? Optional.of(new Launcher())
             : Optional.empty();
@@ -208,7 +200,7 @@ public class RobotContainer
 
         NamedCommands.registerCommand("scoreFuelCancelable", scoreFuelCancelable);
 
-        // NamedCommands.registerCommand("runClimb", climber.get().climbCommand());
+
     }
 
     /**
@@ -227,7 +219,6 @@ public class RobotContainer
      */
     private void configureBindings()
     {
-        climber.ifPresent(this::configureBindings);
         launcher.ifPresent(this::configureBindings);
         intake.ifPresent(this::configureBindings);
         hopper.ifPresent(this::configureBindings);
@@ -386,20 +377,12 @@ public class RobotContainer
 
     // TODO: the following bindings are designed for testing and need to changed for the final control scheme.
     // SCORE FUEL: x-> deploy y-> intake, b-> spinUp shooters, a-> convey, right joystick press-> feed (fuel shoots)
-    // CLIMB: pov up-> extend, pov down-> climb, pov left-> stow, pov right-> move with left stick up/down,
     // left stick left-> release ratchet, left stick right-> engage ratchet
     // DUMP FUEL: left trigger-> clear launcher, left bumper-> clear hopper, left stick-> eject from intake
     // COLLAPSE HOPPER: start-> partial deploy, back-> stow
     // IDLE OR STOP SHOOTER: right bumper-> stop shooter, right trigger-> idle shooter
     // MANUAL CONTROL OF INTAKE PIVIOT: right stick left->enable manual control, right stick forward/back-> move intake
     // pivot in/out
-
-    private void configureBindings(Climber climber)
-    {
-        codriverGamepad.povLeft().whileTrue(climber.stowCommand());
-        codriverGamepad.povUp().onTrue(climber.extendCommand());
-        codriverGamepad.povRight().onTrue(climber.climbCommand());
-    }
 
     private void configureBindings(Launcher launcher)
     {
@@ -489,11 +472,6 @@ public class RobotContainer
         if (launcher.isPresent())
         {
             group.addCommands(new TestLauncher(launcher.get()));
-        }
-
-        if (climber.isPresent())
-        {
-            group.addCommands(new TestClimber(climber.get()));
         }
 
         return group;
@@ -640,11 +618,6 @@ public class RobotContainer
 
     private void configureDashboard()
     {
-        // Climber:
-        SmartDashboard.putNumber(DashboardConstants.CLIMBER_CLIMB_KEY, ClimberConstants.CLIMBED_POSITION);
-        SmartDashboard.putNumber(DashboardConstants.CLIMBER_EXTEND_KEY, ClimberConstants.EXTENDED_POSITION);
-        SmartDashboard.putNumber(DashboardConstants.CLIMBER_STOW_KEY, ClimberConstants.STOWED_POSITION);
-
         // Hopper:
         SmartDashboard.putNumber(DashboardConstants.CONVEYOR_FEED_KEY, HopperConstants.FEED_SPEED);
 
