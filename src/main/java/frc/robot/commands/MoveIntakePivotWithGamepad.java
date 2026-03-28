@@ -40,7 +40,8 @@ public class MoveIntakePivotWithGamepad extends Command
         var speed = gamepad.getLeftY() * IntakeConstants.PIVOT_MAX_MAN_VOLTS;
         var position = intake.getPivotPosition().in(Rotations);
         if ((speed < 0 && position <= IntakeConstants.MIN_POSITION) ||
-            (speed > 0 && position >= IntakeConstants.MAX_POSITION))
+            (speed > 0 && position >= IntakeConstants.MAX_POSITION) ||
+            (intake.isPivotStalled()))
         {
             speed = 0;
             gamepad.setRumble(RumbleType.kBothRumble, 1);
