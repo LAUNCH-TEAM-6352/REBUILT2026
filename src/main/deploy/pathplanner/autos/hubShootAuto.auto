@@ -5,28 +5,9 @@
     "data": {
       "commands": [
         {
-          "type": "deadline",
-          "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "human"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "runIntake"
-                }
-              }
-            ]
-          }
-        },
-        {
           "type": "path",
           "data": {
-            "pathName": "humanClimbRight"
+            "pathName": "hubShoot"
           }
         },
         {
@@ -36,13 +17,13 @@
               {
                 "type": "wait",
                 "data": {
-                  "waitTime": 4.0
+                  "waitTime": 9.0
                 }
               },
               {
                 "type": "named",
                 "data": {
-                  "name": "runClimb"
+                  "name": "scoreFuelCancelable"
                 }
               }
             ]
