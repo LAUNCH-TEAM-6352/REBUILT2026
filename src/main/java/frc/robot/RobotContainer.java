@@ -27,7 +27,6 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ProxyCommand;
@@ -278,8 +277,8 @@ public class RobotContainer
         // THESE BINDS ARE JUST TESTING ONCE AGAIN THESE WILL CHANGE FOR THE FINAL CONTROL SCHEME
 
         driverGamepad.a().whileTrue(goToShootPointCommand(
-    SmartDashboard.getNumber(DashboardConstants.SHOOTING_POINT_RADIUS_KEY,
-        AutomationConstants.SHOOT_POINT_RADIUS_METERS)));
+            SmartDashboard.getNumber(DashboardConstants.SHOOTING_POINT_RADIUS_KEY,
+                AutomationConstants.SHOOT_POINT_RADIUS_METERS)));
         // driverGamepad.povRight().whileTrue(this.autoFerry());
 
         driverGamepad.y().whileTrue(this.autoCrossBumpCommand());
@@ -478,36 +477,42 @@ public class RobotContainer
         return group;
     }
 
-    public Command autoCrossBumpCommand() {
-    return Commands.defer(() -> {
-        Translation2d robotPos = drivetrain.get().getPosition().getTranslation();
+    public Command autoCrossBumpCommand()
+    {
+        return Commands.defer(() ->
+        {
+            Translation2d robotPos = drivetrain.get().getPosition().getTranslation();
 
-        if (!isBlueAlliance()) {
-            robotPos = new Translation2d(16.54 - robotPos.getX(), 8.21 - robotPos.getY());
-        }
+            if (!isBlueAlliance())
+            {
+                robotPos = new Translation2d(16.54 - robotPos.getX(), 8.21 - robotPos.getY());
+            }
 
-        boolean onTopHalf = robotPos.getY() > 4.0;
-        boolean onAllianceSide = robotPos.getX() < 4.6;
+            boolean onTopHalf = robotPos.getY() > 4.0;
+            boolean onAllianceSide = robotPos.getX() < 4.6;
 
-        Translation2d middle = onTopHalf ? topMiddleBump : bottomMiddleBump;
-        Double angle = onTopHalf ? 3 * Math.PI / 2 : Math.PI / 2;
+            Translation2d middle = onTopHalf ? topMiddleBump : bottomMiddleBump;
+            Double angle = onTopHalf ? 3 * Math.PI / 2 : Math.PI / 2;
 
-        if (onAllianceSide) {
-            Translation2d start = onTopHalf ? topAllianceSideBump : bottomAllianceSideBump;
-            Translation2d end   = onTopHalf ? topHubSideBump      : bottomHubSideBump;
-            
-            return pathFindToPoseFlipped(new Pose2d(start,  new Rotation2d(angle)), 5.0)
-                .andThen(pathFindToPoseFlipped(new Pose2d(middle, new Rotation2d(angle)), 5.0))
-                .andThen(pathFindToPoseFlipped(new Pose2d(end,    new Rotation2d(angle)), 0.0));
-        } else {
-            Translation2d start = onTopHalf ? topHubSideBump      : bottomHubSideBump;
-            Translation2d end   = onTopHalf ? topAllianceSideBump : bottomAllianceSideBump;
-            return pathFindToPoseFlipped(new Pose2d(start,  new Rotation2d(angle)), 5.0)
-                .andThen(pathFindToPoseFlipped(new Pose2d(middle, new Rotation2d(angle)), 5.0))
-                .andThen(pathFindToPoseFlipped(new Pose2d(end,    new Rotation2d(angle)), 0.0));
-        }
-    }, drivetrain.map(dt -> Set.of((Subsystem) dt)).orElse(Set.of()));
-}
+            if (onAllianceSide)
+            {
+                Translation2d start = onTopHalf ? topAllianceSideBump : bottomAllianceSideBump;
+                Translation2d end = onTopHalf ? topHubSideBump : bottomHubSideBump;
+
+                return pathFindToPoseFlipped(new Pose2d(start, new Rotation2d(angle)), 5.0)
+                    .andThen(pathFindToPoseFlipped(new Pose2d(middle, new Rotation2d(angle)), 5.0))
+                    .andThen(pathFindToPoseFlipped(new Pose2d(end, new Rotation2d(angle)), 0.0));
+            }
+            else
+            {
+                Translation2d start = onTopHalf ? topHubSideBump : bottomHubSideBump;
+                Translation2d end = onTopHalf ? topAllianceSideBump : bottomAllianceSideBump;
+                return pathFindToPoseFlipped(new Pose2d(start, new Rotation2d(angle)), 5.0)
+                    .andThen(pathFindToPoseFlipped(new Pose2d(middle, new Rotation2d(angle)), 5.0))
+                    .andThen(pathFindToPoseFlipped(new Pose2d(end, new Rotation2d(angle)), 0.0));
+            }
+        }, drivetrain.map(dt -> Set.of((Subsystem) dt)).orElse(Set.of()));
+    }
 
     public boolean isBlueAlliance()
     {
@@ -532,32 +537,37 @@ public class RobotContainer
         return circlePos;
     }
 
-    public Command goToShootPointCommand(double radius) {
-    return Commands.defer(() -> {
-        Translation2d robotPos = drivetrain.get().getPosition().getTranslation();
-        if (!isBlueAlliance()) {
-            robotPos = new Translation2d(16.54 - robotPos.getX(), 8.21 - robotPos.getY());
-        }
-
-        double lowerLim = (3 * Math.PI) / 4;
-        double upperLim = (5 * Math.PI) / 4;
-        double minRad = lowerLim;
-        double minDistance = Double.MAX_VALUE;
-
-        for (double i = lowerLim; i < upperLim; i += 0.01) {
-            double dist = robotPos.getDistance(shootingCircle(i, radius).getTranslation());
-            if (dist < minDistance) {
-                minDistance = dist;
-                minRad = i;
+    public Command goToShootPointCommand(double radius)
+    {
+        return Commands.defer(() ->
+        {
+            Translation2d robotPos = drivetrain.get().getPosition().getTranslation();
+            if (!isBlueAlliance())
+            {
+                robotPos = new Translation2d(16.54 - robotPos.getX(), 8.21 - robotPos.getY());
             }
-        }
 
-        Pose2d circlePos = shootingCircle(minRad, radius);
-        Rotation2d facingRotation = Rotation2d.fromRadians(minRad + Math.PI);
+            double lowerLim = (3 * Math.PI) / 4;
+            double upperLim = (5 * Math.PI) / 4;
+            double minRad = lowerLim;
+            double minDistance = Double.MAX_VALUE;
 
-        return minDistance < 0.5
-            ? facePose2D(facingRotation)
-            : pathFindToPoseFlipped(new Pose2d(circlePos.getTranslation(), facingRotation), 0.0);
+            for (double i = lowerLim; i < upperLim; i += 0.01)
+            {
+                double dist = robotPos.getDistance(shootingCircle(i, radius).getTranslation());
+                if (dist < minDistance)
+                {
+                    minDistance = dist;
+                    minRad = i;
+                }
+            }
+
+            Pose2d circlePos = shootingCircle(minRad, radius);
+            Rotation2d facingRotation = Rotation2d.fromRadians(minRad + Math.PI);
+
+            return minDistance < 0.5
+                ? facePose2D(facingRotation)
+                : pathFindToPoseFlipped(new Pose2d(circlePos.getTranslation(), facingRotation), 0.0);
 
         }, drivetrain.map(dt -> Set.of((Subsystem) dt)).orElse(Set.of()));
     }
