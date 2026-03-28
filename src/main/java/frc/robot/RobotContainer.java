@@ -182,7 +182,6 @@ public class RobotContainer
         deployIntake = new DeployIntake(intake.get());
         partiallyDeployIntake = new PartiallyDeployIntake(intake.get());
 
-
         if (drivetrain.isPresent())
         {
             drivetrain.get().setupPathPlanner();
@@ -191,8 +190,6 @@ public class RobotContainer
         {
             configurePathPlannerNamedCommands(intake.get(), hopper.get(), launcher.get());
         }
-
-
 
         configureBindings();
 
