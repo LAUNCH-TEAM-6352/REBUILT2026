@@ -72,7 +72,7 @@ import com.pathplanner.lib.util.FlippingUtil;
 
 public class RobotContainer
 {
-    private final SendableChooser<Command> autoChooser;
+    private final SendableChooser<Command> autoChooser = null;
     private final SendableChooser<Pose2d> startPositions = new SendableChooser<Pose2d>();
 
     private double MaxSpeed = 1.0 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top
@@ -192,8 +192,8 @@ public class RobotContainer
         // Configure dashboard values
         configureDashboard();
 
-        autoChooser = AutoBuilder.buildAutoChooser();
-        SmartDashboard.putData("Auto Chooser", autoChooser);
+        // autoChooser = AutoBuilder.buildAutoChooser();
+        // SmartDashboard.putData("Auto Chooser", autoChooser);
 
     }
 
@@ -215,8 +215,8 @@ public class RobotContainer
 
     private void configureCommands()
     {
-        intake.ifPresent(this::configureBindings);
-        if (intake.isPresent() && hopper.isPresent() && launcher.isPresent())
+        intake.ifPresent(this::configureCommands);
+        if (hopper.isPresent() && launcher.isPresent())
         {
             configureCommands(hopper.get(), launcher.get());
         }
@@ -388,6 +388,10 @@ public class RobotContainer
     // always pass blue coords
     public void resetPosition(Pose2d pose)
     {
+        if (!drivetrain.isPresent())
+        {
+            return;
+        }
         drivetrain.get().resetPose(pose);
 
         if (isBlueAlliance())

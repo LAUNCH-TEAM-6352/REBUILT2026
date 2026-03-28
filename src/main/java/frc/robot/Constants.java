@@ -69,7 +69,7 @@ public final class Constants
 
         public static final SensorDirectionValue ENCODER_DIRECTION_VALUE = SensorDirectionValue.CounterClockwise_Positive;
 
-        public static final double INTAKE_VELOCITY_RPM = 1500;
+        public static final double INTAKE_VELOCITY_RPM = 1700;
         public static final double EJECT_VELOCITY_RPM = 1500;
         public static final double AGITATE_VELOCITY_RPM = 500;
         public static final double INTAKE_KS = 0.1; // Add 0.1 V output to overcome static friction
