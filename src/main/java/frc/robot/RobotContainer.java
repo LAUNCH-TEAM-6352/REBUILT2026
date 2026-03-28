@@ -280,7 +280,7 @@ public class RobotContainer
         driverGamepad.a().whileTrue(this.autoShootCommand());
         // driverGamepad.povRight().whileTrue(this.autoFerry());
 
-        driverGamepad.y().whileTrue(this.autoCrossBumpCommand());
+        driverGamepad.y().whileTrue(this.autoCrossBumpCommandFix());
         // driverGamepad.rightTrigger().whileTrue(getLongPath());
         driverGamepad.leftTrigger().whileTrue(getLongPath());
 
@@ -302,7 +302,7 @@ public class RobotContainer
     private Command pathFindToPoseFlipped(Pose2d point, double constraints)
     {
         PathConstraints constraints2 = new PathConstraints(
-            0.5, 0.25,
+            4, 3,
             Units.degreesToRadians(540), Units.degreesToRadians(720));
         Command pathFindingCommandFlipped;
 
@@ -329,6 +329,8 @@ public class RobotContainer
     {
         PathPlannerAuto topBumpToAlliance = new PathPlannerAuto("topBumpToAlliance");
         Pose2d startingPosetopBumpToAlliance = topBumpToAlliance.getStartingPose();
+        Rotation2d startAngle= new Rotation2d(Units.degreesToRadians(-135.0));
+        startingPosetopBumpToAlliance.rotateBy(startAngle);
         return pathFindToPoseFlipped(startingPosetopBumpToAlliance, 0.0).andThen(topBumpToAlliance);
     }
 
@@ -343,6 +345,8 @@ public class RobotContainer
     {
         PathPlannerAuto bottomBumpToNeutral = new PathPlannerAuto("bottomBumpToNeutral");
         Pose2d startingPosebottomBumpToNeutral = bottomBumpToNeutral.getStartingPose();
+        Rotation2d startAngle= new Rotation2d(Units.degreesToRadians(135.0));
+        startingPosebottomBumpToNeutral.rotateBy(startAngle);
         return pathFindToPoseFlipped(startingPosebottomBumpToNeutral, 0.0).andThen(bottomBumpToNeutral);
     }
 
@@ -350,6 +354,8 @@ public class RobotContainer
     {
         PathPlannerAuto bottomBumpToAlliance = new PathPlannerAuto("bottomBumpToAlliance");
         Pose2d startingPosebottomBumpToAlliance = bottomBumpToAlliance.getStartingPose();
+        Rotation2d startAngle= new Rotation2d(Units.degreesToRadians(45.0));
+        startingPosebottomBumpToAlliance.rotateBy(startAngle);
         return pathFindToPoseFlipped(startingPosebottomBumpToAlliance, 0.0).andThen(bottomBumpToAlliance);
     }
 
@@ -422,7 +428,7 @@ public class RobotContainer
         // Creates a command to pathfind to the given pose
         // Create the constraints to use while pathfinding
         PathConstraints constraints = new PathConstraints(
-            0.5, .25,
+            4, 3,
             Units.degreesToRadians(540), Units.degreesToRadians(-180));
         Command pathfindingCommand;
 
@@ -551,6 +557,39 @@ public class RobotContainer
             }
         }, drivetrain.map(dt -> Set.of((Subsystem) dt)).orElse(Set.of()));
     }
+ 
+    public Command autoCrossBumpCommandFix()
+    {
+        return Commands.defer(() ->
+        {
+            Pose2d currentPose = drivetrain.get().getPosition();
+             if(isBlueAlliance() == false){
+                currentPose = FlippingUtil.flipFieldPose(currentPose);
+            }
+
+            boolean onTopHalf =currentPose.getY() > 4.0;
+            boolean onAllianceSide = currentPose.getX()<3.85;
+
+            if (onAllianceSide && onTopHalf)
+            {
+               return topBumpToNeutralZone(); 
+            }
+            if (onAllianceSide == true && onTopHalf == false)
+            {
+              return bottomBumpToNeutralZone();
+            }
+             if (onAllianceSide == false && onTopHalf)
+            {
+               return topBumpToAllianceZone();
+            }
+             if (onAllianceSide == false && onTopHalf == false)
+            {
+               return bottomBumpToAlliance();
+            }
+            return Commands.runOnce(() -> {});
+
+        }, drivetrain.map(dt -> Set.of((Subsystem) dt)).orElse(Set.of()));
+    }
 
     public boolean isBlueAlliance()
     {
@@ -610,7 +649,7 @@ public class RobotContainer
         }
         else
         {
-            var cmd = pathfindToPose(new Pose2d(circlePos.getTranslation(), facingRotation), 0.0);
+            var cmd = pathFindToPoseFlipped(new Pose2d(circlePos.getTranslation(), facingRotation), 0.0);
             CommandScheduler.getInstance().schedule(cmd);
         }
     }
