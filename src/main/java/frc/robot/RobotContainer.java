@@ -329,7 +329,7 @@ public class RobotContainer
     {
         PathPlannerAuto topBumpToAlliance = new PathPlannerAuto("topBumpToAlliance");
         Pose2d startingPosetopBumpToAlliance = topBumpToAlliance.getStartingPose();
-        Rotation2d startAngle= new Rotation2d(Units.degreesToRadians(-135.0));
+        Rotation2d startAngle = new Rotation2d(Units.degreesToRadians(-135.0));
         startingPosetopBumpToAlliance.rotateBy(startAngle);
         return pathFindToPoseFlipped(startingPosetopBumpToAlliance, 0.0).andThen(topBumpToAlliance);
     }
@@ -345,7 +345,7 @@ public class RobotContainer
     {
         PathPlannerAuto bottomBumpToNeutral = new PathPlannerAuto("bottomBumpToNeutral");
         Pose2d startingPosebottomBumpToNeutral = bottomBumpToNeutral.getStartingPose();
-        Rotation2d startAngle= new Rotation2d(Units.degreesToRadians(135.0));
+        Rotation2d startAngle = new Rotation2d(Units.degreesToRadians(135.0));
         startingPosebottomBumpToNeutral.rotateBy(startAngle);
         return pathFindToPoseFlipped(startingPosebottomBumpToNeutral, 0.0).andThen(bottomBumpToNeutral);
     }
@@ -354,7 +354,7 @@ public class RobotContainer
     {
         PathPlannerAuto bottomBumpToAlliance = new PathPlannerAuto("bottomBumpToAlliance");
         Pose2d startingPosebottomBumpToAlliance = bottomBumpToAlliance.getStartingPose();
-        Rotation2d startAngle= new Rotation2d(Units.degreesToRadians(45.0));
+        Rotation2d startAngle = new Rotation2d(Units.degreesToRadians(45.0));
         startingPosebottomBumpToAlliance.rotateBy(startAngle);
         return pathFindToPoseFlipped(startingPosebottomBumpToAlliance, 0.0).andThen(bottomBumpToAlliance);
     }
@@ -557,36 +557,39 @@ public class RobotContainer
             }
         }, drivetrain.map(dt -> Set.of((Subsystem) dt)).orElse(Set.of()));
     }
- 
+
     public Command autoCrossBumpCommandFix()
     {
         return Commands.defer(() ->
         {
             Pose2d currentPose = drivetrain.get().getPosition();
-             if(isBlueAlliance() == false){
+            if (isBlueAlliance() == false)
+            {
                 currentPose = FlippingUtil.flipFieldPose(currentPose);
             }
 
-            boolean onTopHalf =currentPose.getY() > 4.0;
-            boolean onAllianceSide = currentPose.getX()<3.85;
+            boolean onTopHalf = currentPose.getY() > 4.0;
+            boolean onAllianceSide = currentPose.getX() < 3.85;
 
             if (onAllianceSide && onTopHalf)
             {
-               return topBumpToNeutralZone(); 
+                return topBumpToNeutralZone();
             }
             if (onAllianceSide == true && onTopHalf == false)
             {
-              return bottomBumpToNeutralZone();
+                return bottomBumpToNeutralZone();
             }
-             if (onAllianceSide == false && onTopHalf)
+            if (onAllianceSide == false && onTopHalf)
             {
-               return topBumpToAllianceZone();
+                return topBumpToAllianceZone();
             }
-             if (onAllianceSide == false && onTopHalf == false)
+            if (onAllianceSide == false && onTopHalf == false)
             {
-               return bottomBumpToAlliance();
+                return bottomBumpToAlliance();
             }
-            return Commands.runOnce(() -> {});
+            return Commands.runOnce(() ->
+            {
+            });
 
         }, drivetrain.map(dt -> Set.of((Subsystem) dt)).orElse(Set.of()));
     }
