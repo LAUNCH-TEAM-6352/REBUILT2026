@@ -200,7 +200,6 @@ public class RobotContainer
 
         NamedCommands.registerCommand("scoreFuelCancelable", scoreFuelCancelable);
 
-
     }
 
     /**
