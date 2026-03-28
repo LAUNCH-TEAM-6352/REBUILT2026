@@ -8,6 +8,9 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants.TestConstants;
+import frc.robot.commands.DeployIntake;
+import frc.robot.commands.PartiallyDeployIntake;
+import frc.robot.commands.StowIntake;
 import frc.robot.subsystems.Intake;
 
 /**
@@ -21,11 +24,11 @@ public class TestIntake extends SequentialCommandGroup
         addRequirements(intake);
         addCommands(
             new InstantCommand(() -> System.out.println("Testing Intake: Patrially Deploying")),
-            intake.partialDeployCommand(),
+            new PartiallyDeployIntake(intake),
             new WaitCommand(TestConstants.BETWEEN_TIME_SECS),
 
             new InstantCommand(() -> System.out.println("Testing Intake: Fully Deploying")),
-            intake.deployCommand(),
+            new DeployIntake(intake),
             new WaitCommand(TestConstants.BETWEEN_TIME_SECS),
 
             new InstantCommand(() -> System.out.println("Testing Intake: Intaking")),
@@ -33,7 +36,7 @@ public class TestIntake extends SequentialCommandGroup
             new WaitCommand(TestConstants.BETWEEN_TIME_SECS),
 
             new InstantCommand(() -> System.out.println("Testing Intake: Stowing")),
-            intake.stowCommand(),
+            new StowIntake(intake),
             new WaitCommand(TestConstants.BETWEEN_TIME_SECS));
     }
 }

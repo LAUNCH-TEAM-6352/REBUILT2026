@@ -96,10 +96,10 @@ public class RobotContainer
     // List.of("limelight-front", "limelight-climber","limelight-br"));
 
     // Commands:
-    private final ScoreFuelCancelable scoreFuelCancelable;
-    private final StowIntake stowIntake;
-    private final DeployIntake deployIntake;
-    private final PartiallyDeployIntake partiallyDeployIntake;
+    private ScoreFuelCancelable scoreFuelCancelable;
+    private StowIntake stowIntake;
+    private DeployIntake deployIntake;
+    private PartiallyDeployIntake partiallyDeployIntake;
 
     // Subsystems:
     private final Optional<Launcher> launcher;
@@ -176,21 +176,17 @@ public class RobotContainer
             ? Optional.of(TunerConstants.createDrivetrain())
             : Optional.empty();
 
-        scoreFuelCancelable = new ScoreFuelCancelable(launcher.get(), hopper.get());
-
-        stowIntake = new StowIntake(intake.get());
-        deployIntake = new DeployIntake(intake.get());
-        partiallyDeployIntake = new PartiallyDeployIntake(intake.get());
-
         if (drivetrain.isPresent())
         {
             drivetrain.get().setupPathPlanner();
         }
+
         if (launcher.isPresent() && hopper.isPresent() && intake.isPresent())
         {
             configurePathPlannerNamedCommands(intake.get(), hopper.get(), launcher.get());
         }
 
+        configureCommands();
         configureBindings();
 
         // Configure dashboard values
@@ -207,12 +203,35 @@ public class RobotContainer
 
         NamedCommands.registerCommand("stowIntake", stowIntake);
 
+        NamedCommands.registerCommand("partiallyDeployIntake", partiallyDeployIntake);
+
         NamedCommands.registerCommand("runIntake", intake.intakeCommand());
 
         NamedCommands.registerCommand("stopIntake", intake.stopCommand());
 
         NamedCommands.registerCommand("scoreFuelCancelable", scoreFuelCancelable);
 
+    }
+
+    private void configureCommands()
+    {
+        intake.ifPresent(this::configureBindings);
+        if (intake.isPresent() && hopper.isPresent() && launcher.isPresent())
+        {
+            configureCommands(hopper.get(), launcher.get());
+        }
+    }
+
+    private void configureCommands(Intake intake)
+    {
+        stowIntake = new StowIntake(intake);
+        deployIntake = new DeployIntake(intake);
+        partiallyDeployIntake = new PartiallyDeployIntake(intake);
+    }
+
+    private void configureCommands(Hopper hopper, Launcher launcher)
+    {
+        scoreFuelCancelable = new ScoreFuelCancelable(launcher, hopper);
     }
 
     /**
