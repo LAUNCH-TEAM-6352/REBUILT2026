@@ -328,14 +328,12 @@ public class RobotContainer
         return this.pathFindToPoseFlipped(startingPoseLP, 0.0).andThen(longPath);
     }
 
-
     private Command getTestAutoShoot()
     {
         PathPlannerAuto testAutoShoot = new PathPlannerAuto("testAutoShoot");
         Pose2d startingPoseTestAutoShoot = testAutoShoot.getStartingPose();
         return pathFindToPoseFlipped(startingPoseTestAutoShoot, 0.0).andThen(testAutoShoot);
     }
-
 
     private Command topBumpToAllianceZone()
     {
@@ -520,7 +518,6 @@ public class RobotContainer
                     .orElse(Commands.none())));
     }
 
-
     public Command autoFerry()
     {
         Rotation2d angle = Rotation2d.fromDegrees(0);
@@ -577,7 +574,6 @@ public class RobotContainer
             }
         }, drivetrain.map(dt -> Set.of((Subsystem) dt)).orElse(Set.of()));
     }
-
 
     public boolean isBlueAlliance()
     {
