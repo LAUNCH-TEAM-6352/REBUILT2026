@@ -18,7 +18,7 @@ public class MoveIntakePivotWithGamepad extends Command
     private final Intake intake;
     private final CommandXboxController gamepad;
 
-    /** Creates a new MoveClimberWithGamepad. */
+    /** Creates a new MoveIntakeWithGamepad. */
     public MoveIntakePivotWithGamepad(Intake intake, CommandXboxController gamepad)
     {
         this.intake = intake;

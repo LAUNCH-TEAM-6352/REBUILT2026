@@ -45,36 +45,6 @@ public final class Constants
         public static final double SHOOT_POINT_RADIUS_METERS = 2.2;
     }
 
-    public static class ClimberConstants
-    {
-        public static final CANBus WINCH_MOTOR_BUS = Constants.CANIVORE_BUS;
-        public static final int WINCH_MOTOR_CHANNEL = 48;
-        public static final InvertedValue WINCH_MOTOR_INVERTED_VALUE = InvertedValue.Clockwise_Positive;
-
-        public static final double WINCH_KP = 0.6;
-        public static final double WINCH_KI = 0;
-        public static final double WINCH_KD = 0;
-
-        public static final double WINCH_MAX_FWD_SPEED = 0.6;
-        public static final double WINCH_MAX_REV_SPEED = -0.4;
-        public static final double WINCH_MAX_MAN_SPEED = 0.4;
-
-        // These extended and climbed positions are WAGs based upon limited testing on 2026-02-21:
-        public static final double STOWED_POSITION = 0;
-        public static final double EXTENDED_POSITION = 58;
-        public static final double CLIMBED_POSITION = 36;
-
-        public static final double CLIMBER_TOLERANCE = 0.5;
-
-        public static final double MIN_POSITION = STOWED_POSITION;
-        public static final double MAX_POSITION = EXTENDED_POSITION;
-
-        public static final int SERVO_CHANNEL = 0;
-
-        public static final int RATCHET_ENGAGED_POSITION = 0;
-        public static final int RATCHET_RELEASED_POSITION = 1;
-    }
-
     public static class HopperConstants
     {
         public static final CANBus CONVEYOR_MOTOR_BUS = Constants.CANIVORE_BUS;
@@ -186,10 +156,6 @@ public final class Constants
 
     public static final class DashboardConstants
     {
-        public static final String CLIMBER_CLIMB_KEY = "Climb Position";
-        public static final String CLIMBER_EXTEND_KEY = "Extended Position";
-        public static final String CLIMBER_STOW_KEY = "Stowed Position";
-
         public static final String CONVEYOR_FEED_KEY = "HopperFeed";
 
         public static final String INTAKE_VELOCITY_KEY = "IntakeVelRPM";
