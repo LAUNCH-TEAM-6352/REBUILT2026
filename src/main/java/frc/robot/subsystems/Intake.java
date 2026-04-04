@@ -117,6 +117,7 @@ public class Intake extends SubsystemBase
     // Pivots the intake to a specified position, specified in degrtees.
     public void pivotToPositionInDegrees(double position)
     {
+        System.out.println("Pivoting to position: " + position + " degrees");
         pivotMotor.setControl(positionControl.withPosition(Degrees.of(position)));
         targetPosition = position;
         targetTolerance = IntakeConstants.PIVOT_TOLERANCE_DEG;
@@ -209,13 +210,14 @@ public class Intake extends SubsystemBase
         var pivotPosition = getPivotPosition().in(Degrees);
         var stallCurrent = pivotMotor.getMotorStallCurrent().getValue().in(Amps);
 
-        if (isPositioningStarted)
-        {
-        }
         isPivotStalled = pivotStallDebouncer
             .calculate(pivotMotor.getSupplyCurrent().getValue().in(Amps) > stallCurrent);
+
+        if (isPositioningStarted)
+        {
         if (Math.abs(pivotPosition - targetPosition) <= targetTolerance)
         {
+            System.out.println("At target position: " + pivotPosition + " degrees");
             atTargetPosition = true;
             isPositioningStarted = false;
         }
@@ -223,7 +225,7 @@ public class Intake extends SubsystemBase
         {
             pivotMotor.stopMotor();
         }
-
+    }
         SmartDashboard.putNumber("Intake Pos",
             getPivotPosition().in(Degrees));
         SmartDashboard.putNumber("IntakeOut", intakeMotor.getDutyCycle().getValueAsDouble());

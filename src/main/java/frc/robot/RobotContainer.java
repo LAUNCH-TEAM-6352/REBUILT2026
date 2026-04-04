@@ -73,7 +73,7 @@ import com.pathplanner.lib.util.FlippingUtil;
 public class RobotContainer
 {
     private SendableChooser<Command> autoChooser = null;
-    private final SendableChooser<Pose2d> startPositions = new SendableChooser<Pose2d>();
+    public final SendableChooser<Pose2d> startPositions = new SendableChooser<Pose2d>();
 
     private double MaxSpeed = 1.0 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top
                                                                                         // speed
@@ -281,26 +281,35 @@ public class RobotContainer
 
         // THESE BINDS ARE JUST TESTING ONCE AGAIN THESE WILL CHANGE FOR THE FINAL CONTROL SCHEME
 
-        driverGamepad.a().whileTrue(this.autoShootCommand());
+        driverGamepad.x().whileTrue(this.autoShootCommand());
         // driverGamepad.povRight().whileTrue(this.autoFerry());
 
-        driverGamepad.y().whileTrue(this.autoCrossBumpCommandFix());
+        // driverGamepad.y().whileTrue(this.autoCrossBumpCommandFix());
         // driverGamepad.rightTrigger().whileTrue(getLongPath());
-        driverGamepad.leftTrigger().whileTrue(getLongPath());
-
-        driverGamepad.x().onTrue(getTestAutoShoot());
+        driverGamepad.rightTrigger().onTrue(Commands.runOnce(() -> getStartPostion()));
+         driverGamepad.leftTrigger().whileTrue((getNeutralShoot()));
+        
+        // driverGamepad.x().onTrue(getTestAutoShoot());
 
     }
 
     private void initializeStartPositionSendableChooser()
     {
         // TODO: assign actual values!!!!!!
-        startPositions.addOption(
-            "Right Ramp", new Pose2d(4.587, 5.536, Rotation2d.kZero));
-        startPositions.addOption("Left Ramp", new Pose2d(4.587, 5.536, Rotation2d.kZero));
-        startPositions.addOption("Center Hub", new Pose2d(4.587, 5.536, Rotation2d.kZero));
+        startPositions.addOption("Depot Ramp", new Pose2d(3.613, 5.568, Rotation2d.kZero));
+        startPositions.addOption("Human Player Ramp", new Pose2d(3.613, 2.541, Rotation2d.kZero));
+        startPositions.addOption("Center Hub", new Pose2d(3.613, 3.983, Rotation2d.kZero));
 
         SmartDashboard.putData("Start Position", startPositions);
+    }
+
+    public void getStartPostion(){
+        Pose2d startPose = startPositions.getSelected();
+        if(startPose != null){
+            resetPosition(startPose);
+        }
+        System.out.println("Start position selected: " + startPositions.getSelected());
+
     }
 
     private Command pathFindToPoseFlipped(Pose2d point, double constraints)
@@ -320,6 +329,13 @@ public class RobotContainer
         PathPlannerAuto longPath = new PathPlannerAuto("New Auto");
         Pose2d startingPoseLP = longPath.getStartingPose();
         return this.pathFindToPoseFlipped(startingPoseLP, 0.0).andThen(longPath);
+    }
+
+        private Command getNeutralShoot()
+    {
+        PathPlannerAuto neutralShoot = new PathPlannerAuto("neutralShoot");
+        Pose2d startingPoseNS = neutralShoot.getStartingPose();
+        return this.pathFindToPoseFlipped(startingPoseNS, 0.0).andThen(neutralShoot);
     }
 
     private Command getTestAutoShoot()
