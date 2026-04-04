@@ -88,7 +88,7 @@ public final class Constants
         public static final double PIVOT_GRAVITY_ARM_POSITION_OFFSET = 0;
 
         public static final double PIVOT_STALL_DEBOUNCE_TIME_SECS = .25;
-        public static final DebounceType PIVOT_STALL_DEBOUNCE_TYPE = DebounceType.kRising;
+        public static final DebounceType PIVOT_STALL_DEBOUNCE_TYPE = DebounceType.kBoth;
         public static final double PIVOT_STALL_CURRENT = 20;
 
         public static final double PIVOT_MAX_FWD_SPEED = .6;

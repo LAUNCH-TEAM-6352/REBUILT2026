@@ -46,6 +46,7 @@ public class Intake extends SubsystemBase
     private double targetTolerance;
     private boolean atTargetPosition = false;
     private boolean isPositioningStarted;
+    private boolean isPivotStalled;
 
     /** Creates a new Intake. */
     public Intake()
@@ -199,30 +200,32 @@ public class Intake extends SubsystemBase
 
     public boolean isPivotStalled()
     {
-        // TODO: Determine if we should get stall current from method, or define in constants.
-        var stallCurrent = pivotMotor.getMotorStallCurrent().getValue().in(Amps);
-        return pivotStallDebouncer.calculate(pivotMotor.getSupplyCurrent().getValue().in(Amps) > stallCurrent);
+        return isPivotStalled;
     }
 
     @Override
     public void periodic()
     {
         var pivotPosition = getPivotPosition().in(Degrees);
+        var stallCurrent = pivotMotor.getMotorStallCurrent().getValue().in(Amps);
 
         if (isPositioningStarted)
         {
-            if (Math.abs(pivotPosition - targetPosition) <= targetTolerance)
-            {
-                atTargetPosition = true;
-                isPositioningStarted = false;
-            }
-            else if (isPivotStalled())
-            {
-                pivotMotor.stopMotor();
-            }
+        }
+        isPivotStalled = pivotStallDebouncer
+            .calculate(pivotMotor.getSupplyCurrent().getValue().in(Amps) > stallCurrent);
+        if (Math.abs(pivotPosition - targetPosition) <= targetTolerance)
+        {
+            atTargetPosition = true;
+            isPositioningStarted = false;
+        }
+        else if (isPivotStalled())
+        {
+            pivotMotor.stopMotor();
         }
 
-        SmartDashboard.putNumber("Intake Pos", getPivotPosition().in(Degrees));
+        SmartDashboard.putNumber("Intake Pos",
+            getPivotPosition().in(Degrees));
         SmartDashboard.putNumber("IntakeOut", intakeMotor.getDutyCycle().getValueAsDouble());
         SmartDashboard.putNumber("IntakeRPM", intakeMotor.getVelocity().getValue().in(RPM));
         SmartDashboard.putNumber("PivotSpd", pivotMotor.getDutyCycle().getValueAsDouble());

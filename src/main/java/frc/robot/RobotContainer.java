@@ -72,7 +72,7 @@ import com.pathplanner.lib.util.FlippingUtil;
 
 public class RobotContainer
 {
-    private final SendableChooser<Command> autoChooser = null;
+    private SendableChooser<Command> autoChooser = null;
     private final SendableChooser<Pose2d> startPositions = new SendableChooser<Pose2d>();
 
     private double MaxSpeed = 1.0 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top
@@ -94,12 +94,6 @@ public class RobotContainer
     public final LimeLightVision limelightVision = new LimeLightVision(
         List.of("limelight-front", "limelight-climber", "limelight-br", "limelight-bl"));
     // List.of("limelight-front", "limelight-climber","limelight-br"));
-
-    // Commands:
-    private ScoreFuelCancelable scoreFuelCancelable;
-    private StowIntake stowIntake;
-    private DeployIntake deployIntake;
-    private PartiallyDeployIntake partiallyDeployIntake;
 
     // Subsystems:
     private final Optional<Launcher> launcher;
@@ -186,52 +180,30 @@ public class RobotContainer
             configurePathPlannerNamedCommands(intake.get(), hopper.get(), launcher.get());
         }
 
-        configureCommands();
         configureBindings();
 
         // Configure dashboard values
         configureDashboard();
-
-        // autoChooser = AutoBuilder.buildAutoChooser();
-        // SmartDashboard.putData("Auto Chooser", autoChooser);
-
+        if (drivetrain.isPresent())
+        {
+            autoChooser = AutoBuilder.buildAutoChooser();
+            SmartDashboard.putData("Auto Chooser", autoChooser);
+        }
     }
 
     private void configurePathPlannerNamedCommands(Intake intake, Hopper hopper, Launcher launcher)
     {
-        NamedCommands.registerCommand("deployIntake", deployIntake);
+        NamedCommands.registerCommand("deployIntake", new DeployIntake(intake));
 
-        NamedCommands.registerCommand("stowIntake", stowIntake);
+        NamedCommands.registerCommand("stowIntake", new StowIntake(intake));
 
-        NamedCommands.registerCommand("partiallyDeployIntake", partiallyDeployIntake);
-
+        NamedCommands.registerCommand("partiallyDeployIntake", new PartiallyDeployIntake(intake));
         NamedCommands.registerCommand("runIntake", intake.intakeCommand());
 
         NamedCommands.registerCommand("stopIntake", intake.stopCommand());
 
-        NamedCommands.registerCommand("scoreFuelCancelable", scoreFuelCancelable);
+        NamedCommands.registerCommand("scoreFuelCancelable", new ScoreFuelCancelable(launcher, hopper));
 
-    }
-
-    private void configureCommands()
-    {
-        intake.ifPresent(this::configureCommands);
-        if (hopper.isPresent() && launcher.isPresent())
-        {
-            configureCommands(hopper.get(), launcher.get());
-        }
-    }
-
-    private void configureCommands(Intake intake)
-    {
-        stowIntake = new StowIntake(intake);
-        deployIntake = new DeployIntake(intake);
-        partiallyDeployIntake = new PartiallyDeployIntake(intake);
-    }
-
-    private void configureCommands(Hopper hopper, Launcher launcher)
-    {
-        scoreFuelCancelable = new ScoreFuelCancelable(launcher, hopper);
     }
 
     /**
@@ -262,7 +234,7 @@ public class RobotContainer
 
     private void configureBindings(Intake intake, Hopper hopper, Launcher launcher)
     {
-        codriverGamepad.b().whileTrue(scoreFuelCancelable);
+        codriverGamepad.b().whileTrue(new ScoreFuelCancelable(launcher, hopper));
 
     }
 
@@ -428,10 +400,10 @@ public class RobotContainer
     {
         codriverGamepad.y().whileTrue(intake.intakeThenStopCommand());
         codriverGamepad.povDown().whileTrue(intake.ejectThenStopCommand());
-        codriverGamepad.x().onTrue(deployIntake);
+        codriverGamepad.x().onTrue(new DeployIntake(intake));
         codriverGamepad.a().onTrue(intake.stopCommand());
-        codriverGamepad.start().onTrue(partiallyDeployIntake);
-        codriverGamepad.back().onTrue(stowIntake);
+        codriverGamepad.start().onTrue(new PartiallyDeployIntake(intake));
+        codriverGamepad.back().onTrue(new StowIntake(intake));
         new Trigger(() -> codriverGamepad.getLeftX() < -0.8)
             .onTrue(Commands.sequence(intake.intakeCommand(), new MoveIntakePivotWithGamepad(intake, codriverGamepad)));
     }
