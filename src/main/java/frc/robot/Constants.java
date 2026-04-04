@@ -14,6 +14,7 @@ import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.ctre.phoenix6.signals.StaticFeedforwardSignValue;
 import com.pathplanner.lib.config.PIDConstants;
 
+import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 
@@ -68,7 +69,7 @@ public final class Constants
 
         public static final SensorDirectionValue ENCODER_DIRECTION_VALUE = SensorDirectionValue.CounterClockwise_Positive;
 
-        public static final double INTAKE_VELOCITY_RPM = 1500;
+        public static final double INTAKE_VELOCITY_RPM = 1700;
         public static final double EJECT_VELOCITY_RPM = 1500;
         public static final double AGITATE_VELOCITY_RPM = 500;
         public static final double INTAKE_KS = 0.1; // Add 0.1 V output to overcome static friction
@@ -85,8 +86,10 @@ public final class Constants
         public static final StaticFeedforwardSignValue PIVOT_STATIC_FF_SIGN = StaticFeedforwardSignValue.UseClosedLoopSign;
         public static final GravityTypeValue PIVOT_GRAVITY_TYPE = GravityTypeValue.Arm_Cosine;
         public static final double PIVOT_GRAVITY_ARM_POSITION_OFFSET = 0;
-        public static final double PIVOT_STALL_VOLTAGE_THRESHOLD = 2.0;
-        public static final double PIVOT_STALL_VELOCITY_THRESHOLD_RPM = 5.0;
+
+        public static final double PIVOT_STALL_DEBOUNCE_TIME_SECS = .25;
+        public static final DebounceType PIVOT_STALL_DEBOUNCE_TYPE = DebounceType.kBoth;
+        public static final double PIVOT_STALL_CURRENT = 20;
 
         public static final double PIVOT_MAX_FWD_SPEED = .6;
         public static final double PIVOT_MAX_REV_SPEED = -1;

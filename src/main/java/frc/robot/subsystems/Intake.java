@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.RPM;
 
@@ -17,6 +18,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -37,10 +39,14 @@ public class Intake extends SubsystemBase
     private final VelocityVoltage velocityControl = new VelocityVoltage(0).withSlot(0);
     private final PositionVoltage positionControl = new PositionVoltage(0).withSlot(0);
 
+    private final Debouncer pivotStallDebouncer = new Debouncer(IntakeConstants.PIVOT_STALL_DEBOUNCE_TIME_SECS,
+        IntakeConstants.PIVOT_STALL_DEBOUNCE_TYPE);
+
     private double targetPosition;
     private double targetTolerance;
     private boolean atTargetPosition = false;
     private boolean isPositioningStarted;
+    private boolean isPivotStalled;
 
     /** Creates a new Intake. */
     public Intake()
@@ -118,31 +124,16 @@ public class Intake extends SubsystemBase
         atTargetPosition = false;
     }
 
-    public Command stowCommand()
-    {
-        return runOnce(this::stow);
-    }
-
     public void stow()
     {
         pivotToPositionInDegrees(
             SmartDashboard.getNumber(DashboardConstants.STOWED_KEY, IntakeConstants.STOWED_POSITION.magnitude()));
     }
 
-    public Command deployCommand()
-    {
-        return runOnce(this::deploy);
-    }
-
     public void deploy()
     {
         pivotToPositionInDegrees(
             SmartDashboard.getNumber(DashboardConstants.DEPLOYED_KEY, IntakeConstants.DEPLOYED_POSITION.magnitude()));
-    }
-
-    public Command partialDeployCommand()
-    {
-        return runOnce(this::partialDeploy);
     }
 
     public void partialDeploy()
@@ -209,28 +200,32 @@ public class Intake extends SubsystemBase
 
     public boolean isPivotStalled()
     {
-        // If the pivot motor is applying significant voltage but the pivot velocity is not changing, we can assume the
-        // pivot is stalled
-        return Math.abs(pivotMotor.getMotorVoltage().getValueAsDouble()) > IntakeConstants.PIVOT_STALL_VOLTAGE_THRESHOLD
-            && Math
-                .abs(pivotMotor.getVelocity().getValue().in(RPM)) < IntakeConstants.PIVOT_STALL_VELOCITY_THRESHOLD_RPM;
+        return isPivotStalled;
     }
 
     @Override
     public void periodic()
     {
         var pivotPosition = getPivotPosition().in(Degrees);
+        var stallCurrent = pivotMotor.getMotorStallCurrent().getValue().in(Amps);
 
         if (isPositioningStarted)
         {
-            if (Math.abs(pivotPosition - targetPosition) <= targetTolerance)
-            {
-                atTargetPosition = true;
-                isPositioningStarted = false;
-            }
+        }
+        isPivotStalled = pivotStallDebouncer
+            .calculate(pivotMotor.getSupplyCurrent().getValue().in(Amps) > stallCurrent);
+        if (Math.abs(pivotPosition - targetPosition) <= targetTolerance)
+        {
+            atTargetPosition = true;
+            isPositioningStarted = false;
+        }
+        else if (isPivotStalled())
+        {
+            pivotMotor.stopMotor();
         }
 
-        SmartDashboard.putNumber("Intake Pos", getPivotPosition().in(Degrees));
+        SmartDashboard.putNumber("Intake Pos",
+            getPivotPosition().in(Degrees));
         SmartDashboard.putNumber("IntakeOut", intakeMotor.getDutyCycle().getValueAsDouble());
         SmartDashboard.putNumber("IntakeRPM", intakeMotor.getVelocity().getValue().in(RPM));
         SmartDashboard.putNumber("PivotSpd", pivotMotor.getDutyCycle().getValueAsDouble());
