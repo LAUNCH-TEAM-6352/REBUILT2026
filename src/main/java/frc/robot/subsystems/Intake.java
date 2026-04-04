@@ -209,19 +209,20 @@ public class Intake extends SubsystemBase
         var pivotPosition = getPivotPosition().in(Degrees);
         var stallCurrent = pivotMotor.getMotorStallCurrent().getValue().in(Amps);
 
-        if (isPositioningStarted)
-        {
-        }
         isPivotStalled = pivotStallDebouncer
             .calculate(pivotMotor.getSupplyCurrent().getValue().in(Amps) > stallCurrent);
-        if (Math.abs(pivotPosition - targetPosition) <= targetTolerance)
+
+        if (isPositioningStarted)
         {
-            atTargetPosition = true;
-            isPositioningStarted = false;
-        }
-        else if (isPivotStalled())
-        {
-            pivotMotor.stopMotor();
+            if (Math.abs(pivotPosition - targetPosition) <= targetTolerance)
+            {
+                atTargetPosition = true;
+                isPositioningStarted = false;
+            }
+            else if (isPivotStalled())
+            {
+                pivotMotor.stopMotor();
+            }
         }
 
         SmartDashboard.putNumber("Intake Pos",

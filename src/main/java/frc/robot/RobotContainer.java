@@ -24,6 +24,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -105,6 +106,9 @@ public class RobotContainer
     private final CommandXboxController driverGamepad;
     private final CommandXboxController codriverGamepad;
 
+    // PDH:
+    private final PowerDistribution powerDistribution = new PowerDistribution();
+
     // Points for Paths/Automation
     Translation2d redHub = new Translation2d(11.9, 4);
     Translation2d blueHub = new Translation2d(4.65, 4);
@@ -136,6 +140,8 @@ public class RobotContainer
 
         var gameData = DriverStation.getGameSpecificMessage().toLowerCase();
         SmartDashboard.putString("Game Data", gameData);
+
+        powerDistribution.setSwitchableChannel(true);
 
         // Create OI devices:
         if (gameData.contains("-oi-"))
