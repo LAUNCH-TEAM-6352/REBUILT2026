@@ -27,7 +27,6 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ProxyCommand;
@@ -281,14 +280,15 @@ public class RobotContainer
 
         // THESE BINDS ARE JUST TESTING ONCE AGAIN THESE WILL CHANGE FOR THE FINAL CONTROL SCHEME
 
-        driverGamepad.x().whileTrue(goToShootPoint(SmartDashboard.getNumber(DashboardConstants.SHOOTING_POINT_RADIUS_KEY, AutomationConstants.SHOOT_POINT_RADIUS_METERS)));
+        driverGamepad.x().whileTrue(goToShootPoint(SmartDashboard
+            .getNumber(DashboardConstants.SHOOTING_POINT_RADIUS_KEY, AutomationConstants.SHOOT_POINT_RADIUS_METERS)));
         // driverGamepad.povRight().whileTrue(this.autoFerry());
 
         // driverGamepad.y().whileTrue(this.autoCrossBumpCommandFix());
         // driverGamepad.rightTrigger().whileTrue(getLongPath());
         driverGamepad.rightTrigger().onTrue(Commands.runOnce(() -> getStartPostion()));
-         driverGamepad.leftTrigger().whileTrue((getNeutralShoot()));
-        
+        driverGamepad.leftTrigger().whileTrue((getNeutralShoot()));
+
         // driverGamepad.x().onTrue(getTestAutoShoot());
 
     }
@@ -303,9 +303,11 @@ public class RobotContainer
         SmartDashboard.putData("Start Position", startPositions);
     }
 
-    public void getStartPostion(){
+    public void getStartPostion()
+    {
         Pose2d startPose = startPositions.getSelected();
-        if(startPose != null){
+        if (startPose != null)
+        {
             resetPosition(startPose);
         }
         System.out.println("Start position selected: " + startPositions.getSelected());
@@ -331,7 +333,7 @@ public class RobotContainer
         return this.pathFindToPoseFlipped(startingPoseLP, 0.0).andThen(longPath);
     }
 
-        private Command getNeutralShoot()
+    private Command getNeutralShoot()
     {
         PathPlannerAuto neutralShoot = new PathPlannerAuto("neutralShoot");
         Pose2d startingPoseNS = neutralShoot.getStartingPose();
@@ -567,39 +569,40 @@ public class RobotContainer
 
     public Command goToShootPoint(double Radius)
     {
-        return Commands.defer(() -> {
-        Translation2d RobotPose = drivetrain.get().getPosition().getTranslation();
-        boolean isBlue = isBlueAlliance();
-        double lowerLim = (2 * Math.PI) / 3;
-        double upperLim = (4 * Math.PI) / 3;
-        double minRad = lowerLim;
-        double minDistance = Double.MAX_VALUE;
-
-        Translation2d searchPose = RobotPose;
-        if (!isBlue)
+        return Commands.defer(() ->
         {
-            searchPose = new Translation2d(16.54 - RobotPose.getX(), 8.21 - RobotPose.getY());
-        }
+            Translation2d RobotPose = drivetrain.get().getPosition().getTranslation();
+            boolean isBlue = isBlueAlliance();
+            double lowerLim = (2 * Math.PI) / 3;
+            double upperLim = (4 * Math.PI) / 3;
+            double minRad = lowerLim;
+            double minDistance = Double.MAX_VALUE;
 
-        for (double i = lowerLim; i < upperLim; i += 0.01)
-        {
-            double dist = searchPose.getDistance(shootingCircle(i, Radius, isBlue).getTranslation());
-            if (dist < minDistance)
+            Translation2d searchPose = RobotPose;
+            if (!isBlue)
             {
-                minDistance = dist;
-                minRad = i;
+                searchPose = new Translation2d(16.54 - RobotPose.getX(), 8.21 - RobotPose.getY());
             }
-        }
 
-        Pose2d circlePos = shootingCircle(minRad, Radius, isBlue);
+            for (double i = lowerLim; i < upperLim; i += 0.01)
+            {
+                double dist = searchPose.getDistance(shootingCircle(i, Radius, isBlue).getTranslation());
+                if (dist < minDistance)
+                {
+                    minDistance = dist;
+                    minRad = i;
+                }
+            }
 
-        Rotation2d facingRotation = Rotation2d.fromRadians(minRad + Math.PI);
+            Pose2d circlePos = shootingCircle(minRad, Radius, isBlue);
 
-       return minDistance < 0.5
-            ? facePose2D(facingRotation)
-            : pathFindToPoseFlipped(new Pose2d(circlePos.getTranslation(), facingRotation), 0.0);
+            Rotation2d facingRotation = Rotation2d.fromRadians(minRad + Math.PI);
 
-    }, drivetrain.map(dt -> Set.of((Subsystem) dt)).orElse(Set.of()));
+            return minDistance < 0.5
+                ? facePose2D(facingRotation)
+                : pathFindToPoseFlipped(new Pose2d(circlePos.getTranslation(), facingRotation), 0.0);
+
+        }, drivetrain.map(dt -> Set.of((Subsystem) dt)).orElse(Set.of()));
     }
 
     private void configureDashboard()
