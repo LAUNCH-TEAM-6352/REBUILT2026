@@ -591,7 +591,7 @@ public class RobotContainer
                 searchPose = new Translation2d(16.54 - RobotPose.getX(), 8.21 - RobotPose.getY());
             }
 
-            for (double i = lowerLim; i < upperLim; i += 0.01)
+            for (double i = lowerLim; i < upperLim; i += 0.001)
             {
                 double dist = searchPose.getDistance(shootingCircle(i, Radius, isBlue).getTranslation());
                 if (dist < minDistance)
