@@ -215,15 +215,15 @@ public class Intake extends SubsystemBase
 
         if (isPositioningStarted)
         {
-        if (Math.abs(pivotPosition - targetPosition) <= targetTolerance)
-        {
-            System.out.println("At target position: " + pivotPosition + " degrees");
-            atTargetPosition = true;
-            isPositioningStarted = false;
-        }
-        else if (isPivotStalled())
-        {
-            pivotMotor.stopMotor();
+            if (Math.abs(pivotPosition - targetPosition) <= targetTolerance)
+            {
+                atTargetPosition = true;
+                isPositioningStarted = false;
+            }
+            else if (isPivotStalled())
+            {
+                pivotMotor.stopMotor();
+            }
         }
     }
         SmartDashboard.putNumber("Intake Pos",
