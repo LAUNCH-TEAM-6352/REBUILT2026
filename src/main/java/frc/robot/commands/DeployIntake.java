@@ -44,11 +44,6 @@ public class DeployIntake extends Command
     @Override
     public boolean isFinished()
     {
-        if (intake.atTargetPosition())
-        {
-            System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-        }
         return intake.atTargetPosition() || intake.isPivotStalled();
-
     }
 }

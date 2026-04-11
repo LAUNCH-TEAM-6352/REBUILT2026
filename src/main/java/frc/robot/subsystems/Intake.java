@@ -117,7 +117,6 @@ public class Intake extends SubsystemBase
     // Pivots the intake to a specified position, specified in degrtees.
     public void pivotToPositionInDegrees(double position)
     {
-        System.out.println("Pivoting to position: " + position + " degrees");
         pivotMotor.setControl(positionControl.withPosition(Degrees.of(position)));
         targetPosition = position;
         targetTolerance = IntakeConstants.PIVOT_TOLERANCE_DEG;

@@ -24,6 +24,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -94,6 +95,9 @@ public class RobotContainer
         List.of("limelight-front", "limelight-climber", "limelight-br", "limelight-bl"));
     // List.of("limelight-front", "limelight-climber","limelight-br"));
 
+    // Power distibution panel
+    private final PowerDistribution powerDistribution = new PowerDistribution();
+
     // Subsystems:
     private final Optional<Launcher> launcher;
     private final Optional<Intake> intake;
@@ -120,6 +124,9 @@ public class RobotContainer
 
     public RobotContainer()
     {
+        // Make sure power disztribution switchable channel is turned on:
+        powerDistribution.setSwitchableChannel(true);
+
         // Get the game data message fom the driver station.
         // This message is primarily used during development to
         // construct only certain subsystems.
