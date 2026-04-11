@@ -13,25 +13,26 @@
         {
           "type": "named",
           "data": {
-            "name": "deployIntake"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 2.0
-          }
-        },
-        {
-          "type": "named",
-          "data": {
             "name": "runIntake"
           }
         },
         {
-          "type": "path",
+          "type": "parallel",
           "data": {
-            "pathName": "intakePath"
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "deployIntake"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "intakePath"
+                }
+              }
+            ]
           }
         },
         {

@@ -6,8 +6,6 @@ package frc.robot;
 
 import com.ctre.phoenix6.HootAutoReplay;
 
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -66,6 +64,7 @@ public class Robot extends TimedRobot
     @Override
     public void robotInit()
     {
+        // m_robotContainer.getStartPostion();
         m_robotContainer.limelightVision
             .setCamThrottle(SmartDashboard.getNumber(DashboardConstants.LIMELIGHT_THROTTLE_ENABLED_KEY,
                 LimeLightConstants.LIMELIGHT_THROTTLE_ENABLED));
@@ -97,12 +96,6 @@ public class Robot extends TimedRobot
     @Override
     public void autonomousInit()
     {
-        // in front of blue hub
-        // m_robotContainer.resetPosition(new Pose2d(3.591, 4.025, Rotation2d.kZero));
-        // human player station side bump
-        // m_robotContainer.resetPosition(new Pose2d(3.630, 2.453, Rotation2d.kZero));
-        // depot side bump
-        m_robotContainer.resetPosition(new Pose2d(3.613, 5.568, Rotation2d.kZero));
 
         m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
@@ -134,7 +127,6 @@ public class Robot extends TimedRobot
     @Override
     public void teleopInit()
     {
-        m_robotContainer.resetPosition(new Pose2d(3.548, 5.714, Rotation2d.kZero));
         // This makes sure that the autonomous stops running when
         // teleop starts running. If you want the autonomous to
         // continue until interrupted by another command, remove
