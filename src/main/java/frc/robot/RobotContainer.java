@@ -605,7 +605,7 @@ public class RobotContainer
 
             Rotation2d facingRotation = Rotation2d.fromRadians(minRad + Math.PI);
 
-            return minDistance < 0.5
+            return minDistance < 0.2
                 ? facePose2D(facingRotation)
                 : pathFindToPoseFlipped(new Pose2d(circlePos.getTranslation(), facingRotation), 0.0);
 

@@ -134,7 +134,7 @@ public final class Constants
 
         public static final double INDEXER_KS = 0.1; // Add 0.1 V output to overcome static friction
         public static final double INDEXER_KV = 0.12; // A velocity target of 1 rps results in 0.12 V output
-        public static final double INDEXER_KP = 0.17; // An error of 1 rps results in 0.11 V output
+        public static final double INDEXER_KP = 0.24; // An error of 1 rps results in 0.11 V output
         public static final double INDEXER_KI = 0.0; // no output for integrated error
         public static final double INDEXER_KD = 0.0; // no output for error derivative
 
