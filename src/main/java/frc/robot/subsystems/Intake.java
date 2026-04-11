@@ -225,7 +225,7 @@ public class Intake extends SubsystemBase
                 pivotMotor.stopMotor();
             }
         }
-    }
+
         SmartDashboard.putNumber("Intake Pos",
             getPivotPosition().in(Degrees));
         SmartDashboard.putNumber("IntakeOut", intakeMotor.getDutyCycle().getValueAsDouble());

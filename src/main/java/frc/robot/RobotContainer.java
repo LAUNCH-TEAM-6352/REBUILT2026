@@ -293,8 +293,8 @@ public class RobotContainer
         // driverGamepad.y().whileTrue(this.autoCrossBumpCommandFix());
         // driverGamepad.rightTrigger().whileTrue(getLongPath());
         driverGamepad.rightTrigger().onTrue(Commands.runOnce(() -> getStartPostion()));
-         driverGamepad.leftTrigger().whileTrue((getNeutralShoot()));
-        
+        driverGamepad.leftTrigger().whileTrue((getNeutralShoot()));
+
         // driverGamepad.x().onTrue(getTestAutoShoot());
 
     }
@@ -309,9 +309,11 @@ public class RobotContainer
         SmartDashboard.putData("Start Position", startPositions);
     }
 
-    public void getStartPostion(){
+    public void getStartPostion()
+    {
         Pose2d startPose = startPositions.getSelected();
-        if(startPose != null){
+        if (startPose != null)
+        {
             resetPosition(startPose);
         }
         System.out.println("Start position selected: " + startPositions.getSelected());
@@ -337,7 +339,7 @@ public class RobotContainer
         return this.pathFindToPoseFlipped(startingPoseLP, 0.0).andThen(longPath);
     }
 
-        private Command getNeutralShoot()
+    private Command getNeutralShoot()
     {
         PathPlannerAuto neutralShoot = new PathPlannerAuto("neutralShoot");
         Pose2d startingPoseNS = neutralShoot.getStartingPose();
