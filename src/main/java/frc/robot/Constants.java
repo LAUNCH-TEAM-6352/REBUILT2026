@@ -43,7 +43,7 @@ public final class Constants
         // driving into jammed fuel.
         public static final double AGITATE_MOVING_TIMEOUT_SECS = 4.0;
 
-        public static final double SHOOT_POINT_RADIUS_METERS = 2.2;
+        public static final double SHOOT_POINT_RADIUS_METERS = 2.23;
     }
 
     public static class HopperConstants
@@ -126,7 +126,7 @@ public final class Constants
 
         public static final double SHOOTER_KS = 0.1; // Add 0.1 V output to overcome static friction
         public static final double SHOOTER_KV = 0.12; // A velocity target of 1 rps results in 0.12 V output
-        public static final double SHOOTER_KP = 0.17; // An error of 1 rps results in 0.11 V output
+        public static final double SHOOTER_KP = 0.24; // An error of 1 rps results in 0.11 V output
         public static final double SHOOTER_KI = 0.0; // no output for integrated error
         public static final double SHOOTER_KD = 0.0; // no output for error derivative
 
@@ -134,7 +134,7 @@ public final class Constants
 
         public static final double INDEXER_KS = 0.1; // Add 0.1 V output to overcome static friction
         public static final double INDEXER_KV = 0.12; // A velocity target of 1 rps results in 0.12 V output
-        public static final double INDEXER_KP = 0.24; // An error of 1 rps results in 0.11 V output
+        public static final double INDEXER_KP = 0.17; // An error of 1 rps results in 0.11 V output
         public static final double INDEXER_KI = 0.0; // no output for integrated error
         public static final double INDEXER_KD = 0.0; // no output for error derivative
 
