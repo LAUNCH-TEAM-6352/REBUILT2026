@@ -52,7 +52,7 @@ public final class Constants
         public static final int CONVEYOR_MOTOR_CHANNEL = 41;
         public static final InvertedValue CONVEYOR_MOTOR_INVERTED_VALUE = InvertedValue.CounterClockwise_Positive;
 
-        public static final double FEED_SPEED = 0.5;
+        public static final double FEED_SPEED = 0.3;
     }
 
     public static class IntakeConstants
@@ -78,9 +78,9 @@ public final class Constants
         public static final double INTAKE_KI = 0.0; // no output for integrated error
         public static final double INTAKE_KD = 0.0; // no output for error derivative
 
-        public static final double PIVOT_KP = 20;
+        public static final double PIVOT_KP = 40;
         public static final double PIVOT_KI = 0.0;
-        public static final double PIVOT_KD = 4;
+        public static final double PIVOT_KD = 8;
         public static final double PIVOT_KS = 0.6;
         public static final double PIVOT_KG = 1;
         public static final StaticFeedforwardSignValue PIVOT_STATIC_FF_SIGN = StaticFeedforwardSignValue.UseClosedLoopSign;
@@ -89,7 +89,11 @@ public final class Constants
 
         public static final double PIVOT_STALL_DEBOUNCE_TIME_SECS = .25;
         public static final DebounceType PIVOT_STALL_DEBOUNCE_TYPE = DebounceType.kBoth;
-        public static final double PIVOT_STALL_CURRENT = 20;
+
+        public static final double INTAKE_STALL_DEBOUNCE_TIME_SECS = .3;
+        public static final DebounceType INTAKE_STALL_DEBOUNCE_TYPE = DebounceType.kBoth;
+
+
 
         public static final double PIVOT_MAX_FWD_SPEED = .6;
         public static final double PIVOT_MAX_REV_SPEED = -1;
@@ -97,7 +101,7 @@ public final class Constants
         public static final double PIVOT_MAX_MAN_SPEED = 0.25;
         public static final double PIVOT_MAX_MAN_VOLTS = 3.0;
 
-        public static final double PIVOT_TOLERANCE_DEG = 3;
+        public static final double PIVOT_TOLERANCE_DEG = 1;
 
         // These positions are in degrees and represent the angle of the intake
         // relative to its starting/stowed position.
@@ -122,7 +126,7 @@ public final class Constants
 
         public static final double SHOOTING_VELOCITY_RPM = 3300;
         public static final double IDLE_VELOCITY_RPM = 1000;
-        public static final double FEED_VELOCITY_RPM = 600;
+        public static final double FEED_VELOCITY_RPM = 700;
 
         public static final double SHOOTER_KS = 0.1; // Add 0.1 V output to overcome static friction
         public static final double SHOOTER_KV = 0.12; // A velocity target of 1 rps results in 0.12 V output

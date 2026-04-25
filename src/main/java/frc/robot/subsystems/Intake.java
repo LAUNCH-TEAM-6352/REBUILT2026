@@ -42,11 +42,14 @@ public class Intake extends SubsystemBase
     private final Debouncer pivotStallDebouncer = new Debouncer(IntakeConstants.PIVOT_STALL_DEBOUNCE_TIME_SECS,
         IntakeConstants.PIVOT_STALL_DEBOUNCE_TYPE);
 
+    private final Debouncer intakeStallDebouncer = new Debouncer(IntakeConstants.INTAKE_STALL_DEBOUNCE_TIME_SECS, IntakeConstants.INTAKE_STALL_DEBOUNCE_TYPE);
+
     private double targetPosition;
     private double targetTolerance;
     private boolean atTargetPosition = false;
     private boolean isPositioningStarted;
     private boolean isPivotStalled;
+    private boolean isIntakeStalled;
 
     /** Creates a new Intake. */
     public Intake()
@@ -150,7 +153,7 @@ public class Intake extends SubsystemBase
 
     public Command ejectThenStopCommand()
     {
-        return startEnd(this::intake, this::stop);
+        return startEnd(this::eject, this::stop);
     }
 
     // Intended for use in auto (Only starts the intake, does not stop automatically)
@@ -203,14 +206,20 @@ public class Intake extends SubsystemBase
         return isPivotStalled;
     }
 
+    public boolean isIntakeStalled()
+    {
+        return isIntakeStalled;
+    }
+
     @Override
     public void periodic()
     {
         var pivotPosition = getPivotPosition().in(Degrees);
-        var stallCurrent = pivotMotor.getMotorStallCurrent().getValue().in(Amps);
+        var pivotStallCurrent = pivotMotor.getMotorStallCurrent().getValue().in(Amps);
+        var intakeStallCurrent = intakeMotor.getMotorStallCurrent().getValue().in(Amps);
 
         isPivotStalled = pivotStallDebouncer
-            .calculate(pivotMotor.getSupplyCurrent().getValue().in(Amps) > stallCurrent);
+            .calculate(pivotMotor.getSupplyCurrent().getValue().in(Amps) > pivotStallCurrent);
 
         if (isPositioningStarted)
         {
@@ -225,12 +234,16 @@ public class Intake extends SubsystemBase
             }
         }
 
+        isIntakeStalled = intakeStallDebouncer
+            .calculate(pivotMotor.getSupplyCurrent().getValue().in(Amps) > intakeStallCurrent);
+
         SmartDashboard.putNumber("Intake Pos",
             getPivotPosition().in(Degrees));
         SmartDashboard.putNumber("IntakeOut", intakeMotor.getDutyCycle().getValueAsDouble());
         SmartDashboard.putNumber("IntakeRPM", intakeMotor.getVelocity().getValue().in(RPM));
         SmartDashboard.putNumber("PivotSpd", pivotMotor.getDutyCycle().getValueAsDouble());
         SmartDashboard.putNumber("PivotV", pivotMotor.getMotorVoltage().getValueAsDouble());
-        SmartDashboard.putBoolean("IsStalled", isPivotStalled());
+        SmartDashboard.putBoolean("IsPivotStalled", isPivotStalled());
+        SmartDashboard.putBoolean("IsIntakeStalled", isIntakeStalled());
     }
 }

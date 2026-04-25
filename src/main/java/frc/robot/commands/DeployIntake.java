@@ -12,6 +12,9 @@ public class DeployIntake extends Command
 {
 
     private Intake intake;
+    private Long commandTimeout = 2000L;
+    private Long commandStartTime = 0L;
+
 
     /** Creates a new StowIntake. */
     public DeployIntake(Intake intake)
@@ -25,6 +28,7 @@ public class DeployIntake extends Command
     public void initialize()
     {
         intake.deploy();
+        commandStartTime = System.currentTimeMillis();
     }
 
     // Called every time the scheduler runs while the command is scheduled.
@@ -44,6 +48,6 @@ public class DeployIntake extends Command
     @Override
     public boolean isFinished()
     {
-        return intake.atTargetPosition() || intake.isPivotStalled();
+        return intake.atTargetPosition() || intake.isPivotStalled() || System.currentTimeMillis() - this.commandStartTime >= this.commandTimeout;
     }
 }
