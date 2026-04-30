@@ -42,7 +42,8 @@ public class Intake extends SubsystemBase
     private final Debouncer pivotStallDebouncer = new Debouncer(IntakeConstants.PIVOT_STALL_DEBOUNCE_TIME_SECS,
         IntakeConstants.PIVOT_STALL_DEBOUNCE_TYPE);
 
-    private final Debouncer intakeStallDebouncer = new Debouncer(IntakeConstants.INTAKE_STALL_DEBOUNCE_TIME_SECS, IntakeConstants.INTAKE_STALL_DEBOUNCE_TYPE);
+    private final Debouncer intakeStallDebouncer = new Debouncer(IntakeConstants.INTAKE_STALL_DEBOUNCE_TIME_SECS,
+        IntakeConstants.INTAKE_STALL_DEBOUNCE_TYPE);
 
     private double targetPosition;
     private double targetTolerance;

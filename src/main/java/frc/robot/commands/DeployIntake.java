@@ -15,7 +15,6 @@ public class DeployIntake extends Command
     private Long commandTimeout = 2000L;
     private Long commandStartTime = 0L;
 
-
     /** Creates a new StowIntake. */
     public DeployIntake(Intake intake)
     {
@@ -48,6 +47,7 @@ public class DeployIntake extends Command
     @Override
     public boolean isFinished()
     {
-        return intake.atTargetPosition() || intake.isPivotStalled() || System.currentTimeMillis() - this.commandStartTime >= this.commandTimeout;
+        return intake.atTargetPosition() || intake.isPivotStalled()
+            || System.currentTimeMillis() - this.commandStartTime >= this.commandTimeout;
     }
 }
