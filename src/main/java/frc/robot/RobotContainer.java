@@ -412,12 +412,14 @@ public class RobotContainer
 
     public void checkForStalledIntake()
     {
-
         if (intake.isPresent() && intake.get().isIntakeStalled())
         {
             codriverGamepad.setRumble(RumbleType.kBothRumble, 1);
         }
-        ;
+        else
+        {
+            codriverGamepad.setRumble(RumbleType.kBothRumble, 0);
+        }
     }
 
     public Command getAutonomousCommand()
