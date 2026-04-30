@@ -6,8 +6,6 @@ package frc.robot;
 
 import com.ctre.phoenix6.HootAutoReplay;
 
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -98,13 +96,13 @@ public class Robot extends TimedRobot
     @Override
     public void autonomousInit()
     {
-        //in front of hub
-        m_robotContainer.resetPosition(new Pose2d(3.591, 4.025, Rotation2d.kZero));
-        //in front of depot bump
-       // m_robotContainer.resetPosition(new Pose2d(3.613, 5.568, Rotation2d.kZero));
-        //in front of human player station bump
-        //m_robotContainer.resetPosition(new Pose2d(3.597, 2.583, Rotation2d.kZero));
-
+        m_robotContainer.getStartPostion();
+        // in front of hub
+        // m_robotContainer.resetPosition(new Pose2d(3.591, 4.025, Rotation2d.kZero));
+        // in front of depot bump
+        // m_robotContainer.resetPosition(new Pose2d(3.613, 5.568, Rotation2d.kZero));
+        // in front of human player station bump
+        // m_robotContainer.resetPosition(new Pose2d(3.597, 2.583, Rotation2d.kZero));
 
         m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
@@ -140,7 +138,7 @@ public class Robot extends TimedRobot
         // teleop starts running. If you want the autonomous to
         // continue until interrupted by another command, remove
         // this line or comment it out.
-        //m_robotContainer.resetPosition(new Pose2d(3.613, 5.568, Rotation2d.kZero));
+        // m_robotContainer.resetPosition(new Pose2d(3.613, 5.568, Rotation2d.kZero));
 
         if (m_autonomousCommand != null)
         {

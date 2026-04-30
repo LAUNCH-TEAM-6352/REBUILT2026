@@ -294,7 +294,6 @@ public class RobotContainer
 
         // driverGamepad.y().whileTrue(this.autoCrossBumpCommandFix());
         // driverGamepad.rightTrigger().whileTrue(getLongPath());
-        driverGamepad.rightTrigger().onTrue(Commands.runOnce(() -> getStartPostion()));
         driverGamepad.leftTrigger().whileTrue((getNeutralShoot()));
 
         // driverGamepad.x().onTrue(getTestAutoShoot());
@@ -305,8 +304,8 @@ public class RobotContainer
     {
         // TODO: assign actual values!!!!!!
         startPositions.addOption("Depot Ramp", new Pose2d(3.613, 5.568, Rotation2d.kZero));
-        startPositions.addOption("Human Player Ramp", new Pose2d(3.613, 2.541, Rotation2d.kZero));
-        startPositions.addOption("Center Hub", new Pose2d(3.613, 3.983, Rotation2d.kZero));
+        startPositions.addOption("Center Hub", new Pose2d(3.591, 4.025, Rotation2d.kZero));
+        startPositions.addOption("Human Player Ramp", new Pose2d(3.597, 2.583, Rotation2d.kZero));
 
         SmartDashboard.putData("Start Position", startPositions);
     }
@@ -353,40 +352,6 @@ public class RobotContainer
         PathPlannerAuto testAutoShoot = new PathPlannerAuto("testAutoShoot");
         Pose2d startingPoseTestAutoShoot = testAutoShoot.getStartingPose();
         return pathFindToPoseFlipped(startingPoseTestAutoShoot, 0.0).andThen(testAutoShoot);
-    }
-
-    private Command topBumpToAllianceZone()
-    {
-        PathPlannerAuto topBumpToAlliance = new PathPlannerAuto("topBumpToAlliance");
-        Pose2d startingPosetopBumpToAlliance = topBumpToAlliance.getStartingPose();
-        Rotation2d startAngle = new Rotation2d(Units.degreesToRadians(-135.0));
-        startingPosetopBumpToAlliance.rotateBy(startAngle);
-        return pathFindToPoseFlipped(startingPosetopBumpToAlliance, 0.0).andThen(topBumpToAlliance);
-    }
-
-    private Command topBumpToNeutralZone()
-    {
-        PathPlannerAuto topBumpToNeutral = new PathPlannerAuto("topBumpToNeutral");
-        Pose2d startingPosetopBumpToNeutral = topBumpToNeutral.getStartingPose();
-        return pathFindToPoseFlipped(startingPosetopBumpToNeutral, 0.0).andThen(topBumpToNeutral);
-    }
-
-    private Command bottomBumpToNeutralZone()
-    {
-        PathPlannerAuto bottomBumpToNeutral = new PathPlannerAuto("bottomBumpToNeutral");
-        Pose2d startingPosebottomBumpToNeutral = bottomBumpToNeutral.getStartingPose();
-        Rotation2d startAngle = new Rotation2d(Units.degreesToRadians(135.0));
-        startingPosebottomBumpToNeutral.rotateBy(startAngle);
-        return pathFindToPoseFlipped(startingPosebottomBumpToNeutral, 0.0).andThen(bottomBumpToNeutral);
-    }
-
-    private Command bottomBumpToAlliance()
-    {
-        PathPlannerAuto bottomBumpToAlliance = new PathPlannerAuto("bottomBumpToAlliance");
-        Pose2d startingPosebottomBumpToAlliance = bottomBumpToAlliance.getStartingPose();
-        Rotation2d startAngle = new Rotation2d(Units.degreesToRadians(45.0));
-        startingPosebottomBumpToAlliance.rotateBy(startAngle);
-        return pathFindToPoseFlipped(startingPosebottomBumpToAlliance, 0.0).andThen(bottomBumpToAlliance);
     }
 
     // always pass blue coords
@@ -441,7 +406,8 @@ public class RobotContainer
         if (intake.isIntakeStalled())
         {
             codriverGamepad.setRumble(RumbleType.kBothRumble, 1);
-        };
+        }
+        ;
     }
 
     private void configureBindings(Hopper hopper)
@@ -458,24 +424,7 @@ public class RobotContainer
         }
 
         var startingPose = ((PathPlannerAuto) auto).getStartingPose();
-        return pathfindToPose(startingPose, 0.0).andThen(new ProxyCommand(auto));
-    }
-
-    public Command pathfindToPose(Pose2d point, Double endVelocity)
-    {
-        // Creates a command to pathfind to the given pose
-        // Create the constraints to use while pathfinding
-        PathConstraints constraints = new PathConstraints(
-            4, 3,
-            Units.degreesToRadians(540), Units.degreesToRadians(-180));
-        Command pathfindingCommand;
-
-        pathfindingCommand = AutoBuilder.pathfindToPose(
-            point,
-            constraints,
-            endVelocity // Goal end velocity in meters/sec
-        );
-        return pathfindingCommand;
+        return pathFindToPoseFlipped(startingPose, 0.0).andThen(new ProxyCommand(auto));
     }
 
     public void updateVisionEstimate()
@@ -518,42 +467,6 @@ public class RobotContainer
         }
 
         return group;
-    }
-
-    public Command autoCrossBumpCommandFix()
-    {
-        return Commands.defer(() ->
-        {
-            Pose2d currentPose = drivetrain.get().getPosition();
-            if (isBlueAlliance() == false)
-            {
-                currentPose = FlippingUtil.flipFieldPose(currentPose);
-            }
-
-            boolean onTopHalf = currentPose.getY() > 4.0;
-            boolean onAllianceSide = currentPose.getX() < 3.85;
-
-            if (onAllianceSide && onTopHalf)
-            {
-                return topBumpToNeutralZone();
-            }
-            if (onAllianceSide == true && onTopHalf == false)
-            {
-                return bottomBumpToNeutralZone();
-            }
-            if (onAllianceSide == false && onTopHalf)
-            {
-                return topBumpToAllianceZone();
-            }
-            if (onAllianceSide == false && onTopHalf == false)
-            {
-                return bottomBumpToAlliance();
-            }
-            return Commands.runOnce(() ->
-            {
-            });
-
-        }, drivetrain.map(dt -> Set.of((Subsystem) dt)).orElse(Set.of()));
     }
 
     public boolean isBlueAlliance()

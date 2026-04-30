@@ -93,8 +93,6 @@ public final class Constants
         public static final double INTAKE_STALL_DEBOUNCE_TIME_SECS = .3;
         public static final DebounceType INTAKE_STALL_DEBOUNCE_TYPE = DebounceType.kBoth;
 
-
-
         public static final double PIVOT_MAX_FWD_SPEED = .6;
         public static final double PIVOT_MAX_REV_SPEED = -1;
 
