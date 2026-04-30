@@ -403,16 +403,21 @@ public class RobotContainer
         codriverGamepad.back().onTrue(new StowIntake(intake));
         new Trigger(() -> codriverGamepad.getLeftX() < -0.8)
             .onTrue(Commands.sequence(intake.intakeCommand(), new MoveIntakePivotWithGamepad(intake, codriverGamepad)));
-        if (intake.isIntakeStalled())
-        {
-            codriverGamepad.setRumble(RumbleType.kBothRumble, 1);
-        }
-        ;
     }
 
     private void configureBindings(Hopper hopper)
     {
         // Empty for now unless we deem directly running the hopper necessary
+    }
+
+    public void checkForStalledIntake()
+    {
+
+        if (intake.isPresent() && intake.get().isIntakeStalled())
+        {
+            codriverGamepad.setRumble(RumbleType.kBothRumble, 1);
+        }
+        ;
     }
 
     public Command getAutonomousCommand()
