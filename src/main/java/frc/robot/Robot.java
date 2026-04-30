@@ -98,7 +98,13 @@ public class Robot extends TimedRobot
     @Override
     public void autonomousInit()
     {
-        m_robotContainer.resetPosition(new Pose2d(3.613, 5.568, Rotation2d.kZero));
+        //in front of hub
+        m_robotContainer.resetPosition(new Pose2d(3.591, 4.025, Rotation2d.kZero));
+        //in front of depot bump
+       // m_robotContainer.resetPosition(new Pose2d(3.613, 5.568, Rotation2d.kZero));
+        //in front of human player station bump
+        //m_robotContainer.resetPosition(new Pose2d(3.597, 2.583, Rotation2d.kZero));
+
 
         m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
