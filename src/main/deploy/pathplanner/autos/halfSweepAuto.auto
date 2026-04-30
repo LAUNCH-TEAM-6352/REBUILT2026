@@ -7,7 +7,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "testBumpTop"
+            "pathName": "testBumpBottomToNeutral"
           }
         },
         {
@@ -17,7 +17,7 @@
           }
         },
         {
-          "type": "parallel",
+          "type": "deadline",
           "data": {
             "commands": [
               {
@@ -29,7 +29,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "intakePath"
+                  "pathName": "halfSweepIntake"
                 }
               }
             ]
@@ -44,11 +44,11 @@
         {
           "type": "path",
           "data": {
-            "pathName": "goShoot2"
+            "pathName": "halfSweepToShoot"
           }
         },
         {
-          "type": "deadline",
+          "type": "parallel",
           "data": {
             "commands": [
               {
