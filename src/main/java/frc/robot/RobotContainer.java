@@ -294,7 +294,7 @@ public class RobotContainer
 
         // driverGamepad.y().whileTrue(this.autoCrossBumpCommandFix());
         // driverGamepad.rightTrigger().whileTrue(getLongPath());
-        //driverGamepad.leftTrigger().whileTrue((getNeutralShoot()));
+        // driverGamepad.leftTrigger().whileTrue((getNeutralShoot()));
 
         // driverGamepad.x().onTrue(getTestAutoShoot());
 
