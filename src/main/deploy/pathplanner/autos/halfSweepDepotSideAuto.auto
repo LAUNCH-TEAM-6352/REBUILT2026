@@ -7,7 +7,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "testBumpBottomToNeutral"
+            "pathName": "testBumpTop"
           }
         },
         {
@@ -29,7 +29,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "halfSweepIntake"
+                  "pathName": "halfSweepDepotSide"
                 }
               }
             ]
@@ -44,11 +44,11 @@
         {
           "type": "path",
           "data": {
-            "pathName": "halfSweepToShoot"
+            "pathName": "halfSweepToShootDepot"
           }
         },
         {
-          "type": "parallel",
+          "type": "deadline",
           "data": {
             "commands": [
               {
@@ -61,6 +61,25 @@
                 "type": "named",
                 "data": {
                   "name": "scoreFuelCancelable"
+                }
+              },
+              {
+                "type": "parallel",
+                "data": {
+                  "commands": [
+                    {
+                      "type": "wait",
+                      "data": {
+                        "waitTime": 3.0
+                      }
+                    },
+                    {
+                      "type": "path",
+                      "data": {
+                        "pathName": "depotBumpSideOscilator"
+                      }
+                    }
+                  ]
                 }
               }
             ]

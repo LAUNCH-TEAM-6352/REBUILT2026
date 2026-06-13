@@ -78,7 +78,7 @@ public final class Constants
         public static final double INTAKE_KI = 0.0; // no output for integrated error
         public static final double INTAKE_KD = 0.0; // no output for error derivative
 
-        public static final double PIVOT_KP = 40;
+        public static final double PIVOT_KP = 20;
         public static final double PIVOT_KI = 0.0;
         public static final double PIVOT_KD = 8;
         public static final double PIVOT_KS = 0.6;
@@ -90,11 +90,11 @@ public final class Constants
         public static final double PIVOT_STALL_DEBOUNCE_TIME_SECS = .25;
         public static final DebounceType PIVOT_STALL_DEBOUNCE_TYPE = DebounceType.kBoth;
 
-        public static final double INTAKE_STALL_DEBOUNCE_TIME_SECS = .3;
+        public static final double INTAKE_STALL_DEBOUNCE_TIME_SECS = 0.3;
         public static final DebounceType INTAKE_STALL_DEBOUNCE_TYPE = DebounceType.kBoth;
 
-        public static final double PIVOT_MAX_FWD_SPEED = .6;
-        public static final double PIVOT_MAX_REV_SPEED = -1;
+        public static final double PIVOT_MAX_FWD_SPEED = 0.1;
+        public static final double PIVOT_MAX_REV_SPEED = -0.2;
 
         public static final double PIVOT_MAX_MAN_SPEED = 0.25;
         public static final double PIVOT_MAX_MAN_VOLTS = 3.0;

@@ -236,8 +236,9 @@ public class Intake extends SubsystemBase
         }
 
         isIntakeStalled = intakeStallDebouncer
-            .calculate(pivotMotor.getSupplyCurrent().getValue().in(Amps) > intakeStallCurrent);
+            .calculate(pivotMotor.getSupplyCurrent().getValue().in(Amps) >= intakeStallCurrent * 0.95);
 
+        // System.out.println("INTAKE CURRENT " + pivotMotor.get().getValue().in(Amps) + " " + intakeStallCurrent);
         SmartDashboard.putNumber("Intake Pos",
             getPivotPosition().in(Degrees));
         SmartDashboard.putNumber("IntakeOut", intakeMotor.getDutyCycle().getValueAsDouble());
