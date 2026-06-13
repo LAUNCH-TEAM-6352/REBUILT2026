@@ -34,16 +34,9 @@ public class Hopper extends SubsystemBase
         conveyorMotor.set(speed);
     }
 
-    // Intended for use with a press-and-hold binding
-    public Command feedThenStopCommand()
-    {
-        return startEnd(this::feed, this::stop);
-    }
-
-    // Intended for use in auto (Only starts feeding, does not stop automatically)
     public Command feedCommand()
     {
-        return runOnce(this::feed);
+        return startEnd(this::feed, this::stop);
     }
 
     public Command stopCommand()
@@ -58,7 +51,7 @@ public class Hopper extends SubsystemBase
             SmartDashboard.getNumber(DashboardConstants.CONVEYOR_FEED_KEY, HopperConstants.FEED_SPEED));
     }
 
-    // Stop the indexer motor
+    // Stop the conveyor motor
     public void stop()
     {
         conveyorMotor.stopMotor();

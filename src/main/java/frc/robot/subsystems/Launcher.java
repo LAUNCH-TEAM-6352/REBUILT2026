@@ -27,7 +27,7 @@ public class Launcher extends SubsystemBase
     private final VelocityVoltage velocityVoltage = new VelocityVoltage(0).withSlot(0);
 
     private double shooterTargetVelocity = 0;
-    private boolean isShooterAtVelocity = false;
+    public boolean isShooterAtVelocity = false;
 
     private double indexerTargetVelocity = 0;
     private boolean isIndexerAtVelocity = false;
@@ -76,7 +76,7 @@ public class Launcher extends SubsystemBase
     // Intended for use in auto (Only starts the indexer, does not stop automatically)
     public Command feedCommand()
     {
-        return runOnce(this::feed);
+        return startEnd(this::feed, this::stopIndexer);
     }
 
     public void feed()
@@ -95,7 +95,8 @@ public class Launcher extends SubsystemBase
 
     public Command spinUpShootersCommand()
     {
-        return runOnce(this::spinUpShooters);
+        // return runOnce(this::spinUpShooters);
+        return startEnd(this::spinUpShooters, this::stopShooters);
     }
 
     public void spinUpShooters()

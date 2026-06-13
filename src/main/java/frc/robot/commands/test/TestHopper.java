@@ -20,6 +20,6 @@ public class TestHopper extends SequentialCommandGroup
         addRequirements(hopper);
         addCommands(
             new InstantCommand(() -> System.out.println("Testing Hopper: Feeding")),
-            hopper.feedThenStopCommand().withTimeout(TestConstants.INSTANT_BETWEEN_TIME_SECS));
+            hopper.feedCommand().withTimeout(TestConstants.INSTANT_BETWEEN_TIME_SECS));
     }
 }
