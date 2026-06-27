@@ -270,13 +270,13 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             });
         }
 
-        if (System.currentTimeMillis() - lastLog > 500)
-        {
-            var pose = this.getState().Pose;
-            System.out.println("Bx: " + pose.getX() + ", y: " + pose.getY() + "BX " + pose.getRotation());
+        // if (System.currentTimeMillis() - lastLog > 500)
+        // {
+        //     var pose = this.getState().Pose;
+        //     System.out.println("Bx: " + pose.getX() + ", y: " + pose.getY() + "BX " + pose.getRotation());
 
-            lastLog = System.currentTimeMillis();
-        }
+        //     lastLog = System.currentTimeMillis();
+        // }
 
     }
 
