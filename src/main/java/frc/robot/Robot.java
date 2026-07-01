@@ -6,6 +6,7 @@ package frc.robot;
 
 import com.ctre.phoenix6.HootAutoReplay;
 
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -65,6 +66,9 @@ public class Robot extends TimedRobot
     @Override
     public void robotInit()
     {
+        // Start the data log manager with the hope of getting power distribution data logged on the roboRIO
+        DataLogManager.start();
+
         // m_robotContainer.getStartPostion();
         m_robotContainer.limelightVision
             .setCamThrottle(SmartDashboard.getNumber(DashboardConstants.LIMELIGHT_THROTTLE_ENABLED_KEY,
