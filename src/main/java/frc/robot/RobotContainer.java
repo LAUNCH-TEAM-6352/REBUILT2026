@@ -86,6 +86,7 @@ public class RobotContainer
         .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
     private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
     private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
+    @SuppressWarnings("unused")
     private final SwerveRequest.SwerveDriveBrake m_brakeRequest = new SwerveRequest.SwerveDriveBrake();
     private final SwerveRequest.FieldCentricFacingAngle faceAngle = new SwerveRequest.FieldCentricFacingAngle();
 
@@ -333,6 +334,7 @@ public class RobotContainer
         return pathFindingCommandFlipped;
     }
 
+    @SuppressWarnings("unused")
     private Command getLongPath()
     {
         PathPlannerAuto longPath = new PathPlannerAuto("New Auto");
@@ -340,6 +342,7 @@ public class RobotContainer
         return this.pathFindToPoseFlipped(startingPoseLP, 0.0).andThen(longPath);
     }
 
+    @SuppressWarnings("unused")
     private Command getNeutralShoot()
     {
         PathPlannerAuto neutralShoot = new PathPlannerAuto("neutralShoot");
@@ -347,6 +350,7 @@ public class RobotContainer
         return this.pathFindToPoseFlipped(startingPoseNS, 0.0).andThen(neutralShoot);
     }
 
+    @SuppressWarnings("unused")
     private Command getTestAutoShoot()
     {
         PathPlannerAuto testAutoShoot = new PathPlannerAuto("testAutoShoot");

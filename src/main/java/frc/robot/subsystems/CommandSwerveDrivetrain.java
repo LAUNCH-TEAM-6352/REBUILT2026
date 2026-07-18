@@ -52,6 +52,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     private boolean m_hasAppliedOperatorPerspective = false;
 
     /* Swerve request used by PathPlanner for moving ROBOT RELATIVE: */
+    @SuppressWarnings("unused")
     private final SwerveRequest.RobotCentric m_pathPlannerRequest = new SwerveRequest.RobotCentric()
         .withDriveRequestType(DriveRequestType.Velocity);
 
