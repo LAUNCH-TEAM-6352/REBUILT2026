@@ -5,19 +5,7 @@
     "data": {
       "commands": [
         {
-          "type": "path",
-          "data": {
-            "pathName": "testBumpTop"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "runIntake"
-          }
-        },
-        {
-          "type": "parallel",
+          "type": "sequential",
           "data": {
             "commands": [
               {
@@ -29,10 +17,22 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "intakePath"
+                  "pathName": "testBumpTop"
                 }
               }
             ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "runIntake"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "intakePath"
           }
         },
         {
@@ -48,19 +48,45 @@
           }
         },
         {
-          "type": "deadline",
+          "type": "parallel",
           "data": {
             "commands": [
               {
-                "type": "wait",
+                "type": "deadline",
                 "data": {
-                  "waitTime": 8.0
+                  "commands": [
+                    {
+                      "type": "wait",
+                      "data": {
+                        "waitTime": 8.0
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "scoreFuelCancelable"
+                      }
+                    }
+                  ]
                 }
               },
               {
-                "type": "named",
+                "type": "sequential",
                 "data": {
-                  "name": "scoreFuelCancelable"
+                  "commands": [
+                    {
+                      "type": "wait",
+                      "data": {
+                        "waitTime": 2.0
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "partiallyDeployIntake"
+                      }
+                    }
+                  ]
                 }
               }
             ]

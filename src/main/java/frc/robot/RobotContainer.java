@@ -304,9 +304,9 @@ public class RobotContainer
     private void initializeStartPositionSendableChooser()
     {
         // TODO: assign actual values!!!!!!
-        startPositions.addOption("Depot Ramp", new Pose2d(3.613, 5.568, Rotation2d.kZero));
+        startPositions.addOption("Depot Ramp", new Pose2d(3.613, 5.568, Rotation2d.kCW_90deg));
         startPositions.addOption("Center Hub", new Pose2d(3.591, 4.025, Rotation2d.kZero));
-        startPositions.addOption("Human Player Ramp", new Pose2d(3.597, 2.583, Rotation2d.kZero));
+        startPositions.addOption("Human Player Ramp", new Pose2d(3.597, 2.583, Rotation2d.kCCW_90deg));
 
         SmartDashboard.putData("Start Position", startPositions);
     }
@@ -322,7 +322,7 @@ public class RobotContainer
 
     }
 
-    private Command pathFindToPoseFlipped(Pose2d point, double constraints)
+    public Command pathFindToPoseFlipped(Pose2d point, double constraints)
     {
         PathConstraints constraints2 = new PathConstraints(
             4, 3,

@@ -5,18 +5,6 @@
     "data": {
       "commands": [
         {
-          "type": "path",
-          "data": {
-            "pathName": "testBumpBottomToNeutral"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "runIntake"
-          }
-        },
-        {
           "type": "parallel",
           "data": {
             "commands": [
@@ -29,10 +17,22 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "halfSweepIntake"
+                  "pathName": "testBumpBottomToNeutral"
                 }
               }
             ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "runIntake"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "halfSweepIntake"
           }
         },
         {
@@ -52,15 +52,41 @@
           "data": {
             "commands": [
               {
-                "type": "wait",
+                "type": "deadline",
                 "data": {
-                  "waitTime": 8.0
+                  "commands": [
+                    {
+                      "type": "wait",
+                      "data": {
+                        "waitTime": 8.0
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "scoreFuelCancelable"
+                      }
+                    }
+                  ]
                 }
               },
               {
-                "type": "named",
+                "type": "sequential",
                 "data": {
-                  "name": "scoreFuelCancelable"
+                  "commands": [
+                    {
+                      "type": "wait",
+                      "data": {
+                        "waitTime": 3.0
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "partiallyDeployIntake"
+                      }
+                    }
+                  ]
                 }
               }
             ]
