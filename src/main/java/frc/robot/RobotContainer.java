@@ -86,6 +86,7 @@ public class RobotContainer
         .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
     private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
     private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
+    @SuppressWarnings("unused")
     private final SwerveRequest.SwerveDriveBrake m_brakeRequest = new SwerveRequest.SwerveDriveBrake();
     private final SwerveRequest.FieldCentricFacingAngle faceAngle = new SwerveRequest.FieldCentricFacingAngle();
 
@@ -303,9 +304,9 @@ public class RobotContainer
     private void initializeStartPositionSendableChooser()
     {
         // TODO: assign actual values!!!!!!
-        startPositions.addOption("Depot Ramp", new Pose2d(3.613, 5.568, Rotation2d.kZero));
+        startPositions.addOption("Depot Ramp", new Pose2d(3.613, 5.568, Rotation2d.kCW_90deg));
         startPositions.addOption("Center Hub", new Pose2d(3.591, 4.025, Rotation2d.kZero));
-        startPositions.addOption("Human Player Ramp", new Pose2d(3.597, 2.583, Rotation2d.kZero));
+        startPositions.addOption("Human Player Ramp", new Pose2d(3.597, 2.583, Rotation2d.kCCW_90deg));
 
         SmartDashboard.putData("Start Position", startPositions);
     }
@@ -321,7 +322,7 @@ public class RobotContainer
 
     }
 
-    private Command pathFindToPoseFlipped(Pose2d point, double constraints)
+    public Command pathFindToPoseFlipped(Pose2d point, double constraints)
     {
         PathConstraints constraints2 = new PathConstraints(
             4, 3,
@@ -333,6 +334,7 @@ public class RobotContainer
         return pathFindingCommandFlipped;
     }
 
+    @SuppressWarnings("unused")
     private Command getLongPath()
     {
         PathPlannerAuto longPath = new PathPlannerAuto("New Auto");
@@ -340,6 +342,7 @@ public class RobotContainer
         return this.pathFindToPoseFlipped(startingPoseLP, 0.0).andThen(longPath);
     }
 
+    @SuppressWarnings("unused")
     private Command getNeutralShoot()
     {
         PathPlannerAuto neutralShoot = new PathPlannerAuto("neutralShoot");
@@ -347,6 +350,7 @@ public class RobotContainer
         return this.pathFindToPoseFlipped(startingPoseNS, 0.0).andThen(neutralShoot);
     }
 
+    @SuppressWarnings("unused")
     private Command getTestAutoShoot()
     {
         PathPlannerAuto testAutoShoot = new PathPlannerAuto("testAutoShoot");
